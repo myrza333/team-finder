@@ -17,10 +17,13 @@ export class GoogleService {
 
   constructor(config: ConfigService) {
     this.clientId = config.get<string>('GOOGLE_CLIENT_ID') ?? '';
+    // Google возвращает человека на сайт (/api фронтенда проксируется сюда). Если адрес не задан явно —
+    // берём его из FRONTEND_URL, чтобы забытая переменная не ломала вход ("Missing redirect_uri")
+    const frontendUrl = config.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
     this.client = new OAuth2Client({
       clientId: this.clientId,
       clientSecret: config.get<string>('GOOGLE_CLIENT_SECRET'),
-      redirectUri: config.get<string>('GOOGLE_REDIRECT_URI'),
+      redirectUri: config.get<string>('GOOGLE_REDIRECT_URI') || `${frontendUrl}/api/auth/google/callback`,
     });
   }
 
