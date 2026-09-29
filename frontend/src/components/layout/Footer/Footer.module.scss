@@ -1,0 +1,95 @@
+.footer {
+  margin-top: 48px;
+  background: var(--surface);
+  border-top: 1px solid var(--gray-100);
+  @include md { margin-top: 80px; }
+}
+
+.inner {
+  @include container;
+  padding-block: 24px 20px;
+  @include md { padding-block: 48px; }
+}
+
+.top {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  @include md {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 32px;
+  }
+}
+
+// На телефоне логотип и подпись в одну строку
+.brand {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  @include md {
+    display: block;
+    max-width: 320px;
+  }
+}
+
+.tagline {
+  @include text-sm;
+  color: var(--gray-500);
+  @include md { margin-top: 12px; }
+}
+
+.columns {
+  @include text-sm;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  @include sm { gap: 32px; }
+}
+
+.colTitle {
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+  @include md { margin-bottom: 12px; }
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  @include md { gap: 8px; }
+}
+
+.link {
+  color: var(--gray-500);
+  transition: color 0.15s;
+  &:hover { color: var(--primary-600); }
+}
+
+.bottom {
+  @include text-xs;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gray-100);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  color: var(--gray-400);
+  @include md {
+    margin-top: 40px;
+    padding-top: 24px;
+  }
+}
+
+.legal {
+  display: flex;
+  gap: 16px;
+  a {
+    transition: color 0.15s;
+    &:hover { color: var(--gray-600); }
+  }
+}

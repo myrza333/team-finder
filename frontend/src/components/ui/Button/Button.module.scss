@@ -1,0 +1,62 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+// ===== Варианты =====
+.primary {
+  background: var(--primary-600);
+  color: var(--on-primary);
+  font-weight: 600;
+  border-radius: var(--radius-xl);
+  &:hover { background: var(--primary-700); }
+}
+
+.outline {
+  background: var(--surface);
+  color: var(--gray-700);
+  font-weight: 500;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  &:hover {
+    border-color: var(--primary-300);
+    color: var(--primary-600);
+  }
+}
+
+// ===== Размеры =====
+.sm {
+  @include text-xs;
+  padding: 6px 12px;
+}
+
+.md {
+  @include text-sm;
+  padding: 8px 16px;
+}
+
+.lg {
+  @include text-sm;
+  padding: 10px 20px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.danger {
+  background: var(--danger-600);
+  color: var(--on-primary);
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  &:hover { background: #b91c1c; }
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

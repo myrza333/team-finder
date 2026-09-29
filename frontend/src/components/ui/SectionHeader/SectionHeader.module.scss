@@ -1,0 +1,29 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.title {
+  @include display;
+  @include text-xl;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.subtitle {
+  @include text-sm;
+  margin-top: 4px;
+  color: var(--gray-500);
+}
+
+.link {
+  @include text-sm;
+  flex-shrink: 0;
+  font-weight: 500;
+  color: var(--primary-600);
+  transition: color 0.15s;
+  &:hover { color: var(--primary-700); }
+}

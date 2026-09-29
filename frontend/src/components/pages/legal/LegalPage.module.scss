@@ -1,0 +1,177 @@
+.page {
+  @include container(1024px);
+  padding-block: 48px;
+}
+
+// ===== Шапка =====
+.hero {
+  max-width: 672px;
+  margin-bottom: 40px;
+}
+
+.badge {
+  @include text-xs;
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50);
+  color: var(--primary-600);
+  font-weight: 500;
+}
+
+.title {
+  @include display;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  @include sm {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+}
+
+.updated {
+  @include text-sm;
+  margin-top: 8px;
+  color: var(--gray-400);
+}
+
+.intro {
+  @include text-base;
+  margin-top: 16px;
+  color: var(--gray-600);
+}
+
+// ===== Оглавление + текст =====
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  @include lg {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 32px;
+  }
+}
+
+// На десктопе оглавление "прилипает" при прокрутке (64px — высота хедера)
+.toc {
+  @include card;
+  padding: 16px;
+  @include lg {
+    position: sticky;
+    top: 88px;
+    width: 240px;
+    flex-shrink: 0;
+  }
+}
+
+.tocTitle {
+  @include text-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+}
+
+.tocList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tocLink {
+  @include text-sm;
+  display: block;
+  padding: 6px 12px;
+  border-radius: var(--radius-lg);
+  color: var(--gray-600);
+  transition: background-color 0.15s, color 0.15s;
+  &:hover {
+    background: var(--primary-50);
+    color: var(--primary-700);
+  }
+}
+
+.content {
+  @include card;
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+  @include sm { padding: 32px; }
+}
+
+.section {
+  // при переходе по якорю заголовок не прячется под sticky-хедером
+  scroll-margin-top: 88px;
+  & + & {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--gray-100);
+  }
+}
+
+.sectionTitle {
+  @include display;
+  @include text-lg;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+}
+
+.number {
+  color: var(--primary-600);
+}
+
+.paragraph {
+  @include text-sm;
+  line-height: 1.625;
+  color: var(--gray-600);
+  & + & { margin-top: 12px; }
+  a {
+    font-weight: 500;
+    color: var(--primary-600);
+    &:hover { color: var(--primary-700); }
+  }
+}
+
+.list {
+  @include text-sm;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--gray-600);
+  li {
+    position: relative;
+    padding-left: 20px;
+    line-height: 1.625;
+    &::before {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 9px;
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background: var(--primary-400);
+    }
+  }
+}
+
+.contact {
+  margin-top: 32px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
+}
+
+.contactTitle {
+  @include text-sm;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}

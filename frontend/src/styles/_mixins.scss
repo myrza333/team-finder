@@ -1,0 +1,87 @@
+// Брейкпоинты (mobile-first): стили внутри применяются от указанной ширины и выше
+@mixin sm { @media (min-width: 640px) { @content; } }
+@mixin md { @media (min-width: 768px) { @content; } }
+@mixin lg { @media (min-width: 1024px) { @content; } }
+@mixin xl { @media (min-width: 1280px) { @content; } }
+
+// Центрированный контейнер страницы
+@mixin container($max: 1280px) {
+  width: 100%;
+  max-width: $max;
+  margin-inline: auto;
+  padding-inline: 16px;
+  @include sm { padding-inline: 24px; }
+}
+
+// Шрифт заголовков
+@mixin display {
+  font-family: var(--font-display);
+}
+
+// Размеры текста (размер + межстрочный интервал)
+@mixin text-xs   { font-size: 0.75rem;  line-height: 1rem; }
+@mixin text-sm   { font-size: 0.875rem; line-height: 1.25rem; }
+@mixin text-base { font-size: 1rem;     line-height: 1.5rem; }
+@mixin text-lg   { font-size: 1.125rem; line-height: 1.75rem; }
+@mixin text-xl   { font-size: 1.25rem;  line-height: 1.75rem; }
+@mixin text-2xl  { font-size: 1.5rem;   line-height: 2rem; }
+
+// Белая карточка с рамкой — базовый блок почти всех страниц
+@mixin card {
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+}
+
+// Карточка, которая приподнимается при наведении (проекты, люди)
+@mixin card-hover {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  &:hover {
+    border-color: var(--primary-300);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+}
+
+// Поле ввода
+@mixin input {
+  width: 100%;
+  border: 1px solid var(--gray-200);
+  background: var(--surface);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  &::placeholder { color: var(--gray-400); }
+  &:focus {
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 2px var(--primary-300);
+  }
+}
+
+// Обрезка текста до N строк с многоточием
+@mixin line-clamp($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Невидимый слой ссылки на всю карточку: кликается вся карточка, а ссылка в HTML одна.
+// Карточке нужен position: relative; кнопкам внутри — position: relative + z-index: 1.
+@mixin stretched-link {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-xl);
+  }
+  &:focus-visible {
+    outline: none;
+    &::after { box-shadow: 0 0 0 2px var(--primary-400); }
+  }
+}

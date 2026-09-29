@@ -1,0 +1,17 @@
+.avatar {
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--primary-100);
+  object-fit: cover;
+}
+
+.bordered {
+  border: 2px solid var(--surface);
+}
+
+.stack {
+  display: flex;
+  & > * + * {
+    margin-left: -6px;
+  }
+}

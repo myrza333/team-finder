@@ -1,0 +1,19 @@
+.panel {
+  @include card;
+}
+
+.title {
+  @include display;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 16px;
+}
+
+.md {
+  padding: 24px;
+}
+
+.sm {
+  padding: 20px;
+  .title { @include text-sm; }
+}

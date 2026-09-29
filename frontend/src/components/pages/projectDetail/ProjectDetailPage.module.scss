@@ -1,0 +1,178 @@
+.page {
+  @include container(1152px);
+  padding-block: 40px;
+}
+
+// ===== Хлебные крошки =====
+.breadcrumbs {
+  @include text-sm;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  color: var(--gray-400);
+  a {
+    transition: color 0.15s;
+    &:hover { color: var(--primary-600); }
+  }
+}
+
+.current {
+  @include truncate;
+  color: var(--gray-700);
+}
+
+// ===== Шапка проекта =====
+.hero {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 28px;
+  @include sm {
+    flex-direction: row;
+    padding: 28px;
+  }
+}
+
+.heroIcon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  background: var(--primary-50);
+  font-size: 1.5rem;
+}
+
+.heroInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.heroTitle {
+  @include display;
+  @include text-2xl;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+
+.heroDescription {
+  @include text-sm;
+  color: var(--gray-500);
+  margin-bottom: 12px;
+}
+
+.createdBy {
+  @include text-xs;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray-400);
+  a {
+    font-weight: 500;
+    color: var(--gray-700);
+    &:hover { color: var(--primary-600); }
+  }
+}
+
+// ===== Сетка: основная колонка + боковая =====
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  @include lg { grid-template-columns: 2fr 1fr; }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.text {
+  @include text-sm;
+  line-height: 1.625;
+  color: var(--gray-600);
+}
+
+// ===== Вакансии =====
+.vacancies {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vacancy {
+  padding: 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+}
+
+.vacancyHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.vacancyTitle {
+  @include text-sm;
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+.positions {
+  @include text-xs;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--gray-100);
+  color: var(--gray-400);
+}
+
+// ===== Люди (владелец, команда) =====
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+a.person:hover .personName {
+  color: var(--primary-600);
+}
+
+.personName {
+  @include text-sm;
+  font-weight: 500;
+  color: var(--gray-800);
+  transition: color 0.15s;
+}
+
+.personTitle {
+  @include text-xs;
+  color: var(--gray-400);
+}
+
+.ownerButton {
+  margin-top: 16px;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

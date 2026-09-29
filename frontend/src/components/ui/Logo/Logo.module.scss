@@ -1,0 +1,35 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-600);
+  border-radius: var(--radius-lg);
+}
+
+.text {
+  @include display;
+  color: var(--gray-900);
+  line-height: 1;
+}
+
+.md {
+  .mark { width: 32px; height: 32px; }
+  .text { @include text-lg; line-height: 1; font-weight: 800; }
+}
+
+.sm {
+  .mark { width: 28px; height: 28px; }
+  .text { font-size: 1rem; font-weight: 700; }
+}
+
+.lg {
+  .mark { width: 36px; height: 36px; border-radius: var(--radius-xl); }
+  .text { @include text-xl; line-height: 1; font-weight: 800; }
+}

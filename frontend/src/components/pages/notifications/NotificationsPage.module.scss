@@ -1,0 +1,67 @@
+.page {
+  @include container(672px);
+  padding-block: 40px;
+}
+
+.markAll {
+  @include text-sm;
+  font-weight: 500;
+  color: var(--primary-600);
+  transition: color 0.15s;
+  &:hover { color: var(--primary-700); }
+  &:disabled {
+    color: var(--gray-400);
+    cursor: default;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  transition: border-color 0.15s, background-color 0.15s;
+  &:hover { border-color: var(--primary-300); }
+}
+
+.unread {
+  background: var(--primary-50);
+  border-color: var(--primary-100);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.text {
+  @include text-sm;
+  color: var(--gray-800);
+}
+
+.actor {
+  font-weight: 600;
+}
+
+.time {
+  @include text-xs;
+  margin-top: 2px;
+  color: var(--gray-400);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: var(--primary-500);
+}

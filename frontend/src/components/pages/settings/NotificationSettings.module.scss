@@ -1,0 +1,59 @@
+// Сетка: описание | On site | Email
+$columns: 1fr 64px 64px;
+
+.head,
+.row {
+  display: grid;
+  grid-template-columns: $columns;
+  align-items: center;
+  gap: 12px;
+  @include sm { grid-template-columns: 1fr 80px 80px; }
+}
+
+.head {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.channel {
+  @include text-xs;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-500);
+}
+
+.group {
+  padding-top: 20px;
+}
+
+.groupTitle {
+  @include text-xs;
+  font-weight: 600;
+  color: var(--primary-600);
+  margin-bottom: 4px;
+}
+
+.row {
+  padding-block: 12px;
+  & + & { border-top: 1px solid var(--gray-100); }
+}
+
+.cell {
+  display: flex;
+  justify-content: center;
+}
+
+.na {
+  color: var(--gray-300);
+}
+
+.bulk {
+  @include text-sm;
+  margin-top: 20px;
+  font-weight: 500;
+  color: var(--primary-600);
+  transition: color 0.15s;
+  &:hover { color: var(--primary-700); }
+}

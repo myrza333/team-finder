@@ -1,0 +1,120 @@
+.page {
+  @include container(1024px);
+  padding-block: 40px;
+}
+
+.section {
+  margin-top: 16px;
+  & + & { margin-top: 40px; }
+  // в этой странице заголовки секций ближе к спискам
+  > div:first-child { margin-bottom: 16px; }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// ===== Строка проекта =====
+.row {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  @include sm {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  background: var(--primary-50);
+  font-size: 1.25rem;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.title {
+  @include display;
+  @include text-sm;
+  font-weight: 600;
+  color: var(--gray-900);
+  transition: color 0.15s;
+  &:hover { color: var(--primary-600); }
+}
+
+.description {
+  @include text-xs;
+  @include line-clamp(2);
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.meta {
+  @include text-xs;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  color: var(--gray-400);
+}
+
+.members {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.newApps {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50);
+  color: var(--primary-600);
+  font-weight: 600;
+  transition: background-color 0.15s;
+  &:hover { background: var(--primary-100); }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+// ===== Пусто =====
+.empty {
+  @include card;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 2.25rem;
+  margin-bottom: 12px;
+}
+
+.emptyText {
+  @include text-sm;
+  color: var(--gray-400);
+  margin-bottom: 16px;
+}

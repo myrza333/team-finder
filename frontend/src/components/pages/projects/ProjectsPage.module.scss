@@ -1,0 +1,105 @@
+.page {
+  @include container;
+  padding-block: 40px;
+}
+
+.search {
+  margin-bottom: 24px;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  @include lg {
+    flex-direction: row;
+    gap: 32px;
+  }
+}
+
+// ===== Категории =====
+.sidebar {
+  @include card;
+  padding: 16px;
+  @include lg {
+    width: 208px;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+}
+
+.sidebarTitle {
+  @include text-xs;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+}
+
+// На мобилке категории — горизонтальная прокручиваемая строка, на десктопе — столбик
+.categories {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  @include lg {
+    flex-direction: column;
+    overflow: visible;
+  }
+}
+
+.category {
+  @include text-sm;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-lg);
+  text-align: left;
+  color: var(--gray-600);
+  transition: background-color 0.15s, color 0.15s;
+  &:hover { background: var(--gray-50); }
+  &.active {
+    background: var(--primary-50);
+    color: var(--primary-700);
+    font-weight: 500;
+  }
+}
+
+// ===== Список =====
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.count {
+  @include text-sm;
+  color: var(--gray-500);
+}
+
+.sort {
+  @include text-sm;
+  padding: 6px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--gray-600);
+  outline: none;
+  cursor: pointer;
+  &:focus { box-shadow: 0 0 0 2px var(--primary-200); }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  @include sm { grid-template-columns: repeat(2, 1fr); }
+  @include xl { grid-template-columns: repeat(3, 1fr); }
+}

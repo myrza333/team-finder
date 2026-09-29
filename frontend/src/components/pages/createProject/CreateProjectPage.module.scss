@@ -1,0 +1,98 @@
+.page {
+  @include container(672px);
+  padding-block: 48px;
+}
+
+.card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  @include sm { padding: 28px; }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+// В макете у Cancel скругление как у основной кнопки
+.cancel {
+  border-radius: var(--radius-xl);
+  &:hover {
+    border-color: var(--gray-200);
+    color: var(--gray-700);
+    background: var(--gray-50);
+  }
+}
+
+.icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  font-size: 1.25rem;
+  transition: border-color 0.15s, background-color 0.15s;
+  &:hover { border-color: var(--primary-300); }
+}
+
+.iconActive {
+  border-color: var(--primary-600);
+  background: var(--primary-50);
+  box-shadow: 0 0 0 1px var(--primary-600);
+}
+
+.error {
+  margin-top: 16px;
+}
+
+.danger {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 40px;
+  padding: 20px;
+  border-color: var(--danger-200);
+  @include sm {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.dangerTitle {
+  @include display;
+  font-weight: 600;
+  color: var(--danger-600);
+}
+
+.dangerText {
+  @include text-sm;
+  margin: 4px 0;
+  color: var(--gray-500);
+}
+
+.dangerActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.popularLabel {
+  @include text-xs;
+  margin-top: 6px;
+  color: var(--gray-400);
+}

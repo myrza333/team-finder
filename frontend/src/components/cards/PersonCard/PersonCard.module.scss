@@ -1,0 +1,46 @@
+.card {
+  @include card;
+  @include card-hover;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.avatar {
+  margin-bottom: 12px;
+}
+
+.name {
+  @include display;
+  @include text-sm;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 2px;
+}
+
+.title {
+  @include text-xs;
+  color: var(--gray-500);
+  margin-bottom: 12px;
+}
+
+.skills {
+  margin-bottom: 16px;
+}
+
+.projects {
+  @include text-xs;
+  color: var(--gray-400);
+  margin-bottom: 12px;
+}
+
+.button {
+  margin-top: auto;
+  // На устройствах с мышью кликается вся карточка, на телефоне — только кнопка
+  @media (hover: hover) and (pointer: fine) {
+    @include stretched-link;
+  }
+}

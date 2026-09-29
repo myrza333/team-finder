@@ -1,0 +1,85 @@
+"use client";
+import { useEffect } from "react";
+import Link from "next/link";
+import Avatar from "@/components/ui/Avatar/Avatar";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import { CloseIcon } from "@/components/ui/Icons";
+import { onlineUserIds } from "@/data/chat";
+import { currentUser } from "@/data/mock";
+import type { Project } from "@/types";
+import scss from "./Chat.module.scss";
+
+type MembersPanelProps = {
+  project: Project;
+  open: boolean; // для шторки на узких экранах; на широких панель видна всегда
+  onClose: () => void;
+};
+
+// Правая колонка: участники команды, владелец первым, онлайн — выше офлайн
+const MembersPanel = ({ project, open, onClose }: MembersPanelProps) => {
+  const isOwner = project.owner.id === currentUser.id;
+  const members = [...project.members].sort((a, b) => {
+    if (a.id === project.owner.id) return -1;
+    if (b.id === project.owner.id) return 1;
+    return Number(onlineUserIds.has(b.id)) - Number(onlineUserIds.has(a.id));
+  });
+
+  // Шторка закрывается по Escape
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  return (
+    <>
+      {open && <div className={scss.overlay} onClick={onClose} aria-hidden />}
+      <aside className={`${scss.members} ${open ? scss.membersOpen : ""}`} aria-label="Team members">
+        <div className={scss.membersHead}>
+          <h2 className={scss.membersTitle}>Members · {project.members.length}</h2>
+          <button className={scss.closeMembers} onClick={onClose} aria-label="Close members">
+            <CloseIcon />
+          </button>
+        </div>
+
+        <ul className={scss.memberList}>
+          {members.map((m) => {
+            const online = onlineUserIds.has(m.id);
+            return (
+              <li key={m.id}>
+                <Link href={`/profile/${m.id}`} className={scss.member}>
+                  <span className={scss.memberAvatar}>
+                    <Avatar src={m.avatarUrl} alt={m.name} size={36} />
+                    <span className={`${scss.presence} ${online ? scss.presenceOnline : ""}`} />
+                  </span>
+                  <div className={scss.memberText}>
+                    <p className={scss.memberName}>{m.name}</p>
+                    <p className={scss.memberTitle}>
+                      {[m.id === currentUser.id && "You", online ? "Online" : m.title].filter(Boolean).join(" · ")}
+                    </p>
+                  </div>
+                  {m.id === project.owner.id && <StatusBadge status="owner" />}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className={scss.membersFooter}>
+          {isOwner ? (
+            <Link href={`/my-projects/${project.id}`} className={scss.membersLink}>
+              Manage team →
+            </Link>
+          ) : (
+            <Link href={`/projects/${project.id}`} className={scss.membersLink}>
+              View project →
+            </Link>
+          )}
+        </div>
+      </aside>
+    </>
+  );
+};
+
+export default MembersPanel;

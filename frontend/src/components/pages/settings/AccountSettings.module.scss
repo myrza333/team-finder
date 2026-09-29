@@ -1,0 +1,53 @@
+.note {
+  @include text-xs;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
+  color: var(--gray-500);
+}
+
+.formFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.success {
+  @include text-sm;
+  color: var(--success-600);
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 384px;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 12px;
+}
+
+.error {
+  @include text-sm;
+  color: var(--danger-600);
+}
+
+.state {
+  @include text-sm;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--gray-400);
+}
+
+.errorBanner {
+  @include text-sm;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  background: var(--danger-50);
+  border: 1px solid var(--danger-200);
+  color: var(--danger-600);
+}

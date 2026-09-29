@@ -1,0 +1,40 @@
+.tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--gray-200);
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.tab {
+  @include text-sm;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 2px;
+  margin-bottom: -1px; // подчёркивание ложится на общую линию
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  color: var(--gray-500);
+  transition: color 0.15s, border-color 0.15s;
+  &:hover { color: var(--gray-800); }
+}
+
+.active {
+  color: var(--primary-600);
+  border-bottom-color: var(--primary-600);
+  &:hover { color: var(--primary-600); }
+}
+
+.count {
+  @include text-xs;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--primary-600);
+  color: var(--on-primary);
+  font-weight: 600;
+  text-align: center;
+}

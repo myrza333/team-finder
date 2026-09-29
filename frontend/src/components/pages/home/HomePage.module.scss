@@ -1,0 +1,124 @@
+// ===== Hero =====
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: 80px;
+  background: var(--bg);
+  @include sm { padding-block: 112px; }
+
+  // мягкое фиолетовое свечение сверху
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgb(99 102 241 / 0.12) 0%, transparent 70%);
+  }
+}
+
+.heroInner {
+  @include container(768px);
+  position: relative;
+  text-align: center;
+}
+
+.badge {
+  @include text-xs;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  margin-bottom: 24px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50);
+  color: var(--primary-600);
+  font-weight: 500;
+}
+
+.heroTitle {
+  @include display;
+  margin-bottom: 20px;
+  font-size: 2.25rem;
+  line-height: 1.25;
+  font-weight: 800;
+  color: var(--gray-900);
+  @include sm { font-size: 3rem; }
+  @include lg { font-size: 3.75rem; }
+}
+
+.heroText {
+  @include text-lg;
+  max-width: 576px;
+  margin: 0 auto 40px;
+  color: var(--gray-500);
+}
+
+.heroActions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  @include sm { flex-direction: row; }
+}
+
+.heroActions .heroButton {
+  padding: 14px 24px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+// ===== Секции с карточками =====
+.section {
+  @include container;
+  padding-block: 48px;
+}
+
+.projectsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  @include sm { grid-template-columns: repeat(2, 1fr); }
+  @include lg { grid-template-columns: repeat(3, 1fr); }
+}
+
+.peopleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  @include sm { grid-template-columns: repeat(3, 1fr); }
+  @include lg { grid-template-columns: repeat(4, 1fr); }
+}
+
+// ===== Призыв к действию =====
+.ctaSection {
+  @include container;
+  padding-block: 64px;
+}
+
+.cta {
+  padding: 40px 24px;
+  border-radius: 16px;
+  background: var(--primary-50);
+  text-align: center;
+  @include sm { padding: 40px; }
+}
+
+.ctaTitle {
+  @include display;
+  @include text-2xl;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.ctaText {
+  @include text-sm;
+  max-width: 448px;
+  margin: 0 auto 28px;
+  color: var(--gray-500);
+}
+
+.cta .ctaButton {
+  padding: 12px 24px;
+  box-shadow: var(--shadow-sm);
+}

@@ -1,0 +1,34 @@
+.page {
+  @include container(672px);
+  padding-block: 96px;
+  text-align: center;
+}
+
+.code {
+  @include display;
+  font-size: 3.75rem;
+  line-height: 1;
+  font-weight: 800;
+  color: var(--primary-600);
+}
+
+.title {
+  @include display;
+  @include text-2xl;
+  margin-top: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.text {
+  @include text-sm;
+  margin-top: 8px;
+  color: var(--gray-500);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}

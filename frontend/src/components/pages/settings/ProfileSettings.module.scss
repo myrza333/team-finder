@@ -1,0 +1,28 @@
+.avatarRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatarButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.counter {
+  @include text-xs;
+  color: var(--gray-400);
+}
+
+.counterOver {
+  color: var(--danger-600);
+}
+
+.state {
+  @include text-sm;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--gray-400);
+}

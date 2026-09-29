@@ -1,0 +1,20 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.title {
+  @include display;
+  @include text-2xl;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.subtitle {
+  @include text-sm;
+  margin-top: 4px;
+  color: var(--gray-500);
+}

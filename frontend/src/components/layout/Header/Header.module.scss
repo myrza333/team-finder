@@ -1,0 +1,219 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--gray-100);
+  box-shadow: var(--shadow-sm);
+}
+
+.inner {
+  @include container;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+// ===== Навигация =====
+.nav {
+  display: none;
+  align-items: center;
+  gap: 20px;
+  @include md { display: flex; }
+}
+
+.navLink {
+  @include text-sm;
+  font-weight: 500;
+  color: var(--gray-600);
+  transition: color 0.15s;
+  &:hover { color: var(--gray-900); }
+  &.active { color: var(--primary-600); }
+}
+
+// ===== Поиск =====
+.search {
+  display: none;
+  flex: 1;
+  max-width: 384px;
+  margin-inline: auto;
+  @include sm { display: flex; }
+}
+
+// ===== Правая часть =====
+.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  @include sm { gap: 8px; }
+}
+
+.bell {
+  position: relative;
+  padding: 8px;
+  color: var(--gray-500);
+  transition: color 0.15s;
+  &:hover { color: var(--gray-800); }
+}
+
+.dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--primary-500);
+}
+
+// ===== Гость: Log in / Sign up =====
+.placeholder {
+  width: 32px;
+  height: 32px;
+}
+
+.guest {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// На телефоне "Log in" прячется в бургер-меню, остаётся только "Sign up"
+.loginButton {
+  display: none;
+  @include sm { display: inline-flex; }
+}
+
+// ===== Меню пользователя =====
+.userMenu {
+  position: relative;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.8; }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 224px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.dropdownHead {
+  padding: 8px 10px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.dropdownName {
+  @include text-sm;
+  @include truncate;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.dropdownTitle {
+  @include text-xs;
+  @include truncate;
+  color: var(--gray-400);
+}
+
+.dropdownItem {
+  @include text-sm;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-lg);
+  color: var(--gray-700);
+  text-align: left;
+  transition: background-color 0.15s, color 0.15s;
+  svg { color: var(--gray-400); }
+  &:hover {
+    background: var(--gray-50);
+    color: var(--gray-900);
+  }
+}
+
+.danger:hover {
+  background: var(--danger-50);
+  color: var(--danger-600);
+  svg { color: var(--danger-600); }
+}
+
+.dropdownDivider {
+  height: 1px;
+  margin-block: 4px;
+  background: var(--gray-100);
+}
+
+.userName,
+.chevron {
+  display: none;
+  @include sm { display: block; }
+}
+
+.userName {
+  @include text-sm;
+  font-weight: 500;
+  color: var(--gray-800);
+}
+
+.chevron {
+  color: var(--gray-400);
+}
+
+.burger {
+  padding: 8px;
+  color: var(--gray-500);
+  @include md { display: none; }
+}
+
+// ===== Мобильное меню =====
+.mobileMenu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--gray-100);
+  background: var(--surface);
+  @include md { display: none; }
+}
+
+.dropdownCount {
+  @include text-xs;
+  margin-left: auto;
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background: var(--primary-600);
+  color: var(--on-primary);
+  font-weight: 600;
+  text-align: center;
+}
+
+// Затемнение под мобильным меню: тап по нему закрывает меню
+.backdrop {
+  position: fixed;
+  inset: 65px 0 0;
+  background: rgb(17 24 39 / 0.35);
+  @include md { display: none; }
+}

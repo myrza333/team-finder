@@ -1,0 +1,98 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.label {
+  @include text-sm;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.control {
+  @include input;
+  @include text-sm;
+  padding: 10px 16px;
+  border-radius: var(--radius-lg);
+}
+
+.textarea {
+  resize: none;
+}
+
+.select {
+  color: var(--gray-700);
+  cursor: pointer;
+}
+
+// ===== Пароль =====
+.passwordWrapper {
+  position: relative;
+}
+
+.passwordInput {
+  padding-right: 44px;
+}
+
+.eye {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  padding: 6px;
+  color: var(--gray-400);
+  transition: color 0.15s;
+  &:hover { color: var(--gray-600); }
+}
+
+
+// ===== Поле с приставкой =====
+.prefixGroup {
+  display: flex;
+  border-radius: var(--radius-lg);
+  &:focus-within .prefix {
+    border-color: var(--primary-400);
+  }
+}
+
+.prefix {
+  @include text-sm;
+  display: flex;
+  align-items: center;
+  padding-inline: 12px;
+  border: 1px solid var(--gray-200);
+  border-right: none;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  background: var(--gray-50);
+  color: var(--gray-500);
+  white-space: nowrap;
+  transition: border-color 0.15s;
+}
+
+.prefixControl {
+  min-width: 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+}
+
+// ===== Подсказки =====
+.hint {
+  @include text-xs;
+  color: var(--gray-400);
+}
+
+.error {
+  color: var(--danger-600);
+}
+
+.control:read-only {
+  background: var(--gray-50);
+  color: var(--gray-500);
+}
