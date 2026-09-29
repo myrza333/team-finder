@@ -4,6 +4,8 @@ services:
     name: teamfinder-api
     runtime: node
     plan: free
+    # Рядом с базой Supabase (eu-central-1): каждый запрос к базе — миллисекунды, а не пол-океана
+    region: frankfurt
     rootDir: backend
     # --include=dev: nest CLI и TypeScript лежат в devDependencies, а при NODE_ENV=production npm их пропускает
     buildCommand: npm ci --include=dev && npm run build
