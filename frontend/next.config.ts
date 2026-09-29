@@ -1,11 +1,7 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 
-if (process.env.VERCEL && !process.env.BACKEND_URL) {
-  throw new Error("BACKEND_URL is not set. Add it in Vercel → Settings → Environment Variables and redeploy.");
-}
-
-const BACKEND_URL = (process.env.BACKEND_URL ?? "http://localhost:5000").replace(/\/+$/, "");
+import { BACKEND_URL } from "./src/lib/backendUrl";
 
 const nextConfig: NextConfig = {
   sassOptions: {

@@ -1,8 +1,9 @@
 import type { Project, ProjectCategory, User } from "@/types";
+import { BACKEND_URL } from "./backendUrl";
 
 // В браузере — /api этого же сайта (next.config.ts пересылает на бэкенд), на сервере Next — напрямую на бэкенд
 const isServer = typeof window === "undefined";
-const API_URL = isServer ? `${process.env.BACKEND_URL ?? "http://localhost:5000"}/api` : "/api";
+const API_URL = isServer ? `${BACKEND_URL}/api` : "/api";
 
 export class ApiError extends Error {
   constructor(
