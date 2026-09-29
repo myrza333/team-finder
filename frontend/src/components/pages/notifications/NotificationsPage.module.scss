@@ -65,3 +65,10 @@
   border-radius: var(--radius-full);
   background: var(--primary-500);
 }
+
+.state {
+  @include text-sm;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--gray-400);
+}

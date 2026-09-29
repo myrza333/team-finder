@@ -34,7 +34,7 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
         <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search people by name or skill..."
+          placeholder="Search people..."
           aria-label="Search people"
         />
       </div>

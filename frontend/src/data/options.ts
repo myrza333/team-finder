@@ -1,3 +1,16 @@
+import type { ProjectCategory } from "@/types";
+
+// Категории проектов — те же, что разрешает бэкенд (CATEGORIES в project.dto.ts)
+export const projectCategories: ProjectCategory[] = [
+  "Development",
+  "Design",
+  "AI",
+  "Startup",
+  "Education",
+  "Games",
+  "Mobile",
+];
+
 // Быстрые варианты в форме проекта. Остальные технологии — поиском по GET /api/skills
 export const popularTech = [
   "JavaScript", "TypeScript", "React", "Next.js", "Vue.js", "Angular", "Node.js", "Express", "NestJS",

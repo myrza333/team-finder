@@ -1,9 +1,12 @@
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import { Field, Hint, Input, PrefixInput, Textarea } from "@/components/ui/Form/Form";
 import { api } from "@/lib/api";
+import { resizeToSquare } from "@/lib/resizeImage";
 import type { User } from "@/types";
 import TagInput from "@/components/ui/TagInput/TagInput";
 import { SaveBar, SettingsSection, useSettingsForm } from "./SettingsParts";
@@ -15,6 +18,93 @@ const BIO_MAX = 300;
 // Из "https://github.com/timur" достаём "timur" для поля с приставкой
 const handle = (url?: string | null) => url?.replace(/^https?:\/\/(www\.)?(github\.com|t\.me)\/?/, "") ?? "";
 
+const MAX_UPLOAD_MB = 10;
+
+// Имя и аватарка есть не только в "me", но и в списках людей/проектов и на серверных страницах —
+// после изменения профиля обновляем всё, иначе новое было бы видно только после перезагрузки
+const useApplyUser = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  return (updated: User) => {
+    queryClient.setQueryData(["me"], updated);
+    queryClient.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "me" });
+    router.refresh();
+  };
+};
+
+// Ждём, пока браузер скачает картинку, чтобы подменить её без серой вспышки
+const preload = (src: string) =>
+  new Promise<void>((resolve) => {
+    const img = new Image();
+    img.referrerPolicy = "no-referrer";
+    img.onload = img.onerror = () => resolve();
+    img.src = src;
+  });
+
+// Фото сохраняется сразу после выбора, отдельно от кнопки "Save changes"
+const AvatarPicker = ({ user }: { user: User }) => {
+  const applyUser = useApplyUser();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(null); // выбранное фото показываем сразу, до ответа сервера
+  const hasPhoto = !user.avatarUrl.includes("api.dicebear.com");
+
+  const run = async (action: () => Promise<User>) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const updated = await action();
+      await preload(updated.avatarUrl);
+      applyUser(updated);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+      setPreview((url) => {
+        if (url) URL.revokeObjectURL(url);
+        return null;
+      });
+    }
+  };
+
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // чтобы можно было выбрать тот же файл ещё раз
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return setError("Please choose an image file");
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) return setError(`The image must be under ${MAX_UPLOAD_MB} MB`);
+    setPreview(URL.createObjectURL(file));
+    run(async () => api.users.uploadAvatar(await resizeToSquare(file)));
+  };
+
+  return (
+    <div className={local.avatarRow}>
+      <Avatar src={preview ?? user.avatarUrl} alt={user.name} size={72} />
+      <div>
+        <div className={local.avatarButtons}>
+          <Button variant="outline" disabled={busy} onClick={() => inputRef.current?.click()}>
+            {busy ? "Saving…" : hasPhoto ? "Change photo" : "Upload photo"}
+          </Button>
+          {hasPhoto && (
+            <Button variant="outline" disabled={busy} onClick={() => run(api.users.removeAvatar)}>
+              Remove
+            </Button>
+          )}
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          hidden
+          onChange={onFile}
+        />
+        <Hint error={Boolean(error)}>{error ?? "JPG, PNG, WebP or GIF. It will be cropped to a square."}</Hint>
+      </div>
+    </div>
+  );
+};
+
 const ProfileSettings = () => {
   const { data: user, isError } = useQuery({ queryKey: ["me"], queryFn: api.users.me });
   if (isError) return <p className={local.state}>Couldn&apos;t load your profile. Is the server running?</p>;
@@ -23,12 +113,11 @@ const ProfileSettings = () => {
 };
 
 const ProfileForm = ({ user }: { user: User }) => {
-  const queryClient = useQueryClient();
+  const applyUser = useApplyUser();
   const { data: allSkills = [] } = useQuery({ queryKey: ["skills"], queryFn: api.skills });
 
   const form = useSettingsForm(
     {
-      avatarUrl: user.avatarUrl,
       name: user.name,
       title: user.title,
       location: user.location ?? "",
@@ -47,7 +136,7 @@ const ProfileForm = ({ user }: { user: User }) => {
         githubUrl: v.github ? `https://github.com/${v.github}` : "",
         telegramUrl: v.telegram ? `https://t.me/${v.telegram}` : "",
       });
-      queryClient.setQueryData(["me"], updated);
+      applyUser(updated);
     },
   );
   const v = form.value;
@@ -57,17 +146,7 @@ const ProfileForm = ({ user }: { user: User }) => {
     <>
       <SettingsSection title="Public profile" description="This is how other people see you on TeamFinder.">
         <div className={scss.fields}>
-          <div className={local.avatarRow}>
-            <Avatar src={v.avatarUrl} alt={v.name} size={72} />
-            <div>
-              <div className={local.avatarButtons}>
-                <Button variant="outline" disabled>
-                  Change photo
-                </Button>
-              </div>
-              <Hint>Photo upload will be available soon.</Hint>
-            </div>
-          </div>
+          <AvatarPicker user={user} />
 
           <div className={scss.twoColumns}>
             <Field label="Name" htmlFor="name">
@@ -78,7 +157,7 @@ const ProfileForm = ({ user }: { user: User }) => {
                 id="title"
                 value={v.title}
                 onChange={(e) => set("title", e.target.value)}
-                placeholder="e.g. Frontend Developer"
+                placeholder="Frontend Developer"
               />
             </Field>
           </div>
@@ -88,7 +167,7 @@ const ProfileForm = ({ user }: { user: User }) => {
               id="location"
               value={v.location}
               onChange={(e) => set("location", e.target.value)}
-              placeholder="e.g. Bishkek, Kyrgyzstan"
+              placeholder="City, country"
             />
           </Field>
 
@@ -107,7 +186,7 @@ const ProfileForm = ({ user }: { user: User }) => {
               maxLength={BIO_MAX}
               value={v.bio}
               onChange={(e) => set("bio", e.target.value)}
-              placeholder="A few words about you, your experience and what you want to build."
+              placeholder="About you"
             />
           </Field>
         </div>
@@ -121,7 +200,7 @@ const ProfileForm = ({ user }: { user: User }) => {
           value={v.skills}
           onChange={(skills) => set("skills", skills)}
           suggestions={allSkills}
-          placeholder="Type a skill, e.g. React"
+          placeholder="Add a skill"
           label="skills"
         />
       </SettingsSection>

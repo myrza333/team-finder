@@ -4,20 +4,21 @@ import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { CloseIcon } from "@/components/ui/Icons";
-import { onlineUserIds } from "@/data/chat";
-import { currentUser } from "@/data/mock";
+import { useOnlineUsers } from "@/lib/realtime";
 import type { Project } from "@/types";
 import scss from "./Chat.module.scss";
 
 type MembersPanelProps = {
   project: Project;
+  currentUserId: string;
   open: boolean; // для шторки на узких экранах; на широких панель видна всегда
   onClose: () => void;
 };
 
 // Правая колонка: участники команды, владелец первым, онлайн — выше офлайн
-const MembersPanel = ({ project, open, onClose }: MembersPanelProps) => {
-  const isOwner = project.owner.id === currentUser.id;
+const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelProps) => {
+  const onlineUserIds = useOnlineUsers();
+  const isOwner = project.owner.id === currentUserId;
   const members = [...project.members].sort((a, b) => {
     if (a.id === project.owner.id) return -1;
     if (b.id === project.owner.id) return 1;
@@ -56,7 +57,7 @@ const MembersPanel = ({ project, open, onClose }: MembersPanelProps) => {
                   <div className={scss.memberText}>
                     <p className={scss.memberName}>{m.name}</p>
                     <p className={scss.memberTitle}>
-                      {[m.id === currentUser.id && "You", online ? "Online" : m.title].filter(Boolean).join(" · ")}
+                      {[m.id === currentUserId && "You", online ? "Online" : m.title].filter(Boolean).join(" · ")}
                     </p>
                   </div>
                   {m.id === project.owner.id && <StatusBadge status="owner" />}

@@ -29,12 +29,15 @@ export type Vacancy = {
   isOpen?: boolean;
 };
 
+// Короткая карточка человека (в чате и уведомлениях навыки не нужны)
+export type Person = Pick<User, "id" | "name" | "title" | "avatarUrl">;
+
 export type AppNotification = {
   id: string;
-  actor: User; // кто совершил действие
+  actor: Person; // кто совершил действие
   text: string; // "applied to your project AI Study Platform"
   href: string; // куда ведёт клик
-  time: string;
+  createdAt: string; // ISO-дата
   read: boolean;
 };
 
@@ -61,16 +64,23 @@ export type Application = {
   project: Project;
   vacancy: Vacancy | null; // на какую роль подался (может быть без роли)
   applicant: User;
-  message?: string;
+  message: string | null;
   status: ApplicationStatus;
-  createdAt: string; // пока готовая строка для показа, потом — дата из API
+  createdAt: string; // ISO-дата
 };
 
 // Сообщение в чате команды. author = null — системное ("Aida joined the team")
 export type ChatMessage = {
   id: string;
-  author: User | null;
+  projectId: string;
+  author: Person | null;
   text: string;
-  day: string; // "Today", "Yesterday", "Sep 20" — для разделителей по дням
-  time: string; // "10:05"
+  createdAt: string; // ISO-дата
+};
+
+// Чат в списке слева: проект + последнее сообщение + сколько непрочитанных
+export type ChatSummary = {
+  project: Project;
+  lastMessage: ChatMessage | null;
+  unread: number;
 };

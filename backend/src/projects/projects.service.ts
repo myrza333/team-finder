@@ -62,9 +62,11 @@ export class ProjectsService {
       );
       const projectId = rows[0].id;
 
+      // Владелец — первый участник команды; первая строка в чате — "X created the project"
       await client.query(
-        `insert into project_members (project_id, user_id, role_title)
-         select $1, id, title from users where id = $2`,
+        `with owner as (select id, name, title from users where id = $2),
+         member as (insert into project_members (project_id, user_id, role_title) select $1, id, title from owner)
+         insert into messages (project_id, text) select $1, name || ' created the project' from owner`,
         [projectId, ownerId],
       );
       await this.replaceStack(client, projectId, dto.stack);
@@ -126,14 +128,24 @@ export class ProjectsService {
     }
   }
 
-  // Вакансии пересоздаются целиком; заявки на удалённые вакансии остаются, но без роли (vacancy_id = null)
+  // Позиции с id обновляются (заявки на них сохраняют роль), без id — создаются, пропавшие из списка — удаляются.
+  // Заявки на удалённые позиции остаются, но без роли (vacancy_id = null)
   private async replaceVacancies(client: PoolClient, projectId: string, vacancies: VacancyDto[]) {
-    await client.query('delete from vacancies where project_id = $1', [projectId]);
+    const keepIds = vacancies.map((v) => v.id).filter(Boolean);
+    await client.query(
+      'delete from vacancies where project_id = $1 and not (id = any($2::uuid[]))',
+      [projectId, keepIds],
+    );
     for (const [position, vacancy] of vacancies.entries()) {
       const { rows } = await client.query<{ id: string }>(
-        'insert into vacancies (project_id, title, position, is_open) values ($1, $2, $3, $4) returning id',
-        [projectId, vacancy.title, position, vacancy.isOpen ?? true],
+        vacancy.id
+          ? `update vacancies set title = $2, position = $3, is_open = $4
+             where id = $5 and project_id = $1 returning id`
+          : `insert into vacancies (project_id, title, position, is_open) values ($1, $2, $3, $4) returning id`,
+        [projectId, vacancy.title, position, vacancy.isOpen ?? true, ...(vacancy.id ? [vacancy.id] : [])],
       );
+      if (!rows[0]) continue; // чужой или уже удалённый id — просто пропускаем
+      await client.query('delete from vacancy_skills where vacancy_id = $1', [rows[0].id]);
       const skillIds = await ensureSkillIds(client, vacancy.skills ?? []);
       if (skillIds.length) {
         await client.query(

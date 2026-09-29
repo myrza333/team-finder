@@ -1,4 +1,13 @@
-import type { Project, ProjectCategory, User } from "@/types";
+import type {
+  AppNotification,
+  Application,
+  ApplicationStatus,
+  ChatMessage,
+  ChatSummary,
+  Project,
+  ProjectCategory,
+  User,
+} from "@/types";
 import { BACKEND_URL } from "./backendUrl";
 
 // В браузере — /api этого же сайта (next.config.ts пересылает на бэкенд), на сервере Next — напрямую на бэкенд
@@ -24,7 +33,8 @@ export type ProjectInput = {
   category: ProjectCategory;
   icon?: string;
   stack: string[];
-  vacancies: { title: string; skills?: string[]; isOpen?: boolean }[];
+  // id есть у существующих позиций — тогда они обновляются, а заявки на них сохраняют роль
+  vacancies: { id?: string; title: string; skills?: string[]; isOpen?: boolean }[];
 };
 
 export type ProfileInput = Partial<{
@@ -51,7 +61,8 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       cache: "no-store",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
+        // Для FormData (загрузка файла) заголовок с границами частей браузер ставит сам
+        ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
         ...(await getExtraHeaders?.()),
         ...init.headers,
       },
@@ -75,6 +86,7 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
         request<User>("/auth/login", { method: "POST", body: json(data) }),
       logout: () => request<void>("/auth/logout", { method: "POST" }),
       me: () => request<User>("/auth/me"),
+      socketToken: () => request<{ token: string }>("/auth/socket-token"),
       account: () => request<{ email: string; hasPassword: boolean; googleLinked: boolean }>("/auth/account"),
       changePassword: (data: { currentPassword?: string; newPassword: string }) =>
         request<void>("/auth/password", { method: "POST", body: json(data) }),
@@ -88,6 +100,40 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       update: (id: string, data: Partial<ProjectInput> & { status?: "open" | "closed" }) =>
         request<Project>(`/projects/${id}`, { method: "PATCH", body: json(data) }),
       remove: (id: string) => request<void>(`/projects/${id}`, { method: "DELETE" }),
+      // Команда
+      leave: (id: string) => request<void>(`/projects/${id}/members/me`, { method: "DELETE" }),
+      removeMember: (id: string, userId: string) =>
+        request<void>(`/projects/${id}/members/${userId}`, { method: "DELETE" }),
+      setVacancyOpen: (id: string, vacancyId: string, isOpen: boolean) =>
+        request<{ id: string; isOpen: boolean }>(`/projects/${id}/vacancies/${vacancyId}`, {
+          method: "PATCH",
+          body: json({ isOpen }),
+        }),
+    },
+    applications: {
+      apply: (projectId: string, data: { vacancyId?: string; message?: string }) =>
+        request<Application>(`/projects/${projectId}/applications`, { method: "POST", body: json(data) }),
+      received: (query: { status?: ApplicationStatus; projectId?: string } = {}) =>
+        request<Application[]>("/applications/received", { query }),
+      sent: (query: { projectId?: string } = {}) => request<Application[]>("/applications/sent", { query }),
+      pendingCounts: () =>
+        request<{ total: number; byProject: Record<string, number> }>("/applications/pending-counts"),
+      decide: (id: string, status: "accepted" | "rejected") =>
+        request<Application>(`/applications/${id}`, { method: "PATCH", body: json({ status }) }),
+      withdraw: (id: string) => request<void>(`/applications/${id}`, { method: "DELETE" }),
+    },
+    notifications: {
+      list: () => request<AppNotification[]>("/notifications"),
+      unreadCount: () => request<{ count: number }>("/notifications/unread-count"),
+      markRead: (id: string) => request<void>(`/notifications/${id}/read`, { method: "POST" }),
+      markAllRead: () => request<void>("/notifications/read-all", { method: "POST" }),
+    },
+    chats: {
+      list: () => request<ChatSummary[]>("/chats"),
+      messages: (projectId: string) => request<ChatMessage[]>(`/chats/${projectId}/messages`),
+      send: (projectId: string, text: string) =>
+        request<ChatMessage>(`/chats/${projectId}/messages`, { method: "POST", body: json({ text }) }),
+      markRead: (projectId: string) => request<void>(`/chats/${projectId}/read`, { method: "POST" }),
     },
     users: {
       list: (query: { q?: string; role?: string; limit?: number } = {}) => request<User[]>("/users", { query }),
@@ -95,6 +141,12 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       me: () => request<User>("/users/me"),
       updateMe: (data: ProfileInput) => request<User>("/users/me", { method: "PATCH", body: json(data) }),
       removeMe: () => request<void>("/users/me", { method: "DELETE" }),
+      uploadAvatar: (image: Blob) => {
+        const body = new FormData();
+        body.append("file", image, "avatar.jpg");
+        return request<User>("/users/me/avatar", { method: "PUT", body });
+      },
+      removeAvatar: () => request<User>("/users/me/avatar", { method: "DELETE" }),
     },
     skills: () => request<string[]>("/skills"),
   };

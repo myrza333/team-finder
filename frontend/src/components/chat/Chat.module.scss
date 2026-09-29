@@ -537,3 +537,7 @@ $header: 65px; // 64px хедер + 1px нижняя рамка
   color: var(--primary-600);
   &:hover { color: var(--primary-700); }
 }
+
+.composerInput[aria-invalid] {
+  border-color: var(--danger-600);
+}

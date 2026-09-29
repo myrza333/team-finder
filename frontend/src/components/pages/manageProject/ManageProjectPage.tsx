@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
@@ -8,54 +9,63 @@ import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import Toggle from "@/components/ui/Toggle/Toggle";
 import ReceivedApplicationCard from "@/components/cards/ApplicationCard/ReceivedApplicationCard";
-import { receivedApplications } from "@/data/mock";
 import { api } from "@/lib/api";
-import type { ApplicationStatus, Project } from "@/types";
+import { plural } from "@/lib/format";
+import { useApplicationActions } from "@/lib/useApplicationActions";
+import type { Project } from "@/types";
 import scss from "./ManageProjectPage.module.scss";
 
-// Пока мок: всё меняется только в состоянии страницы
+// Команда и позиции приходят с сервера (project), заявки — отдельным запросом.
+// После изменений router.refresh() перечитывает project, а заявки обновляет useApplicationActions
 const ManageProjectPage = ({ project }: { project: Project }) => {
-  const [applications, setApplications] = useState(
-    receivedApplications.filter((a) => a.project.id === project.id),
-  );
-  const [team, setTeam] = useState(project.members);
-  const [openVacancies, setOpenVacancies] = useState<string[]>(
-    project.vacancies.filter((v) => v.isOpen !== false).map((v) => v.id),
-  );
-
-  const saveVacancies = useMutation({
-    mutationFn: (openIds: string[]) =>
-      api.projects.update(project.id, {
-        vacancies: project.vacancies.map((v) => ({ title: v.title, skills: v.skills, isOpen: openIds.includes(v.id) })),
-      }),
+  const router = useRouter();
+  const applications = useQuery({
+    queryKey: ["applications", "received", { projectId: project.id }],
+    queryFn: () => api.applications.received({ projectId: project.id }),
   });
+  const actions = useApplicationActions();
+
+  // Переключатель позиции меняется сразу, а если сервер ответил ошибкой — возвращается обратно
+  const [openOverrides, setOpenOverrides] = useState<Record<string, boolean>>({});
+  const isOpen = (id: string) => openOverrides[id] ?? project.vacancies.find((v) => v.id === id)?.isOpen !== false;
+
   const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
+  const [removing, setRemoving] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const pending = applications.filter((a) => a.status === "pending");
-  const isRecruiting = openVacancies.length > 0;
+  const all = applications.data ?? [];
+  const pending = all.filter((a) => a.status === "pending");
+  const isRecruiting = project.status === "open" && project.vacancies.some((v) => isOpen(v.id));
 
-  const decide = (id: string, status: ApplicationStatus) => {
-    const application = applications.find((a) => a.id === id);
-    setApplications(applications.map((a) => (a.id === id ? { ...a, status } : a)));
-    // Принятый кандидат сразу появляется в команде
-    if (status === "accepted" && application && !team.some((m) => m.id === application.applicant.id)) {
-      setTeam([...team, application.applicant]);
+  const applicantsFor = (vacancyId: string) => pending.filter((a) => a.vacancy?.id === vacancyId).length;
+
+  const toggleVacancy = async (id: string, open: boolean) => {
+    setError(null);
+    setOpenOverrides((o) => ({ ...o, [id]: open }));
+    try {
+      await api.projects.setVacancyOpen(project.id, id, open);
+      router.refresh();
+    } catch (e) {
+      setOpenOverrides((o) => ({ ...o, [id]: !open }));
+      setError(e instanceof Error ? e.message : "Couldn't update the position");
     }
   };
 
-  const applicantsFor = (vacancyId: string) =>
-    applications.filter((a) => a.vacancy?.id === vacancyId && a.status === "pending").length;
-
-  const toggleVacancy = (id: string, open: boolean) => {
-    const next = open ? [...openVacancies, id] : openVacancies.filter((v) => v !== id);
-    setOpenVacancies(next);
-    saveVacancies.mutate(next, { onError: () => setOpenVacancies(openVacancies) });
+  const removeMember = async (userId: string) => {
+    setError(null);
+    setRemoving(userId);
+    try {
+      await api.projects.removeMember(project.id, userId);
+      setConfirmRemove(null);
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't remove the member");
+    } finally {
+      setRemoving(null);
+    }
   };
 
-  const removeMember = (id: string) => {
-    setTeam(team.filter((m) => m.id !== id));
-    setConfirmRemove(null);
-  };
+  const shownError = error ?? actions.error;
 
   return (
     <div className={scss.page}>
@@ -85,6 +95,8 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
         </div>
       </section>
 
+      {shownError && <p className={scss.error}>{shownError}</p>}
+
       <div className={scss.grid}>
         <div className={scss.main}>
           {/* ===== Заявки ===== */}
@@ -97,16 +109,19 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                 All applications →
               </Link>
             </div>
-            {applications.length > 0 ? (
+            {applications.isPending ? (
+              <p className={scss.emptyBox}>Loading…</p>
+            ) : all.length > 0 ? (
               <div className={scss.applications}>
                 {/* Сначала ожидающие, потом уже рассмотренные */}
-                {[...pending, ...applications.filter((a) => a.status !== "pending")].map((a) => (
+                {[...pending, ...all.filter((a) => a.status !== "pending")].map((a) => (
                   <ReceivedApplicationCard
                     key={a.id}
                     application={a}
                     showProject={false}
-                    onAccept={() => decide(a.id, "accepted")}
-                    onDecline={() => decide(a.id, "rejected")}
+                    busy={actions.busyId === a.id}
+                    onAccept={() => actions.decide(a.id, "accepted")}
+                    onDecline={() => actions.decide(a.id, "rejected")}
                   />
                 ))}
               </div>
@@ -123,43 +138,45 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                 + Add position
               </Link>
             </div>
-            <ul className={scss.vacancies}>
-              {project.vacancies.map((v) => {
-                const open = openVacancies.includes(v.id);
-                const applicants = applicantsFor(v.id);
-                return (
-                  <li key={v.id} className={`${scss.vacancy} ${open ? "" : scss.vacancyClosed}`}>
-                    <div className={scss.vacancyInfo}>
-                      <p className={scss.vacancyTitle}>{v.title}</p>
-                      <TagList>
-                        {v.skills.map((s) => (
-                          <Tag key={s} variant="primary">
-                            {s}
-                          </Tag>
-                        ))}
-                      </TagList>
-                    </div>
-                    <span className={scss.applicants}>
-                      {applicants} {applicants === 1 ? "applicant" : "applicants"}
-                    </span>
-                    <label className={scss.vacancyToggle}>
-                      <span>{open ? "Open" : "Closed"}</span>
-                      <Toggle checked={open} onChange={(val) => toggleVacancy(v.id, val)} label={`${v.title} open`} />
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
+            {project.vacancies.length > 0 ? (
+              <ul className={scss.vacancies}>
+                {project.vacancies.map((v) => {
+                  const open = isOpen(v.id);
+                  const applicants = applicantsFor(v.id);
+                  return (
+                    <li key={v.id} className={`${scss.vacancy} ${open ? "" : scss.vacancyClosed}`}>
+                      <div className={scss.vacancyInfo}>
+                        <p className={scss.vacancyTitle}>{v.title}</p>
+                        <TagList>
+                          {v.skills.map((s) => (
+                            <Tag key={s} variant="primary">
+                              {s}
+                            </Tag>
+                          ))}
+                        </TagList>
+                      </div>
+                      <span className={scss.applicants}>{plural(applicants, "applicant")}</span>
+                      <label className={scss.vacancyToggle}>
+                        <span>{open ? "Open" : "Closed"}</span>
+                        <Toggle checked={open} onChange={(val) => toggleVacancy(v.id, val)} label={`${v.title} open`} />
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className={scss.emptyBox}>No positions yet. Add one so people know who you&apos;re looking for.</p>
+            )}
           </section>
         </div>
 
         {/* ===== Команда ===== */}
         <aside className={`${scss.box} ${scss.team}`}>
           <div className={scss.blockHead}>
-            <h2 className={scss.blockTitle}>Team · {team.length}</h2>
+            <h2 className={scss.blockTitle}>Team · {project.members.length}</h2>
           </div>
           <ul className={scss.members}>
-            {team.map((m) => {
+            {project.members.map((m) => {
               const isOwner = m.id === project.owner.id;
               return (
                 <li key={m.id} className={scss.member}>
@@ -174,8 +191,8 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                     <StatusBadge status="owner" />
                   ) : confirmRemove === m.id ? (
                     <div className={scss.confirm}>
-                      <button className={scss.confirmYes} onClick={() => removeMember(m.id)}>
-                        Remove
+                      <button className={scss.confirmYes} disabled={removing === m.id} onClick={() => removeMember(m.id)}>
+                        {removing === m.id ? "Removing…" : "Remove"}
                       </button>
                       <button className={scss.confirmNo} onClick={() => setConfirmRemove(null)}>
                         Cancel

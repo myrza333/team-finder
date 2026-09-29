@@ -19,6 +19,11 @@ import {
 export const CATEGORIES = ['Development', 'Design', 'AI', 'Startup', 'Education', 'Games', 'Mobile'] as const;
 
 export class VacancyDto {
+  // Есть у уже существующей позиции: тогда она обновляется, а не создаётся заново (заявки на неё сохраняются)
+  @IsOptional()
+  @IsUUID()
+  id?: string;
+
   @IsString()
   @Length(2, 60)
   title!: string;

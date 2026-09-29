@@ -4,7 +4,6 @@ import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar/Avatar";
 import SectionHeader from "@/components/ui/SectionHeader/SectionHeader";
-import { pendingCount } from "@/data/mock";
 import { serverApi } from "@/lib/api.server";
 import type { Project } from "@/types";
 import scss from "./MyProjectsPage.module.scss";
@@ -12,8 +11,9 @@ import scss from "./MyProjectsPage.module.scss";
 const openPositions = (p: Project) => p.vacancies.filter((v) => v.isOpen !== false).length;
 
 // Карточка проекта в списке "моих": инфо слева, действия справа
-const ProjectRow = ({ project: p, owned }: { project: Project; owned: boolean }) => {
-  const newApplications = owned ? pendingCount(p.id) : 0;
+type ProjectRowProps = { project: Project; owned: boolean; newApplications?: number };
+
+const ProjectRow = ({ project: p, owned, newApplications = 0 }: ProjectRowProps) => {
   return (
     <article className={scss.row}>
       <span className={scss.icon}>{p.icon}</span>
@@ -64,9 +64,10 @@ const ProjectRow = ({ project: p, owned }: { project: Project; owned: boolean })
 };
 
 const MyProjectsPage = async ({ userId }: { userId: string }) => {
-  const [owned, memberOf] = await Promise.all([
+  const [owned, memberOf, pending] = await Promise.all([
     serverApi.projects.list({ owner: userId }),
     serverApi.projects.list({ member: userId }),
+    serverApi.applications.pendingCounts(),
   ]);
   const joined = memberOf.filter((p) => p.owner.id !== userId);
 
@@ -83,7 +84,7 @@ const MyProjectsPage = async ({ userId }: { userId: string }) => {
         {owned.length > 0 ? (
           <div className={scss.list}>
             {owned.map((p) => (
-              <ProjectRow key={p.id} project={p} owned />
+              <ProjectRow key={p.id} project={p} owned newApplications={pending.byProject[p.id] ?? 0} />
             ))}
           </div>
         ) : (

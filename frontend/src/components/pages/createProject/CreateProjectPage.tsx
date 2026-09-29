@@ -7,8 +7,7 @@ import Button from "@/components/ui/Button/Button";
 import Chip, { ChipList } from "@/components/ui/Chip/Chip";
 import { Field, Hint, Input, Select, Textarea } from "@/components/ui/Form/Form";
 import TagInput from "@/components/ui/TagInput/TagInput";
-import { projectCategories } from "@/data/mock";
-import { allRoles, popularRoles, popularTech } from "@/data/options";
+import { allRoles, popularRoles, popularTech, projectCategories } from "@/data/options";
 import { api, type ProjectInput } from "@/lib/api";
 import type { Project, ProjectCategory } from "@/types";
 import scss from "./CreateProjectPage.module.scss";
@@ -63,10 +62,10 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // У существующих вакансий сохраняем их навыки и статус
+    // У существующих вакансий сохраняем id (заявки на них не теряют роль), навыки и статус
     const vacancies = roles.map((title) => {
       const existing = project?.vacancies.find((v) => v.title === title);
-      return { title, skills: existing?.skills ?? [], isOpen: existing?.isOpen ?? true };
+      return { id: existing?.id, title, skills: existing?.skills ?? [], isOpen: existing?.isOpen ?? true };
     });
     save.mutate({ ...form, category: form.category as ProjectCategory, stack, vacancies });
   };
@@ -109,7 +108,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               maxLength={80}
               value={form.title}
               onChange={update("title")}
-              placeholder="e.g. AI Study Platform"
+              placeholder="AI Study Platform"
             />
           </Field>
 
@@ -120,7 +119,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               maxLength={160}
               value={form.description}
               onChange={update("description")}
-              placeholder="One sentence about your project"
+              placeholder="One sentence"
             />
           </Field>
 
@@ -131,7 +130,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               maxLength={3000}
               value={form.fullDescription}
               onChange={update("fullDescription")}
-              placeholder="Tell potential teammates about the project, your vision, and what you're building..."
+              placeholder="About the project"
             />
           </Field>
 
@@ -151,7 +150,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               value={stack}
               onChange={setStack}
               suggestions={allSkills}
-              placeholder="Search technologies, e.g. NestJS"
+              placeholder="Add a technology"
               label="technologies"
             />
             <p className={scss.popularLabel}>Popular</p>
@@ -170,7 +169,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               onChange={setRoles}
               suggestions={allRoles}
               max={10}
-              placeholder="Search roles or type your own"
+              placeholder="Add a role"
               label="roles"
             />
             <p className={scss.popularLabel}>Popular</p>

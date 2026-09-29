@@ -2,17 +2,19 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
-import { currentUser } from "@/data/mock";
+import { clockTime, dayLabel } from "@/lib/format";
 import type { ChatMessage } from "@/types";
 import scss from "./Chat.module.scss";
 
 type MessageListProps = {
   messages: ChatMessage[];
+  loading: boolean;
   ownerId: string;
+  currentUserId: string;
 };
 
 // Лента сообщений: разделители по дням, системные строки, группировка подряд идущих сообщений одного автора
-const MessageList = ({ messages, ownerId }: MessageListProps) => {
+const MessageList = ({ messages, loading, ownerId, currentUserId }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Всегда держим ленту прокрученной вниз (при открытии и при новом сообщении)
@@ -24,7 +26,7 @@ const MessageList = ({ messages, ownerId }: MessageListProps) => {
   if (messages.length === 0) {
     return (
       <div className={scss.messages}>
-        <p className={scss.noMessages}>No messages yet. Say hi to your team 👋</p>
+        <p className={scss.noMessages}>{loading ? "Loading messages…" : "No messages yet. Say hi to your team 👋"}</p>
       </div>
     );
   }
@@ -33,7 +35,9 @@ const MessageList = ({ messages, ownerId }: MessageListProps) => {
     <div className={scss.messages} ref={scrollRef}>
       {messages.map((m, i) => {
         const prev = messages[i - 1];
-        const newDay = !prev || prev.day !== m.day;
+        const day = dayLabel(m.createdAt);
+        const time = clockTime(m.createdAt);
+        const newDay = !prev || dayLabel(prev.createdAt) !== day;
         // Начало группы: сменился день, автор или перед этим было системное сообщение
         const groupStart = newDay || !prev?.author || prev.author.id !== m.author?.id;
 
@@ -41,19 +45,19 @@ const MessageList = ({ messages, ownerId }: MessageListProps) => {
           <div key={m.id}>
             {newDay && (
               <div className={scss.dayDivider}>
-                <span>{m.day}</span>
+                <span>{day}</span>
               </div>
             )}
 
             {!m.author ? (
               <p className={scss.systemMessage}>
-                {m.text} · {m.time}
+                {m.text} · {time}
               </p>
-            ) : m.author.id === currentUser.id ? (
+            ) : m.author.id === currentUserId ? (
               <div className={`${scss.messageRow} ${scss.own} ${groupStart ? scss.groupStart : ""}`}>
                 <div className={`${scss.bubble} ${scss.bubbleOwn}`}>
                   <span className={scss.text}>{m.text}</span>
-                  <span className={scss.time}>{m.time}</span>
+                  <span className={scss.time}>{time}</span>
                 </div>
               </div>
             ) : (
@@ -74,7 +78,7 @@ const MessageList = ({ messages, ownerId }: MessageListProps) => {
                   )}
                   <div className={scss.bubble}>
                     <span className={scss.text}>{m.text}</span>
-                    <span className={scss.time}>{m.time}</span>
+                    <span className={scss.time}>{time}</span>
                   </div>
                 </div>
               </div>

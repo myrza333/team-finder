@@ -7,7 +7,8 @@ import { UsersService } from '../users/users.service.js';
 import { AuthService } from './auth.service.js';
 import { ChangePasswordDto, LoginDto, RegisterDto } from './dto/auth.dto.js';
 import { GoogleService } from './google.service.js';
-import { SESSION_COOKIE, sessionCookieOptions } from './session.js';
+import { JwtService } from '@nestjs/jwt';
+import { SESSION_COOKIE, SOCKET_TOKEN_TTL_SECONDS, SocketPayload, sessionCookieOptions } from './session.js';
 import type { AuthedRequest } from './session.guard.js';
 
 const OAUTH_COOKIE = 'tf_oauth';
@@ -21,6 +22,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly users: UsersService,
     private readonly google: GoogleService,
+    private readonly jwt: JwtService,
     config: ConfigService,
   ) {
     this.frontendUrl = config.get<string>('FRONTEND_URL') ?? 'http://localhost:3000';
@@ -51,6 +53,13 @@ export class AuthController {
   @Get('me')
   me(@CurrentUserId() userId: string) {
     return this.users.findOne(userId);
+  }
+
+  // Пропуск для WebSocket-подключения (чат, уведомления) — см. SocketPayload
+  @Get('socket-token')
+  async socketToken(@CurrentUserId() userId: string) {
+    const payload: SocketPayload = { sub: userId, typ: 'socket' };
+    return { token: await this.jwt.signAsync(payload, { expiresIn: SOCKET_TOKEN_TTL_SECONDS }) };
   }
 
   // ===== Настройки входа =====

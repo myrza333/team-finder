@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import { ChevronDownIcon, LogoutIcon, SettingsIcon, UserIcon } from "@/components/ui/Icons";
-import { pendingCount } from "@/data/mock";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import type { User } from "@/types";
 import scss from "./Header.module.scss";
 
@@ -46,7 +47,8 @@ const InboxIcon = () => (
 // Аватар в хедере + выпадающее меню (профиль, проекты, заявки, настройки, выход)
 const UserMenu = ({ user, open, onToggle, onClose, onLogout }: UserMenuProps) => {
   const router = useRouter();
-  const newApplications = pendingCount();
+  const { data: pending } = useQuery({ queryKey: ["applications", "pending-counts"], queryFn: api.applications.pendingCounts });
+  const newApplications = pending?.total ?? 0;
   const handleLogout = () => {
     onClose();
     onLogout();

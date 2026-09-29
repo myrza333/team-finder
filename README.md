@@ -17,7 +17,7 @@ npm run start:dev      # http://localhost:5000/api/health
 ```
 
 Database: run the files from `backend/db/` in order (Supabase SQL Editor or `npm run db:run -- db/001_schema.sql`).
-`003_seed.sql` adds demo data; every demo user has the password `password123` (e.g. `timur@example.com`).
+`003_seed.sql` adds demo users and projects, `007_seed_activity.sql` adds demo applications, chat messages and notifications (both can be re-run to reset the demo). Every demo user has the password `password123` (e.g. `timur@example.com`).
 
 **Frontend**
 
@@ -29,6 +29,8 @@ npm run dev            # http://localhost:3000
 ```
 
 The browser only talks to `/api` on the frontend domain; `next.config.ts` forwards it to the backend (`BACKEND_URL`), so the session cookie works even when the frontend and backend are hosted on different domains.
+
+The only exception is the WebSocket (Socket.IO: new chat messages, notifications, who is online): Vercel can't proxy it, so the browser connects to `BACKEND_URL` directly with a short-lived token from `GET /api/auth/socket-token`. The backend accepts WebSocket connections only from `FRONTEND_URL`.
 
 ## Deploy
 

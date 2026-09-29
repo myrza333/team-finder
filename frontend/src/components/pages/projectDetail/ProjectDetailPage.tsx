@@ -3,41 +3,17 @@ import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import Panel from "@/components/ui/Panel/Panel";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
-import { sentApplications } from "@/data/mock";
-import type { Project } from "@/types";
+import type { Application, Project } from "@/types";
+import ProjectAction from "./ProjectAction";
 import scss from "./ProjectDetailPage.module.scss";
 
-// Главная кнопка зависит от того, кто смотрит: владелец, участник или гость/соискатель
-const ProjectAction = ({ project, currentUserId }: { project: Project; currentUserId: string }) => {
-  if (project.owner.id === currentUserId) {
-    return (
-      <Button href={`/my-projects/${project.id}`} size="lg">
-        Manage project
-      </Button>
-    );
-  }
-  if (project.members.some((m) => m.id === currentUserId)) {
-    return (
-      <Button href={`/chat/${project.id}`} variant="outline" size="lg">
-        Team chat
-      </Button>
-    );
-  }
-  // Уже подал заявку — повторно отправить нельзя
-  const applied = sentApplications.some(
-    (a) => a.applicant.id === currentUserId && a.project.id === project.id && a.status === "pending",
-  );
-  if (applied) {
-    return (
-      <Button variant="outline" size="lg" disabled>
-        Application sent
-      </Button>
-    );
-  }
-  return <Button size="lg">Request to join</Button>;
+type ProjectDetailPageProps = {
+  project: Project;
+  currentUserId: string;
+  myApplication: Application | null;
 };
 
-const ProjectDetailPage = ({ project, currentUserId }: { project: Project; currentUserId: string }) => (
+const ProjectDetailPage = ({ project, currentUserId, myApplication }: ProjectDetailPageProps) => (
   <div className={scss.page}>
     <nav className={scss.breadcrumbs} aria-label="Breadcrumb">
       <Link href="/projects">Projects</Link>
@@ -57,7 +33,7 @@ const ProjectDetailPage = ({ project, currentUserId }: { project: Project; curre
           </span>
         </div>
       </div>
-      <ProjectAction project={project} currentUserId={currentUserId} />
+      <ProjectAction project={project} currentUserId={currentUserId} myApplication={myApplication} />
     </section>
 
     <div className={scss.grid}>
@@ -82,7 +58,9 @@ const ProjectDetailPage = ({ project, currentUserId }: { project: Project; curre
               <div key={v.id} className={scss.vacancy}>
                 <div className={scss.vacancyHead}>
                   <h3 className={scss.vacancyTitle}>{v.title}</h3>
-                  <span className={scss.positions}>1 position</span>
+                  <span className={`${scss.positions} ${v.isOpen === false ? scss.filled : ""}`}>
+                    {v.isOpen === false ? "Filled" : "1 position"}
+                  </span>
                 </div>
                 <TagList>
                   {v.skills.map((skill) => (

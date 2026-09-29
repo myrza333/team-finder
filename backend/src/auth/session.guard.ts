@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { SESSION_COOKIE, SessionPayload } from './session.js';
+import { SESSION_COOKIE, SessionPayload, SocketPayload } from './session.js';
 
 export type AuthedRequest = Request & { userId?: string };
 
@@ -16,8 +16,8 @@ export class SessionGuard implements CanActivate {
     const token = req.cookies?.[SESSION_COOKIE];
     if (token) {
       try {
-        const payload = await this.jwt.verifyAsync<SessionPayload>(token);
-        req.userId = payload.sub;
+        const payload = await this.jwt.verifyAsync<SessionPayload | SocketPayload>(token);
+        req.userId = payload.typ === 'socket' ? undefined : payload.sub;
       } catch {
         req.userId = undefined;
       }

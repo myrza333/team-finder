@@ -4,7 +4,7 @@ import { SendIcon } from "@/components/ui/Icons";
 import scss from "./Chat.module.scss";
 
 type ComposerProps = {
-  onSend: (text: string) => void;
+  onSend: (text: string) => Promise<boolean>; // false — не отправилось, текст остаётся в поле
   placeholder: string;
 };
 
@@ -13,6 +13,8 @@ const MAX_HEIGHT = 140; // ~5 строк, дальше поле прокручи
 // Поле ввода: Enter — отправить, Shift+Enter — новая строка, высота растёт с текстом
 const Composer = ({ onSend, placeholder }: ComposerProps) => {
   const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
 
   const resize = () => {
@@ -22,12 +24,17 @@ const Composer = ({ onSend, placeholder }: ComposerProps) => {
     el.style.height = `${Math.min(el.scrollHeight, MAX_HEIGHT)}px`;
   };
 
-  const submit = () => {
+  const submit = async () => {
     const value = text.trim();
-    if (!value) return;
-    onSend(value);
-    setText("");
-    requestAnimationFrame(resize);
+    if (!value || sending) return;
+    setSending(true);
+    const ok = await onSend(value);
+    setSending(false);
+    setFailed(!ok);
+    if (ok) {
+      setText("");
+      requestAnimationFrame(resize);
+    }
     ref.current?.focus();
   };
 
@@ -56,10 +63,13 @@ const Composer = ({ onSend, placeholder }: ComposerProps) => {
         }}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
+        // Не отправилось — красная рамка, текст остаётся в поле
+        aria-invalid={failed || undefined}
+        title={failed ? "Message not sent. Try again" : undefined}
         className={scss.composerInput}
         aria-label="Message"
       />
-      <button type="submit" className={scss.sendButton} disabled={!text.trim()} aria-label="Send message">
+      <button type="submit" className={scss.sendButton} disabled={!text.trim() || sending} aria-label="Send message">
         <SendIcon />
       </button>
     </form>

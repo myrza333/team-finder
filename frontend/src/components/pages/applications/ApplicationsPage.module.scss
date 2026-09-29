@@ -20,3 +20,19 @@
   gap: 12px;
   margin-top: 20px;
 }
+
+.state {
+  @include text-sm;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--gray-400);
+}
+
+.error {
+  @include text-sm;
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--danger-50);
+  color: var(--danger-600);
+}

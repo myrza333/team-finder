@@ -1,10 +1,13 @@
 // Postgres сам собирает JSON в той форме, которую ждёт фронтенд (camelCase, вложенные массивы)
 
+// Своё фото или нарисованная аватарка по имени
+const avatarUrl = (u: string) => `coalesce(${u}.avatar_url, 'https://api.dicebear.com/7.x/avataaars/svg?seed=' || ${u}.name)`;
+
 export const userJson = (u: string) => `json_build_object(
   'id', ${u}.id,
   'name', ${u}.name,
   'title', coalesce(${u}.title, ''),
-  'avatarUrl', coalesce(${u}.avatar_url, 'https://api.dicebear.com/7.x/avataaars/svg?seed=' || ${u}.name),
+  'avatarUrl', ${avatarUrl(u)},
   'bio', ${u}.bio,
   'location', ${u}.location,
   'githubUrl', ${u}.github_url,
@@ -15,6 +18,23 @@ export const userJson = (u: string) => `json_build_object(
     where us.user_id = ${u}.id
   ), '[]'),
   'projectsCount', (select count(*) from project_members pm where pm.user_id = ${u}.id)::int
+)`;
+
+// Короткая карточка человека: для чата и уведомлений навыки и счётчики не нужны
+export const personJson = (u: string) => `json_build_object(
+  'id', ${u}.id,
+  'name', ${u}.name,
+  'title', coalesce(${u}.title, ''),
+  'avatarUrl', ${avatarUrl(u)}
+)`;
+
+// Сообщение чата; a — автор (left join, у системных сообщений автора нет)
+export const messageJson = (m: string, a: string) => `json_build_object(
+  'id', ${m}.id::text,
+  'projectId', ${m}.project_id,
+  'text', ${m}.text,
+  'createdAt', ${m}.created_at,
+  'author', case when ${a}.id is null then null else ${personJson(a)} end
 )`;
 
 export const projectJson = (p: string) => `json_build_object(
@@ -46,7 +66,7 @@ export const projectJson = (p: string) => `json_build_object(
     from vacancies v where v.project_id = ${p}.id
   ), '[]'),
   'members', coalesce((
-    select json_agg(${userJson('mu')} order by pm.joined_at)
+    select json_agg(${userJson('mu')} order by pm.user_id = ${p}.owner_id desc, pm.joined_at)
     from project_members pm join users mu on mu.id = pm.user_id
     where pm.project_id = ${p}.id
   ), '[]')

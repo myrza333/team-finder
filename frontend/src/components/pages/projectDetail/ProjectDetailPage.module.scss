@@ -176,3 +176,37 @@ a.person:hover .personName {
   flex-direction: column;
   gap: 12px;
 }
+
+// ===== Кнопки действий и окно заявки =====
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  @include sm { align-items: flex-end; }
+}
+
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionError {
+  @include text-xs;
+  color: var(--danger-600);
+}
+
+.applyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.counter {
+  @include text-xs;
+  color: var(--gray-400);
+}
+
+.filled {
+  color: var(--gray-400);
+}

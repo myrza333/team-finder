@@ -6,7 +6,7 @@ import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import Button from "@/components/ui/Button/Button";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
-import { projectCategories } from "@/data/mock";
+import { projectCategories } from "@/data/options";
 import { api } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
 import type { ProjectCategory } from "@/types";

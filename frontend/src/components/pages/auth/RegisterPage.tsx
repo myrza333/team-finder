@@ -82,7 +82,7 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="At least 8 characters"
+            placeholder="8+ characters"
           />
         </Field>
 

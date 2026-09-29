@@ -7,8 +7,8 @@ import Button from "@/components/ui/Button/Button";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import { BellIcon, ChatIcon, CloseIcon, MenuIcon } from "@/components/ui/Icons";
 import { useAuth } from "@/auth/useAuth";
-import { notifications } from "@/data/mock";
-import { unreadCounts } from "@/data/chat";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import UserMenu from "./UserMenu";
 import scss from "./Header.module.scss";
 
@@ -56,8 +56,16 @@ const Header = () => {
 
   const menuOpen = panel === "menu";
 
-  const hasUnread = notifications.some((n) => !n.read);
-  const hasUnreadMessages = Object.values(unreadCounts).some((n) => n > 0);
+  // Точки на иконках. Обновляются сами: при событии из WebSocket эти запросы перечитываются (lib/realtime.ts)
+  const loggedIn = status === "authenticated";
+  const { data: unreadNotifications } = useQuery({
+    queryKey: ["notifications", "unread"],
+    queryFn: api.notifications.unreadCount,
+    enabled: loggedIn,
+  });
+  const { data: chats } = useQuery({ queryKey: ["chats"], queryFn: api.chats.list, enabled: loggedIn });
+  const hasUnread = (unreadNotifications?.count ?? 0) > 0;
+  const hasUnreadMessages = chats?.some((c) => c.unread > 0) ?? false;
 
   const showSearch = !pagesWithOwnSearch.includes(pathname);
 

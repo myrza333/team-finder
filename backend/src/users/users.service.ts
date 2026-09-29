@@ -1,8 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service.js';
 import { ensureSkillIds } from '../common/skills.js';
 import { userJson } from '../common/sql.js';
 import { UpdateProfileDto, UsersQueryDto } from './dto/user.dto.js';
+
+export type UploadedImage = { buffer: Buffer; size: number };
+
+// Тип картинки определяем по первым байтам файла, а не по тому, что прислал браузер
+const imageMime = (buf: Buffer) => {
+  if (buf.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'image/jpeg';
+  if (buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png';
+  if (buf.subarray(0, 4).toString('ascii') === 'RIFF' && buf.subarray(8, 12).toString('ascii') === 'WEBP') return 'image/webp';
+  if (buf.subarray(0, 4).toString('ascii') === 'GIF8') return 'image/gif';
+  return null;
+};
 
 @Injectable()
 export class UsersService {
@@ -79,6 +90,49 @@ export class UsersService {
       }
     });
     return this.findOne(id);
+  }
+
+  async setAvatar(id: string, file: UploadedImage | undefined) {
+    if (!file) throw new BadRequestException('Choose an image file');
+    const mime = imageMime(file.buffer);
+    if (!mime) throw new BadRequestException('Only JPG, PNG, WebP or GIF images are allowed');
+
+    // ?v= меняется при каждой загрузке, чтобы браузер не показывал старую картинку из кэша
+    const url = `/api/users/${id}/avatar?v=${Date.now()}`;
+    // Один запрос вместо транзакции: база далеко, каждый лишний запрос — плюс ~0.4 с
+    return this.userFromQuery(
+      `with saved as (
+         insert into user_avatars (user_id, mime, data) values ($1, $3, $4)
+         on conflict (user_id) do update set mime = excluded.mime, data = excluded.data, updated_at = now()
+       ),
+       u as (update users set avatar_url = $2 where id = $1 returning *)
+       select ${userJson('u')} as user from u`,
+      [id, url, mime, file.buffer],
+    );
+  }
+
+  async removeAvatar(id: string) {
+    return this.userFromQuery(
+      `with removed as (delete from user_avatars where user_id = $1),
+       u as (update users set avatar_url = null where id = $1 returning *)
+       select ${userJson('u')} as user from u`,
+      [id],
+    );
+  }
+
+  private async userFromQuery(sql: string, params: unknown[]) {
+    const row = await this.db.queryOne<{ user: unknown }>(sql, params);
+    if (!row) throw new NotFoundException('User not found');
+    return row.user;
+  }
+
+  async getAvatar(id: string) {
+    const row = await this.db.queryOne<{ mime: string; data: Buffer }>(
+      'select mime, data from user_avatars where user_id = $1',
+      [id],
+    );
+    if (!row) throw new NotFoundException('Avatar not found');
+    return row;
   }
 
   async remove(id: string) {

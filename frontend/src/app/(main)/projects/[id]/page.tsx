@@ -13,9 +13,13 @@ export async function generateMetadata({ params }: PageProps<"/projects/[id]">):
 const page = async ({ params }: PageProps<"/projects/[id]">) => {
   const { id } = await params;
   const me = await requireUser(`/projects/${id}`);
-  const project = await orNull(serverApi.projects.get(id));
+  // Проект и моя заявка в него — параллельно
+  const [project, myApplications] = await Promise.all([
+    orNull(serverApi.projects.get(id)),
+    serverApi.applications.sent({ projectId: id }).catch(() => []), // кривой id в адресе — просто "не найдено"
+  ]);
   if (!project) notFound();
-  return <ProjectDetailPage project={project} currentUserId={me.id} />;
+  return <ProjectDetailPage project={project} currentUserId={me.id} myApplication={myApplications[0] ?? null} />;
 };
 
 export default page;

@@ -3,18 +3,20 @@ import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
+import { timeAgo } from "@/lib/format";
 import type { Application } from "@/types";
 import scss from "./ApplicationCard.module.scss";
 
 type ReceivedApplicationCardProps = {
   application: Application;
   showProject?: boolean; // на странице конкретного проекта название проекта не нужно
+  busy?: boolean; // решение уже отправляется
   onAccept: () => void;
   onDecline: () => void;
 };
 
 // Входящая заявка: кто, на какую роль, сообщение, навыки, Accept / Decline
-const ReceivedApplicationCard = ({ application: a, showProject = true, onAccept, onDecline }: ReceivedApplicationCardProps) => (
+const ReceivedApplicationCard = ({ application: a, showProject = true, busy, onAccept, onDecline }: ReceivedApplicationCardProps) => (
   <article className={scss.card}>
     <div className={scss.top}>
       <Link href={`/profile/${a.applicant.id}`} className={scss.person}>
@@ -24,7 +26,7 @@ const ReceivedApplicationCard = ({ application: a, showProject = true, onAccept,
           <p className={scss.meta}>{a.applicant.title}</p>
         </div>
       </Link>
-      <span className={scss.time}>{a.createdAt}</span>
+      <span className={scss.time}>{timeAgo(a.createdAt)}</span>
     </div>
 
     <p className={scss.appliedFor}>
@@ -48,10 +50,10 @@ const ReceivedApplicationCard = ({ application: a, showProject = true, onAccept,
     <div className={scss.actions}>
       {a.status === "pending" ? (
         <>
-          <Button size="sm" onClick={onAccept} className={scss.actionButton}>
+          <Button size="sm" onClick={onAccept} disabled={busy} className={scss.actionButton}>
             Accept
           </Button>
-          <Button size="sm" variant="outline" onClick={onDecline} className={scss.actionButton}>
+          <Button size="sm" variant="outline" onClick={onDecline} disabled={busy} className={scss.actionButton}>
             Decline
           </Button>
         </>

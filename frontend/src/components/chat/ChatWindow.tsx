@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { ArrowLeftIcon, UsersIcon } from "@/components/ui/Icons";
-import { onlineUserIds } from "@/data/chat";
+import { useOnlineUsers } from "@/lib/realtime";
 import type { ChatMessage, Project } from "@/types";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
@@ -10,13 +10,16 @@ import scss from "./Chat.module.scss";
 type ChatWindowProps = {
   project: Project;
   messages: ChatMessage[];
-  onSend: (text: string) => void;
+  loading: boolean;
+  currentUserId: string;
+  onSend: (text: string) => Promise<boolean>;
   onOpenMembers: () => void;
 };
 
 // Центральная часть: шапка чата, лента сообщений, поле ввода
-const ChatWindow = ({ project, messages, onSend, onOpenMembers }: ChatWindowProps) => {
-  const online = project.members.filter((m) => onlineUserIds.has(m.id)).length;
+const ChatWindow = ({ project, messages, loading, currentUserId, onSend, onOpenMembers }: ChatWindowProps) => {
+  const onlineIds = useOnlineUsers();
+  const online = project.members.filter((m) => onlineIds.has(m.id)).length;
 
   return (
     <div className={scss.window}>
@@ -41,7 +44,7 @@ const ChatWindow = ({ project, messages, onSend, onOpenMembers }: ChatWindowProp
         </button>
       </header>
 
-      <MessageList messages={messages} ownerId={project.owner.id} />
+      <MessageList messages={messages} loading={loading} ownerId={project.owner.id} currentUserId={currentUserId} />
       <Composer onSend={onSend} placeholder={`Message ${project.title}`} />
     </div>
   );
