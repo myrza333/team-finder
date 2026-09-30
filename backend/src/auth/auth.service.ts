@@ -97,7 +97,7 @@ export class AuthService {
   private async session(userId: string) {
     const payload: SessionPayload = { sub: userId };
     const token = await this.jwt.signAsync(payload);
-    const user = await this.users.findOne(userId);
+    const user = await this.users.findOwn(userId);
     return { token, user };
   }
 }

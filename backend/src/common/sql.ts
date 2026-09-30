@@ -3,15 +3,20 @@
 // Своё фото или нарисованная аватарка по имени
 const avatarUrl = (u: string) => `coalesce(${u}.avatar_url, 'https://api.dicebear.com/7.x/avataaars/svg?seed=' || ${u}.name)`;
 
-export const userJson = (u: string) => `json_build_object(
+// Публичный профиль учитывает настройки приватности (Settings → Privacy): скрытые ссылки и город — null.
+// own = true — для самого человека (его настройки профиля): там нужны все значения
+export const userJson = (u: string, own = false) => {
+  const shown = (flag: string, column: string) => (own ? `${u}.${column}` : `case when ${u}.${flag} then ${u}.${column} end`);
+  return `json_build_object(
   'id', ${u}.id,
   'name', ${u}.name,
   'title', coalesce(${u}.title, ''),
   'avatarUrl', ${avatarUrl(u)},
   'bio', ${u}.bio,
-  'location', ${u}.location,
-  'githubUrl', ${u}.github_url,
-  'telegramUrl', ${u}.telegram_url,
+  'location', ${shown('show_location', 'location')},
+  'githubUrl', ${shown('show_github', 'github_url')},
+  'telegramUrl', ${shown('show_telegram', 'telegram_url')},
+  'openToProjects', ${u}.open_to_projects,
   'skills', coalesce((
     select json_agg(s.name order by s.name)
     from user_skills us join skills s on s.id = us.skill_id
@@ -19,6 +24,7 @@ export const userJson = (u: string) => `json_build_object(
   ), '[]'),
   'projectsCount', (select count(*) from project_members pm where pm.user_id = ${u}.id)::int
 )`;
+};
 
 // Короткая карточка человека: для чата и уведомлений навыки и счётчики не нужны
 export const personJson = (u: string) => `json_build_object(

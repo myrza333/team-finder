@@ -1,6 +1,9 @@
 "use client";
 import Toggle from "@/components/ui/Toggle/Toggle";
+import type { UserSettings } from "@/types";
 import { SaveBar, SettingRow, SettingsSection, useSettingsForm } from "./SettingsParts";
+import { useSaveSettings, useUserSettings } from "./useUserSettings";
+import scss from "./Settings.module.scss";
 
 const visibilityItems = [
   {
@@ -24,13 +27,24 @@ const contactItems = [
 type PrivacyKey = (typeof visibilityItems)[number]["key"] | (typeof contactItems)[number]["key"];
 
 const PrivacySettings = () => {
-  const form = useSettingsForm<Record<PrivacyKey, boolean>>({
-    openToProjects: true,
-    showInPeople: true,
-    showGithub: true,
-    showTelegram: true,
-    showLocation: true,
-  });
+  const { data, isError } = useUserSettings();
+  if (isError) return <p className={scss.state}>Couldn&apos;t load your settings. Try again later.</p>;
+  if (!data) return <p className={scss.state}>Loading…</p>;
+  return <PrivacyForm settings={data} />;
+};
+
+const PrivacyForm = ({ settings }: { settings: UserSettings }) => {
+  const save = useSaveSettings();
+  const form = useSettingsForm<Record<PrivacyKey, boolean>>(
+    {
+      openToProjects: settings.openToProjects,
+      showInPeople: settings.showInPeople,
+      showGithub: settings.showGithub,
+      showTelegram: settings.showTelegram,
+      showLocation: settings.showLocation,
+    },
+    save,
+  );
 
   const renderRows = (items: readonly { key: PrivacyKey; title: string; description: string }[]) =>
     items.map((item) => (
@@ -51,7 +65,14 @@ const PrivacySettings = () => {
 
       <SettingsSection title="Contact info" description="Your email is never shown publicly.">
         {renderRows(contactItems)}
-        <SaveBar isDirty={form.isDirty} justSaved={form.justSaved} onSave={form.save} onReset={form.reset} />
+        <SaveBar
+          isDirty={form.isDirty}
+          justSaved={form.justSaved}
+          saving={form.saving}
+          error={form.error}
+          onSave={form.save}
+          onReset={form.reset}
+        />
       </SettingsSection>
     </>
   );

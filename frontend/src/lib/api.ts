@@ -1,4 +1,5 @@
 import type {
+  Announcement,
   AppNotification,
   Application,
   ApplicationStatus,
@@ -7,6 +8,7 @@ import type {
   Project,
   ProjectCategory,
   User,
+  UserSettings,
 } from "@/types";
 import { BACKEND_URL } from "./backendUrl";
 
@@ -147,8 +149,12 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
         return request<User>("/users/me/avatar", { method: "PUT", body });
       },
       removeAvatar: () => request<User>("/users/me/avatar", { method: "DELETE" }),
+      settings: () => request<UserSettings>("/users/me/settings"),
+      updateSettings: (data: Partial<UserSettings>) =>
+        request<UserSettings>("/users/me/settings", { method: "PATCH", body: json(data) }),
     },
     skills: () => request<string[]>("/skills"),
+    announcements: () => request<Announcement[]>("/announcements"),
   };
 };
 

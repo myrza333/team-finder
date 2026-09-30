@@ -89,6 +89,8 @@ export class ApplicationsService {
            select p.owner_id, 'application_new',
                   jsonb_build_object('actorId', a.user_id, 'projectId', p.id, 'projectTitle', p.title, 'applicationId', a.id)
            from a join projects p on p.id = a.project_id
+           join users o on o.id = p.owner_id
+           where o.notify_applications -- владелец не выключил такие уведомления
          )
          select ${applicationJson} as application, p.owner_id
          from ${applicationFrom('a')}`,
@@ -216,6 +218,8 @@ export class ApplicationsService {
          select a.user_id, 'application_accepted',
                 jsonb_build_object('actorId', $2::uuid, 'projectId', a.project_id, 'projectTitle', p.title)
          from a join projects p on p.id = a.project_id
+         join users c on c.id = a.user_id
+         where c.notify_application_updates
        )
        select ${applicationJson} as application,
               (select ${messageJson('m', 'x')} from m left join users x on x.id = m.user_id) as message
@@ -236,6 +240,8 @@ export class ApplicationsService {
          select a.user_id, 'application_rejected',
                 jsonb_build_object('actorId', $2::uuid, 'projectId', a.project_id, 'projectTitle', p.title)
          from a join projects p on p.id = a.project_id
+         join users c on c.id = a.user_id
+         where c.notify_application_updates
        )
        select ${applicationJson} as application, null as message
        from ${applicationFrom('a')}`,

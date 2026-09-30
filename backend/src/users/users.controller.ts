@@ -17,7 +17,7 @@ import type { Response } from 'express';
 import { SESSION_COOKIE } from '../auth/session.js';
 import { CurrentUserId } from '../common/current-user.decorator.js';
 import { UuidParamPipe } from '../common/uuid.js';
-import { UpdateProfileDto, UsersQueryDto } from './dto/user.dto.js';
+import { UpdateProfileDto, UserSettingsDto, UsersQueryDto } from './dto/user.dto.js';
 import { type UploadedImage, UsersService } from './users.service.js';
 
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
@@ -34,12 +34,23 @@ export class UsersController {
   // "me" объявлен раньше ":id", иначе Nest принял бы "me" за id
   @Get('me')
   me(@CurrentUserId() userId: string) {
-    return this.users.findOne(userId);
+    return this.users.findOwn(userId);
   }
 
   @Patch('me')
   updateMe(@CurrentUserId() userId: string, @Body() dto: UpdateProfileDto) {
     return this.users.update(userId, dto);
+  }
+
+  // Приватность и уведомления. Объявлены раньше ":id/avatar", чтобы "me" не считался id
+  @Get('me/settings')
+  settings(@CurrentUserId() userId: string) {
+    return this.users.getSettings(userId);
+  }
+
+  @Patch('me/settings')
+  updateSettings(@CurrentUserId() userId: string, @Body() dto: UserSettingsDto) {
+    return this.users.updateSettings(userId, dto);
   }
 
   @Delete('me')
@@ -75,7 +86,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUserId() _userId: string) {
-    return this.users.findOne(id);
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string) {
+    return this.users.findVisible(id, userId);
   }
 }

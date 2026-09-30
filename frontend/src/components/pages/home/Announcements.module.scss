@@ -1,0 +1,120 @@
+.section {
+  @include container;
+  padding-block: 0 64px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  @include sm { grid-template-columns: repeat(2, 1fr); }
+  @include lg { grid-template-columns: repeat(3, 1fr); }
+}
+
+.card {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  @include sm { padding: 24px; }
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-xl);
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+.countdown {
+  @include text-xs;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.title {
+  @include display;
+  @include text-lg;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.bio {
+  @include text-sm;
+  @include line-clamp(3);
+  color: var(--gray-500);
+  margin-bottom: 20px;
+}
+
+// Команда и стек: "засекречено"
+.secrets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--gray-100);
+}
+
+.classified {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.classifiedLabel {
+  @include text-xs;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.redacted {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.bar {
+  flex-shrink: 1;
+  min-width: 16px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--gray-200);
+}
+
+.secret {
+  @include text-xs;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+
+.date {
+  @include text-xs;
+  margin-top: 16px;
+  color: var(--gray-400);
+}

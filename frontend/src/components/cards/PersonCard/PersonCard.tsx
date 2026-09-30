@@ -1,5 +1,6 @@
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import type { User } from "@/types";
 import scss from "./PersonCard.module.scss";
@@ -11,6 +12,11 @@ const PersonCard = ({ user }: { user: User }) => (
     </div>
     <h3 className={scss.name}>{user.name}</h3>
     <p className={scss.title}>{user.title}</p>
+    {user.openToProjects && (
+      <div className={scss.badge}>
+        <StatusBadge status="open" />
+      </div>
+    )}
 
     <div className={scss.skills}>
       <TagList center>

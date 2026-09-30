@@ -198,3 +198,10 @@
 .saveError {
   color: var(--danger-600);
 }
+
+.state {
+  @include text-sm;
+  padding: 40px 0;
+  text-align: center;
+  color: var(--gray-400);
+}

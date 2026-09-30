@@ -3,6 +3,7 @@ import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import Panel from "@/components/ui/Panel/Panel";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import type { Project, User } from "@/types";
 import scss from "./ProfilePage.module.scss";
@@ -29,6 +30,11 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
         <div className={scss.info}>
           <h1 className={scss.name}>{user.name}</h1>
           <p className={scss.title}>{user.title}</p>
+          {user.openToProjects && (
+            <div className={scss.badge}>
+              <StatusBadge status="open" />
+            </div>
+          )}
           {user.bio && <p className={scss.bio}>{user.bio}</p>}
           {user.location && (
             <p className={scss.location}>

@@ -3,13 +3,15 @@ import Button from "@/components/ui/Button/Button";
 import SectionHeader from "@/components/ui/SectionHeader/SectionHeader";
 import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
 import PersonCard from "@/components/cards/PersonCard/PersonCard";
+import Announcements from "./Announcements";
 import { serverApi as api } from "@/lib/api.server";
 import scss from "./HomePage.module.scss";
 
 const HomePage = async () => {
-  const [projects, users] = await Promise.all([
+  const [projects, users, announcements] = await Promise.all([
     api.projects.list({ limit: 3 }),
     api.users.list({ limit: 4 }),
+    api.announcements().catch(() => []), // анонсы — не главное: если не загрузились, страница всё равно откроется
   ]);
 
   return (
@@ -70,6 +72,8 @@ const HomePage = async () => {
           </Button>
         </div>
       </section>
+
+      {announcements.length > 0 && <Announcements items={announcements} />}
     </>
   );
 };

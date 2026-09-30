@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { AnnouncementsController } from './announcements/announcements.controller.js';
 import { AppController } from './app.controller.js';
 import { ApplicationsModule } from './applications/applications.module.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -23,6 +24,6 @@ import { UsersModule } from './users/users.module.js';
     ChatModule,
     NotificationsModule,
   ],
-  controllers: [AppController, SkillsController],
+  controllers: [AppController, SkillsController, AnnouncementsController],
 })
 export class AppModule {}

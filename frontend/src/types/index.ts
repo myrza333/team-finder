@@ -11,6 +11,7 @@ export type User = {
   telegramUrl?: string | null;
   teamsCount?: number;
   contributionsCount?: number;
+  openToProjects?: boolean; // значок "Open to projects" (Settings → Privacy)
 };
 
 export type ProjectCategory =
@@ -83,4 +84,25 @@ export type ChatSummary = {
   project: Project;
   lastMessage: ChatMessage | null;
   unread: number;
+};
+
+// Settings → Privacy и Settings → Notifications (уведомления только на сайте, писем пока нет)
+export type UserSettings = {
+  openToProjects: boolean;
+  showInPeople: boolean;
+  showGithub: boolean;
+  showTelegram: boolean;
+  showLocation: boolean;
+  notifyApplications: boolean;
+  notifyApplicationUpdates: boolean;
+  notifyTeam: boolean;
+};
+
+// Анонс будущего проекта на главной: команда и стек пока засекречены
+export type Announcement = {
+  id: string;
+  title: string;
+  bio: string;
+  icon: string;
+  startsAt: string; // "2026-10-14"
 };

@@ -52,7 +52,7 @@ export class AuthController {
 
   @Get('me')
   me(@CurrentUserId() userId: string) {
-    return this.users.findOne(userId);
+    return this.users.findOwn(userId);
   }
 
   // Пропуск для WebSocket-подключения (чат, уведомления) — см. SocketPayload

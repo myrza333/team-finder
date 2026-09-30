@@ -17,7 +17,7 @@ npm run start:dev      # http://localhost:5000/api/health
 ```
 
 Database: run the files from `backend/db/` in order (Supabase SQL Editor or `npm run db:run -- db/001_schema.sql`).
-`003_seed.sql` adds demo users and projects, `007_seed_activity.sql` adds demo applications, chat messages and notifications (both can be re-run to reset the demo). Every demo user has the password `password123` (e.g. `timur@example.com`).
+There is no demo data: the site shows only real users and projects.
 
 **Frontend**
 

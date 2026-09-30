@@ -40,7 +40,8 @@ export class TeamService {
          insert into notifications (user_id, type, data)
          select who.id, 'member_removed',
                 jsonb_build_object('actorId', $3::uuid, 'projectId', p.id, 'projectTitle', p.title)
-         from who, projects p where p.id = $1
+         from who, projects p
+         where p.id = $1 and (select notify_team from users where id = who.id)
        )
        select ${messageJson('m', 'x')} as message from m left join users x on x.id = m.user_id`,
       [projectId, memberId, ownerId],
@@ -72,6 +73,7 @@ export class TeamService {
          select who.owner_id, 'member_left',
                 jsonb_build_object('actorId', who.id, 'projectId', $1::uuid, 'projectTitle', who.title)
          from who
+         where (select notify_team from users where id = who.owner_id)
        )
        select ${messageJson('m', 'x')} as message, (select owner_id from who) as owner_id
        from m left join users x on x.id = m.user_id`,

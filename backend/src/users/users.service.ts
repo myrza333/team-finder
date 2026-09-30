@@ -2,7 +2,23 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { DatabaseService } from '../database/database.service.js';
 import { ensureSkillIds } from '../common/skills.js';
 import { userJson } from '../common/sql.js';
-import { UpdateProfileDto, UsersQueryDto } from './dto/user.dto.js';
+import { UpdateProfileDto, UserSettingsDto, UsersQueryDto } from './dto/user.dto.js';
+
+// Поле настроек в API → колонка в таблице users
+const SETTINGS_COLUMNS: Record<keyof UserSettingsDto, string> = {
+  openToProjects: 'open_to_projects',
+  showInPeople: 'show_in_people',
+  showGithub: 'show_github',
+  showTelegram: 'show_telegram',
+  showLocation: 'show_location',
+  notifyApplications: 'notify_applications',
+  notifyApplicationUpdates: 'notify_application_updates',
+  notifyTeam: 'notify_team',
+};
+
+const settingsJson = `json_build_object(${Object.entries(SETTINGS_COLUMNS)
+  .map(([key, column]) => `'${key}', u.${column}`)
+  .join(', ')})`;
 
 export type UploadedImage = { buffer: Buffer; size: number };
 
@@ -36,6 +52,8 @@ export class UsersService {
       )`);
     }
     if (query.role?.trim()) where.push(`u.title ilike ${param(`%${query.role.trim()}%`)}`);
+    // Кто выключил "Show me in People search" — в списке и поиске не появляется
+    where.push('u.show_in_people');
 
     const rows = await this.db.query<{ user: unknown }>(
       `select ${userJson('u')} as user
@@ -48,10 +66,49 @@ export class UsersService {
     return rows.map((r) => r.user);
   }
 
-  async findOne(id: string) {
-    const row = await this.db.queryOne<{ user: unknown }>(
-      `select ${userJson('u')} as user from users u where u.id = $1`,
+  // ===== Settings → Privacy / Notifications =====
+
+  async getSettings(id: string) {
+    const row = await this.db.queryOne(
+      `select ${settingsJson} as settings from users u where u.id = $1`,
       [id],
+    );
+    if (!row) throw new NotFoundException('User not found');
+    return row.settings;
+  }
+
+  async updateSettings(id: string, dto: UserSettingsDto) {
+    const changed = Object.entries(SETTINGS_COLUMNS).filter(([key]) => dto[key as keyof UserSettingsDto] !== undefined);
+    if (!changed.length) return this.getSettings(id);
+    const set = changed.map(([, column], i) => `${column} = $${i + 2}`).join(', ');
+    const row = await this.db.queryOne(
+      `update users u set ${set} where u.id = $1 returning ${settingsJson} as settings`,
+      [id, ...changed.map(([key]) => dto[key as keyof UserSettingsDto])],
+    );
+    if (!row) throw new NotFoundException('User not found');
+    return row.settings;
+  }
+
+  // Свой профиль — со всеми полями, даже скрытыми настройками приватности (нужно для формы профиля)
+  async findOwn(id: string) {
+    const row = await this.db.queryOne<{ user: unknown }>(
+      `select ${userJson('u', true)} as user from users u where u.id = $1`,
+      [id],
+    );
+    if (!row) throw new NotFoundException('User not found');
+    return row.user;
+  }
+
+  // Чужой профиль. Скрытого из People видят только он сам и его товарищи по командам
+  async findVisible(id: string, viewerId: string) {
+    const row = await this.db.queryOne<{ user: unknown }>(
+      `select ${userJson('u')} as user from users u
+       where u.id = $1 and (
+         u.show_in_people or u.id = $2
+         or exists (select 1 from project_members a join project_members b on b.project_id = a.project_id
+                    where a.user_id = u.id and b.user_id = $2)
+       )`,
+      [id, viewerId],
     );
     if (!row) throw new NotFoundException('User not found');
     return row.user;
@@ -89,7 +146,7 @@ export class UsersService {
         }
       }
     });
-    return this.findOne(id);
+    return this.findOwn(id);
   }
 
   async setAvatar(id: string, file: UploadedImage | undefined) {
@@ -106,7 +163,7 @@ export class UsersService {
          on conflict (user_id) do update set mime = excluded.mime, data = excluded.data, updated_at = now()
        ),
        u as (update users set avatar_url = $2 where id = $1 returning *)
-       select ${userJson('u')} as user from u`,
+       select ${userJson('u', true)} as user from u`,
       [id, url, mime, file.buffer],
     );
   }
@@ -115,7 +172,7 @@ export class UsersService {
     return this.userFromQuery(
       `with removed as (delete from user_avatars where user_id = $1),
        u as (update users set avatar_url = null where id = $1 returning *)
-       select ${userJson('u')} as user from u`,
+       select ${userJson('u', true)} as user from u`,
       [id],
     );
   }

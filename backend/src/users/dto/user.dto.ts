@@ -2,6 +2,7 @@ import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -84,4 +85,16 @@ export class UsersQueryDto {
   @Min(1)
   @Max(100)
   limit?: number;
+}
+
+// Settings → Privacy и Settings → Notifications. Все поля необязательные: меняется то, что прислали
+export class UserSettingsDto {
+  @IsOptional() @IsBoolean() openToProjects?: boolean;
+  @IsOptional() @IsBoolean() showInPeople?: boolean;
+  @IsOptional() @IsBoolean() showGithub?: boolean;
+  @IsOptional() @IsBoolean() showTelegram?: boolean;
+  @IsOptional() @IsBoolean() showLocation?: boolean;
+  @IsOptional() @IsBoolean() notifyApplications?: boolean;
+  @IsOptional() @IsBoolean() notifyApplicationUpdates?: boolean;
+  @IsOptional() @IsBoolean() notifyTeam?: boolean;
 }
