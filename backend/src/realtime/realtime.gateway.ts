@@ -32,28 +32,37 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     private readonly db: DatabaseService,
   ) {}
 
+  // Ошибки здесь обязательно ловим сами: Nest их не перехватывает, и необработанная ошибка
+  // (например, база на секунду недоступна) роняет весь сервер
   async handleConnection(socket: Socket) {
-    const userId = await this.authenticate(socket);
-    if (!userId) return socket.disconnect(true);
-    socket.data.userId = userId;
+    try {
+      const userId = await this.authenticate(socket);
+      if (!userId) return void socket.disconnect(true);
 
-    // Мои команды и их участники — одним запросом
-    const teams = await this.db.query<{ project_id: string; members: string[] }>(
-      `select pm.project_id,
-              array(select m.user_id::text from project_members m where m.project_id = pm.project_id) as members
-       from project_members pm where pm.user_id = $1`,
-      [userId],
-    );
-    const projectIds = teams.map((t) => t.project_id);
-    await socket.join([userRoom(userId), ...projectIds.map(projectRoom)]);
+      // Мои команды и их участники — одним запросом
+      const teams = await this.db.query<{ project_id: string; members: string[] }>(
+        `select pm.project_id,
+                array(select m.user_id::text from project_members m where m.project_id = pm.project_id) as members
+         from project_members pm where pm.user_id = $1`,
+        [userId],
+      );
+      const projectIds = teams.map((t) => t.project_id);
+      await socket.join([userRoom(userId), ...projectIds.map(projectRoom)]);
 
-    const count = (this.connections.get(userId) ?? 0) + 1;
-    this.connections.set(userId, count);
-    if (count === 1) this.broadcastPresence(userId, projectIds, true);
+      // Считаем подключение только когда всё удалось — handleDisconnect смотрит на socket.data.userId
+      socket.data.userId = userId;
+      const count = (this.connections.get(userId) ?? 0) + 1;
+      this.connections.set(userId, count);
+      if (count === 1) this.broadcastPresence(userId, projectIds, true);
 
-    // Новому подключению — кто из товарищей по командам уже в сети (про остальных ему знать незачем)
-    const teammates = new Set(teams.flatMap((t) => t.members));
-    socket.emit('presence:list', [...this.connections.keys()].filter((id) => teammates.has(id)));
+      // Новому подключению — кто из товарищей по командам уже в сети (про остальных ему знать незачем)
+      const teammates = new Set(teams.flatMap((t) => t.members));
+      socket.emit('presence:list', [...this.connections.keys()].filter((id) => teammates.has(id)));
+    } catch (e) {
+      // Браузер сам переподключится через пару секунд
+      console.warn('WebSocket connection failed:', (e as Error).message);
+      socket.disconnect(true);
+    }
   }
 
   async handleDisconnect(socket: Socket) {
@@ -63,7 +72,11 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     if (count > 0) return void this.connections.set(userId, count);
 
     this.connections.delete(userId);
-    this.broadcastPresence(userId, await this.projectIdsOf(userId), false);
+    try {
+      this.broadcastPresence(userId, await this.projectIdsOf(userId), false);
+    } catch (e) {
+      console.warn('Presence update failed:', (e as Error).message);
+    }
   }
 
   // ===== Для сервисов: кому и что отправить =====

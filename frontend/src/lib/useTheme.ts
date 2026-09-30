@@ -1,6 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
-import { THEME_STORAGE_KEY } from "./theme";
+import { THEME_COOKIE } from "./theme";
 
 export type ThemePreference = "light" | "dark" | "system";
 
@@ -26,17 +26,16 @@ const subscribe = (listener: () => void) => {
 export const useTheme = () => {
   const preference = useSyncExternalStore<ThemePreference | null>(subscribe, readPreference, () => null);
 
+  // Меняем тему на странице сразу и запоминаем в cookie на год — сервер отдаст её при следующей загрузке
   const setPreference = (next: ThemePreference) => {
     const root = document.documentElement;
-    try {
-      if (next === "system") {
-        delete root.dataset.theme;
-        localStorage.removeItem(THEME_STORAGE_KEY);
-      } else {
-        root.dataset.theme = next;
-        localStorage.setItem(THEME_STORAGE_KEY, next);
-      }
-    } catch {}
+    if (next === "system") {
+      delete root.dataset.theme;
+      document.cookie = `${THEME_COOKIE}=; path=/; max-age=0; samesite=lax`;
+    } else {
+      root.dataset.theme = next;
+      document.cookie = `${THEME_COOKIE}=${next}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    }
   };
 
   return { preference, setPreference };

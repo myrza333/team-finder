@@ -1,4 +1,9 @@
-export const THEME_STORAGE_KEY = "tf-theme";
+// Выбранная вручную тема хранится в cookie: сервер читает её в app/layout.tsx и сразу отдаёт
+// <html data-theme="...">. Так нет ни вспышки светлой темы, ни скрипта в <head>.
+// Нет cookie — действует системная тема (prefers-color-scheme в globals.scss)
+export const THEME_COOKIE = "tf-theme";
 
-// Выполняется в <head> до отрисовки, чтобы не было вспышки светлой темы
-export const themeInitScript = `try{var t=localStorage.getItem("${THEME_STORAGE_KEY}");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+export type Theme = "light" | "dark";
+
+export const parseTheme = (value: string | undefined): Theme | undefined =>
+  value === "light" || value === "dark" ? value : undefined;

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "@/styles/globals.scss";
 import Providers from "./providers";
-import { themeInitScript } from "@/lib/theme";
+import { THEME_COOKIE, parseTheme } from "@/lib/theme";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -23,14 +24,19 @@ export const metadata: Metadata = {
   description: "Find developers, designers and creators for your next project.",
 };
 
-// Корневой layout: только шрифты и провайдеры.
+// Корневой layout: только шрифты, тема и провайдеры.
 // Хедер и футер — в (main)/layout.tsx, у страниц входа (auth) их нет.
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Выбранная тема приходит из cookie, поэтому HTML сразу отрисовывается в нужной теме
+  const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
+
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jakarta.variable}`}
+      data-theme={theme}
+      suppressHydrationWarning
+    >
       <body>
         <Providers>{children}</Providers>
       </body>
