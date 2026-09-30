@@ -5,6 +5,7 @@ import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import { clockTime, dayLabel } from "@/lib/format";
 import type { ChatMessage, ChatSummary } from "@/types";
 import scss from "./Chat.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 type ChatListProps = {
   chats: ChatSummary[];
@@ -54,7 +55,7 @@ const ChatList = ({ chats, loading, activeId, currentUserId, unread }: ChatListP
                 className={`${scss.listItem} ${c.id === activeId ? scss.listItemActive : ""}`}
                 aria-current={c.id === activeId ? "page" : undefined}
               >
-                <span className={scss.chatIcon}>{c.icon}</span>
+                <span className={scss.chatIcon}><ProjectIcon icon={c.icon} size={20} /></span>
                 <div className={scss.listItemText}>
                   <div className={scss.listItemTop}>
                     <p className={scss.listItemTitle}>{c.title}</p>

@@ -16,6 +16,9 @@
 
 .success {
   @include text-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--success-600);
 }
 

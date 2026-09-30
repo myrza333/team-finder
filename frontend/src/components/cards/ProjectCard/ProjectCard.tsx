@@ -4,11 +4,12 @@ import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import { MoreIcon } from "@/components/ui/Icons";
 import type { Project } from "@/types";
 import scss from "./ProjectCard.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 const ProjectCard = ({ project }: { project: Project }) => (
   <article className={scss.card}>
     <div className={scss.top}>
-      <div className={scss.icon}>{project.icon}</div>
+      <div className={scss.icon}><ProjectIcon icon={project.icon} size={20} /></div>
       <button className={scss.more} aria-label="More actions">
         <MoreIcon />
       </button>

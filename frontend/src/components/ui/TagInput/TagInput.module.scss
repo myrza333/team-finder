@@ -66,6 +66,12 @@
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
+  // Около 6 вариантов видно сразу, остальные — прокруткой. Прокрутка не "перетекает" на страницу
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
   button {
     @include text-sm;
     width: 100%;

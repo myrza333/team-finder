@@ -4,6 +4,7 @@ import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { timeAgo } from "@/lib/format";
 import type { Application } from "@/types";
 import scss from "./ApplicationCard.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 type SentApplicationRowProps = {
   application: Application;
@@ -14,7 +15,7 @@ type SentApplicationRowProps = {
 // Моя заявка в чужой проект: проект, роль, дата, статус и действие по статусу
 const SentApplicationRow = ({ application: a, busy, onWithdraw }: SentApplicationRowProps) => (
   <article className={`${scss.card} ${scss.row}`}>
-    <span className={scss.projectIcon}>{a.project.icon}</span>
+    <span className={scss.projectIcon}><ProjectIcon icon={a.project.icon} size={20} /></span>
 
     <div className={scss.rowInfo}>
       <Link href={`/projects/${a.project.id}`} className={scss.projectTitle}>

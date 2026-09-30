@@ -18,6 +18,9 @@ import {
 
 export const CATEGORIES = ['Development', 'Design', 'AI', 'Startup', 'Education', 'Games', 'Mobile'] as const;
 
+// Ключи иконок проекта — тот же список, что projectIcons во frontend/src/components/ui/ProjectIcon/ProjectIcon.tsx
+export const PROJECT_ICONS = ['rocket', 'education', 'code', 'nature', 'health', 'games', 'books', 'mobile', 'design', 'ai', 'music', 'shop'] as const;
+
 export class VacancyDto {
   // Есть у уже существующей позиции: тогда она обновляется, а не создаётся заново (заявки на неё сохраняются)
   @IsOptional()
@@ -58,9 +61,8 @@ export class CreateProjectDto {
   category!: (typeof CATEGORIES)[number];
 
   @IsOptional()
-  @IsString()
-  @MaxLength(8)
-  icon?: string;
+  @IsIn(PROJECT_ICONS)
+  icon?: (typeof PROJECT_ICONS)[number];
 
   @IsArray()
   @ArrayMaxSize(15)

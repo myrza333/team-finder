@@ -1,4 +1,5 @@
 "use client";
+import { SearchX, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
@@ -81,7 +82,7 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
           </div>
 
           {isError ? (
-            <EmptyState icon="⚠️" text="Couldn't load projects. Is the server running?" />
+            <EmptyState icon={TriangleAlert} text="Couldn't load projects. Is the server running?" />
           ) : isPending ? null : projects.length > 0 ? (
             <div className={scss.grid}>
               {projects.map((p) => (
@@ -89,7 +90,7 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
               ))}
             </div>
           ) : (
-            <EmptyState icon="🔍" text="No projects found. Try a different search." />
+            <EmptyState icon={SearchX} text="No projects found. Try a different search." />
           )}
         </div>
       </div>

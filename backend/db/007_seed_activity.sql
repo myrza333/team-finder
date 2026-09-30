@@ -49,7 +49,7 @@ from (values
   ('b0000000-0000-4000-8000-000000000001', null, 'Timur Akmatov created the project', '9 days 3 hours'),
   ('b0000000-0000-4000-8000-000000000001', null, 'Aida Bekova joined the team', '8 days'),
   ('b0000000-0000-4000-8000-000000000001', null, 'Bek Osorov joined the team', '1 day 2 hours'),
-  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Hi everyone 👋', '3 hours 10 minutes'),
+  ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Hi everyone', '3 hours 10 minutes'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000002', 'Hi! I''ll take care of the design', '3 hours 8 minutes'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003', 'Then I''m on the backend', '3 hours 5 minutes'),
   ('b0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'Great, I''ll do the frontend', '3 hours 3 minutes'),
@@ -64,7 +64,7 @@ from (values
   ('b0000000-0000-4000-8000-000000000004', null, 'Timur Akmatov joined the team', '14 days'),
   ('b0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000003', 'Welcome, Timur! Let''s sync tomorrow at 11:00.', '14 days'),
   ('b0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000005', 'I''ve pushed the first version of the model API.', '1 day 4 hours'),
-  ('b0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000001', 'Nice, I''ll connect the mobile screens to it 👍', '1 day 3 hours'),
+  ('b0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000001', 'Nice, I''ll connect the mobile screens to it', '1 day 3 hours'),
 
   ('b0000000-0000-4000-8000-000000000002', null, 'Alina Dzhaksybekova created the project', '12 days'),
   ('b0000000-0000-4000-8000-000000000002', null, 'Daniyar Seitov joined the team', '10 days'),

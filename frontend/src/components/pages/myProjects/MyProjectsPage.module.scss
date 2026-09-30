@@ -39,6 +39,7 @@
   border-radius: var(--radius-lg);
   background: var(--primary-50);
   font-size: 1.25rem;
+  color: var(--primary-600);
 }
 
 .info {
@@ -109,8 +110,14 @@
 }
 
 .emptyIcon {
-  font-size: 2.25rem;
-  margin-bottom: 12px;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: var(--radius-full);
+  background: var(--gray-100);
+  color: var(--gray-500);
 }
 
 .emptyText {

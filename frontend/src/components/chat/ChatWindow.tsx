@@ -6,6 +6,7 @@ import type { ChatMessage, Project } from "@/types";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
 import scss from "./Chat.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 type ChatWindowProps = {
   project: Project;
@@ -28,7 +29,7 @@ const ChatWindow = ({ project, messages, loading, currentUserId, onSend, onOpenM
         <Link href="/chat" className={scss.back} aria-label="Back to chats">
           <ArrowLeftIcon />
         </Link>
-        <span className={scss.chatIcon}>{project.icon}</span>
+        <span className={scss.chatIcon}><ProjectIcon icon={project.icon} size={20} /></span>
         <div className={scss.windowTitleBox}>
           <Link href={`/projects/${project.id}`} className={scss.windowTitle}>
             {project.title}

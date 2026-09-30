@@ -26,7 +26,7 @@ const MessageList = ({ messages, loading, ownerId, currentUserId }: MessageListP
   if (messages.length === 0) {
     return (
       <div className={scss.messages}>
-        <p className={scss.noMessages}>{loading ? "Loading messages…" : "No messages yet. Say hi to your team 👋"}</p>
+        <p className={scss.noMessages}>{loading ? "Loading messages…" : "No messages yet. Say hi to your team"}</p>
       </div>
     );
   }

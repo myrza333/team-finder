@@ -1,4 +1,5 @@
 "use client";
+import { TriangleAlert, Users } from "lucide-react";
 import { useState } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
@@ -50,7 +51,7 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
       </div>
 
       {isError ? (
-        <EmptyState icon="⚠️" text="Couldn't load people. Is the server running?" />
+        <EmptyState icon={TriangleAlert} text="Couldn't load people. Is the server running?" />
       ) : isPending ? null : users.length > 0 ? (
         <div className={scss.grid}>
           {users.map((u) => (
@@ -58,7 +59,7 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
           ))}
         </div>
       ) : (
-        <EmptyState icon="👥" text="No people found." />
+        <EmptyState icon={Users} text="No people found." />
       )}
     </div>
   );

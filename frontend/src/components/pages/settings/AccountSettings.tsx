@@ -1,4 +1,5 @@
 "use client";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -163,7 +164,13 @@ const AccountSettings = ({ error }: { error?: string }) => {
           </div>
           <div className={local.formFooter}>
             <span className={changePassword.isError ? local.error : local.success} aria-live="polite">
-              {changePassword.isError ? changePassword.error.message : changePassword.isSuccess ? "✓ Password saved" : ""}
+              {changePassword.isError ? changePassword.error.message : changePassword.isSuccess ? (
+                <>
+                  <Check size={14} strokeWidth={2} aria-hidden /> Password saved
+                </>
+              ) : (
+                ""
+              )}
             </span>
             <Button type="submit" disabled={!canSubmitPwd || changePassword.isPending}>
               {changePassword.isPending ? "Saving…" : hasPassword ? "Update password" : "Set password"}

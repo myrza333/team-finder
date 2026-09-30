@@ -1,3 +1,4 @@
+import { Sparkles } from "lucide-react";
 import Button from "@/components/ui/Button/Button";
 import SectionHeader from "@/components/ui/SectionHeader/SectionHeader";
 import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
@@ -16,7 +17,7 @@ const HomePage = async () => {
       <section className={scss.hero}>
         <div className={scss.heroInner}>
           <div className={scss.badge}>
-            <span aria-hidden>✨</span> Your next great project starts here
+            <Sparkles size={14} strokeWidth={1.75} aria-hidden /> Your next great project starts here
           </div>
           <h1 className={scss.heroTitle}>Find your team</h1>
           <p className={scss.heroText}>Find developers, designers and creators for your next project.</p>

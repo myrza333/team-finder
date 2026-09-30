@@ -25,9 +25,8 @@ const TagInput = ({
   const listId = useId();
 
   const q = query.trim().toLowerCase();
-  const matches = suggestions
-    .filter((s) => !value.includes(s) && (!q || s.toLowerCase().includes(q)))
-    .slice(0, 8);
+  // Все подходящие варианты — список прокручивается (стили .suggestions)
+  const matches = suggestions.filter((s) => !value.includes(s) && (!q || s.toLowerCase().includes(q)));
 
   const add = (skill: string) => {
     const clean = skill.trim();

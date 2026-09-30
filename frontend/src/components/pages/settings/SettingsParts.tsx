@@ -1,4 +1,5 @@
 "use client";
+import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button/Button";
 import scss from "./Settings.module.scss";
@@ -104,7 +105,16 @@ export const SaveBar = ({
 }) => (
   <div className={scss.saveBar}>
     <span className={`${scss.saveStatus} ${error ? scss.saveError : ""}`} aria-live="polite">
-      {error ?? (justSaved ? "✓ Changes saved" : isDirty ? "You have unsaved changes" : "")}
+      {error ??
+        (justSaved ? (
+          <>
+            <Check size={14} strokeWidth={2} aria-hidden /> Changes saved
+          </>
+        ) : isDirty ? (
+          "You have unsaved changes"
+        ) : (
+          ""
+        ))}
     </span>
     <div className={scss.saveActions}>
       <Button variant="outline" onClick={onReset} disabled={!isDirty || saving}>

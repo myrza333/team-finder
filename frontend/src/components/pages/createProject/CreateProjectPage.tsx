@@ -10,9 +10,8 @@ import TagInput from "@/components/ui/TagInput/TagInput";
 import { allRoles, popularRoles, popularTech, projectCategories } from "@/data/options";
 import { api, type ProjectInput } from "@/lib/api";
 import type { Project, ProjectCategory } from "@/types";
+import ProjectIcon, { projectIconKeys, projectIcons } from "@/components/ui/ProjectIcon/ProjectIcon";
 import scss from "./CreateProjectPage.module.scss";
-
-const icons = ["🚀", "🎓", "💻", "🌱", "❤️", "🎮", "📚", "📱", "🎨", "🤖", "🎵", "🛒"];
 
 const toggle = (list: string[], value: string) =>
   list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -29,7 +28,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
     description: project?.description ?? "",
     fullDescription: project?.fullDescription ?? "",
     category: project?.category ?? "",
-    icon: project?.icon ?? "🚀",
+    icon: project?.icon ?? "rocket",
   });
   const [stack, setStack] = useState<string[]>(project?.stack ?? []);
   const [roles, setRoles] = useState<string[]>(project?.vacancies.map((v) => v.title) ?? ["Frontend Developer"]);
@@ -85,16 +84,17 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
         <div className={scss.card}>
           <Field label="Icon">
             <div className={scss.icons}>
-              {icons.map((icon) => (
+              {projectIconKeys.map((icon) => (
                 <button
                   key={icon}
                   type="button"
-                  aria-label={`Icon ${icon}`}
+                  aria-label={`Icon: ${projectIcons[icon].label}`}
+                  title={projectIcons[icon].label}
                   aria-pressed={form.icon === icon}
                   className={`${scss.icon} ${form.icon === icon ? scss.iconActive : ""}`}
                   onClick={() => setForm({ ...form, icon })}
                 >
-                  {icon}
+                  <ProjectIcon icon={icon} size={20} />
                 </button>
               ))}
             </div>

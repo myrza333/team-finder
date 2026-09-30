@@ -1,3 +1,4 @@
+import { FolderPlus } from "lucide-react";
 import Link from "next/link";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import Button from "@/components/ui/Button/Button";
@@ -7,6 +8,7 @@ import SectionHeader from "@/components/ui/SectionHeader/SectionHeader";
 import { serverApi } from "@/lib/api.server";
 import type { Project } from "@/types";
 import scss from "./MyProjectsPage.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 const openPositions = (p: Project) => p.vacancies.filter((v) => v.isOpen !== false).length;
 
@@ -16,7 +18,7 @@ type ProjectRowProps = { project: Project; owned: boolean; newApplications?: num
 const ProjectRow = ({ project: p, owned, newApplications = 0 }: ProjectRowProps) => {
   return (
     <article className={scss.row}>
-      <span className={scss.icon}>{p.icon}</span>
+      <span className={scss.icon}><ProjectIcon icon={p.icon} size={22} /></span>
 
       <div className={scss.info}>
         <div className={scss.titleLine}>
@@ -89,7 +91,9 @@ const MyProjectsPage = async ({ userId }: { userId: string }) => {
           </div>
         ) : (
           <div className={scss.empty}>
-            <p className={scss.emptyIcon}>🚀</p>
+            <div className={scss.emptyIcon}>
+              <FolderPlus size={26} strokeWidth={1.75} aria-hidden />
+            </div>
             <p className={scss.emptyText}>You haven&apos;t created any projects yet.</p>
             <Button href="/projects/create" size="lg">
               Create your first project

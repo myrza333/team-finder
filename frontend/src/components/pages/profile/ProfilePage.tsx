@@ -1,3 +1,4 @@
+import { MapPin } from "lucide-react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
@@ -5,6 +6,7 @@ import Panel from "@/components/ui/Panel/Panel";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import type { Project, User } from "@/types";
 import scss from "./ProfilePage.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 type ProfilePageProps = {
   user: User;
@@ -28,7 +30,11 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
           <h1 className={scss.name}>{user.name}</h1>
           <p className={scss.title}>{user.title}</p>
           {user.bio && <p className={scss.bio}>{user.bio}</p>}
-          {user.location && <p className={scss.location}>📍 {user.location}</p>}
+          {user.location && (
+            <p className={scss.location}>
+              <MapPin size={14} strokeWidth={1.75} aria-hidden /> {user.location}
+            </p>
+          )}
 
           <div className={scss.links}>
             {user.githubUrl && (
@@ -73,7 +79,7 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
                 {projects.slice(0, 3).map((p) => (
                   <li key={p.id}>
                     <Link href={`/projects/${p.id}`} className={scss.project}>
-                      <span className={scss.projectIcon}>{p.icon}</span>
+                      <span className={scss.projectIcon}><ProjectIcon icon={p.icon} size={18} /></span>
                       <div className={scss.projectInfo}>
                         <p className={scss.projectTitle}>{p.title}</p>
                         <p className={scss.projectDescription}>{p.description}</p>

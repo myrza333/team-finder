@@ -166,6 +166,9 @@
 
 .saveStatus {
   @include text-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--gray-500);
   min-height: 1.25rem;
 }

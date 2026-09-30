@@ -56,7 +56,7 @@ export class ProjectsService {
     const id = await this.db.transaction(async (client) => {
       const { rows } = await client.query<{ id: string }>(
         `insert into projects (owner_id, title, description, full_description, category, icon)
-         values ($1, $2, $3, $4, $5, coalesce($6, '🚀'))
+         values ($1, $2, $3, $4, $5, coalesce($6, 'rocket'))
          returning id`,
         [ownerId, dto.title, dto.description, dto.fullDescription ?? '', dto.category, dto.icon ?? null],
       );

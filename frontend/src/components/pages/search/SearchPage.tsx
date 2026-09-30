@@ -1,3 +1,4 @@
+import { Search, SearchX } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import SectionHeader from "@/components/ui/SectionHeader/SectionHeader";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
@@ -17,7 +18,7 @@ const SearchPage = async ({ query }: { query: string }) => {
     return (
       <div className={scss.page}>
         <PageHeader title="Search" subtitle="Find projects and people on TeamFinder." />
-        <EmptyState icon="🔍" text="Type something in the search bar above to start." />
+        <EmptyState icon={Search} text="Type something in the search bar above to start." />
       </div>
     );
   }
@@ -34,7 +35,7 @@ const SearchPage = async ({ query }: { query: string }) => {
       />
 
       {total === 0 ? (
-        <EmptyState icon="🔍" text="Nothing found. Try a skill like “React” or a role like “Designer”." />
+        <EmptyState icon={SearchX} text="Nothing found. Try a skill like “React” or a role like “Designer”." />
       ) : (
         <>
           {foundProjects.length > 0 && (

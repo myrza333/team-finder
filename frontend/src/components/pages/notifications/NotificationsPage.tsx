@@ -1,4 +1,5 @@
 "use client";
+import { Bell, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
@@ -48,7 +49,7 @@ const NotificationsPage = () => {
       />
 
       {isError ? (
-        <EmptyState icon="⚠️" text="Couldn't load notifications. Try again later." />
+        <EmptyState icon={TriangleAlert} text="Couldn't load notifications. Try again later." />
       ) : isPending ? (
         <p className={scss.state}>Loading…</p>
       ) : items.length > 0 ? (
@@ -73,7 +74,7 @@ const NotificationsPage = () => {
           ))}
         </ul>
       ) : (
-        <EmptyState icon="🔔" text="No notifications yet." />
+        <EmptyState icon={Bell} text="No notifications yet." />
       )}
     </div>
   );

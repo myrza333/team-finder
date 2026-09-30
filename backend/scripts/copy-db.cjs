@@ -15,7 +15,7 @@ const read = (key) => env.match(new RegExp(`^${key}=(.*)$`, 'm'))?.[1]?.trim();
 const fromUrl = read('DATABASE_URL');
 const toUrl = read('NEW_DATABASE_URL');
 
-const SCHEMA_FILES = ['001_schema.sql', '002_projects_and_profile.sql', '004_more_skills.sql', '005_user_avatars.sql', '006_team_activity.sql'];
+const SCHEMA_FILES = ['001_schema.sql', '002_projects_and_profile.sql', '004_more_skills.sql', '005_user_avatars.sql', '006_team_activity.sql', '008_project_icons.sql'];
 
 // Порядок важен: сначала то, на что ссылаются другие таблицы
 const TABLES = [

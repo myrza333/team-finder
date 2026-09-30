@@ -43,12 +43,13 @@
   justify-content: center;
   border: 1px solid var(--gray-200);
   border-radius: var(--radius-lg);
-  font-size: 1.25rem;
-  transition: border-color 0.15s, background-color 0.15s;
-  &:hover { border-color: var(--primary-300); }
+  color: var(--gray-500);
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  &:hover { border-color: var(--primary-300); color: var(--primary-600); }
 }
 
 .iconActive {
+  color: var(--primary-600);
   border-color: var(--primary-600);
   background: var(--primary-50);
   box-shadow: 0 0 0 1px var(--primary-600);

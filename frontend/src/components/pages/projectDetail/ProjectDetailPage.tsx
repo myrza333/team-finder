@@ -6,6 +6,7 @@ import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import type { Application, Project } from "@/types";
 import ProjectAction from "./ProjectAction";
 import scss from "./ProjectDetailPage.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 type ProjectDetailPageProps = {
   project: Project;
@@ -22,7 +23,7 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication }: ProjectDet
     </nav>
 
     <section className={scss.hero}>
-      <div className={scss.heroIcon}>{project.icon}</div>
+      <div className={scss.heroIcon}><ProjectIcon icon={project.icon} size={28} /></div>
       <div className={scss.heroInfo}>
         <h1 className={scss.heroTitle}>{project.title}</h1>
         <p className={scss.heroDescription}>{project.description}</p>

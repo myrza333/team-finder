@@ -1,4 +1,5 @@
 "use client";
+import { Inbox, Rocket, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
@@ -35,7 +36,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
 
   const loadingOrError = (q: { isPending: boolean; isError: boolean }) =>
     q.isError ? (
-      <EmptyState icon="⚠️" text="Couldn't load applications. Try again later." />
+      <EmptyState icon={TriangleAlert} text="Couldn't load applications. Try again later." />
     ) : q.isPending ? (
       <p className={scss.state}>Loading…</p>
     ) : null;
@@ -82,7 +83,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
               </div>
             ) : (
               <EmptyState
-                icon="📭"
+                icon={Inbox}
                 text={filter === "pending" ? "No new applications. You're all caught up!" : "Nothing here yet."}
               />
             )}
@@ -102,7 +103,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
                 />
               ))
             ) : (
-              <EmptyState icon="🚀" text="You haven't applied to any projects yet." />
+              <EmptyState icon={Rocket} text="You haven't applied to any projects yet." />
             )}
           </div>
         ))}

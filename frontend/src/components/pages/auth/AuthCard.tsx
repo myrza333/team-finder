@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo/Logo";
 import { GoogleIcon, LogoMarkIcon } from "@/components/ui/Icons";
@@ -40,7 +41,7 @@ const AuthCard = ({ title, subtitle, googleLabel, switchText, switchLink, next, 
           {perks.map((perk) => (
             <li key={perk}>
               <span className={scss.check} aria-hidden>
-                ✓
+                <Check size={12} strokeWidth={2.5} />
               </span>
               {perk}
             </li>

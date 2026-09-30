@@ -14,6 +14,7 @@ import { plural } from "@/lib/format";
 import { useApplicationActions } from "@/lib/useApplicationActions";
 import type { Project } from "@/types";
 import scss from "./ManageProjectPage.module.scss";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 // Команда и позиции приходят с сервера (project), заявки — отдельным запросом.
 // После изменений router.refresh() перечитывает project, а заявки обновляет useApplicationActions
@@ -76,7 +77,7 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
       </nav>
 
       <section className={scss.hero}>
-        <span className={scss.icon}>{project.icon}</span>
+        <span className={scss.icon}><ProjectIcon icon={project.icon} size={26} /></span>
         <div className={scss.heroInfo}>
           <div className={scss.titleLine}>
             <h1 className={scss.title}>{project.title}</h1>

@@ -1,4 +1,5 @@
 "use client";
+import { MessagesSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -88,7 +89,9 @@ const Chat = () => {
           />
         ) : (
           <div className={scss.placeholder}>
-            <p className={scss.placeholderIcon}>💬</p>
+            <div className={scss.placeholderIcon}>
+              <MessagesSquare size={26} strokeWidth={1.75} aria-hidden />
+            </div>
             <p className={scss.placeholderTitle}>{placeholder.title}</p>
             {placeholder.text && <p className={scss.placeholderText}>{placeholder.text}</p>}
           </div>
