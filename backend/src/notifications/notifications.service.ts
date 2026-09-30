@@ -9,10 +9,11 @@ export type NotificationType =
   | 'application_accepted' // тебя приняли
   | 'application_rejected' // тебе отказали
   | 'member_removed' // тебя убрали из команды
-  | 'member_left'; // кто-то вышел из твоей команды
+  | 'member_left' // кто-то вышел из твоей команды
+  | 'direct_new'; // тебе написали лично по поводу проекта (первое сообщение чата)
 
 // Что лежит в notifications.data
-export type NotificationData = { actorId: string; projectId: string; projectTitle: string; applicationId?: string };
+export type NotificationData = { actorId: string; projectId: string; projectTitle: string; applicationId?: string; chatId?: string };
 
 type Row = {
   id: string;
@@ -22,6 +23,7 @@ type Row = {
   actor: { id: string; name: string; title: string; avatarUrl: string } | null;
   projectId: string;
   projectTitle: string;
+  chatId: string | null;
 };
 
 // Текст (после имени того, кто сделал) и куда ведёт клик
@@ -38,6 +40,8 @@ const describe = (n: Row): { text: string; href: string } => {
       return { text: `removed you from the ${title} team`, href: `/projects/${n.projectId}` };
     case 'member_left':
       return { text: `left the ${title} team`, href: `/my-projects/${n.projectId}` };
+    case 'direct_new':
+      return { text: `messaged you about ${title}`, href: n.chatId ? `/chat/d/${n.chatId}` : '/chat' };
   }
 };
 
@@ -61,7 +65,8 @@ export class NotificationsService {
       `select n.id, n.type, n.is_read as read, n.created_at as "createdAt",
               case when a.id is null then null else ${personJson('a')} end as actor,
               n.data->>'projectId' as "projectId",
-              coalesce(p.title, n.data->>'projectTitle') as "projectTitle"
+              coalesce(p.title, n.data->>'projectTitle') as "projectTitle",
+              n.data->>'chatId' as "chatId"
        from notifications n
        left join users a on a.id = (n.data->>'actorId')::uuid
        left join projects p on p.id = (n.data->>'projectId')::uuid

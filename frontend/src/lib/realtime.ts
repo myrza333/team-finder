@@ -68,6 +68,14 @@ export const useRealtime = () => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
     });
 
+    // То же для личного чата: ["direct", id] — переписка, ["direct-chats"] — список
+    socket.on("direct:message", (message: ChatMessage) => {
+      queryClient.setQueryData<ChatMessage[]>(["direct", message.chatId], (old) =>
+        old && !old.some((m) => m.id === message.id) ? [...old, message] : old,
+      );
+      queryClient.invalidateQueries({ queryKey: ["direct-chats"] });
+    });
+
     socket.on("presence:list", (ids: string[]) => setOnline(new Set(ids)));
     socket.on("presence", ({ userId: id, online: isOnline }: { userId: string; online: boolean }) => {
       const next = new Set(online);

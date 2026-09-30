@@ -32,5 +32,18 @@ export const useApplicationActions = () => {
     error,
     decide: (id: string, status: "accepted" | "rejected") => run(id, () => api.applications.decide(id, status)),
     withdraw: (id: string) => run(id, () => api.applications.withdraw(id)),
+    // Личный чат с кандидатом: открыть (или создать) и перейти в него
+    message: async (id: string) => {
+      setBusyId(id);
+      setError(null);
+      try {
+        const chat = await api.direct.openWithApplicant(id);
+        queryClient.invalidateQueries({ queryKey: ["direct-chats"] });
+        router.push(`/chat/d/${chat.id}`);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Something went wrong");
+        setBusyId(null);
+      }
+    },
   };
 };

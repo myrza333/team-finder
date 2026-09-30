@@ -73,10 +73,20 @@ export type Application = {
 // Сообщение в чате команды. author = null — системное ("Aida joined the team")
 export type ChatMessage = {
   id: string;
-  projectId: string;
+  projectId?: string; // сообщение командного чата
+  chatId?: string; // сообщение личного чата
   author: Person | null;
   text: string;
   createdAt: string; // ISO-дата
+};
+
+// Личный чат "по поводу проекта": я ↔ владелец (или владелец ↔ кандидат)
+export type DirectChat = {
+  id: string;
+  project: { id: string; title: string; icon: string; ownerId: string };
+  other: Person; // собеседник
+  lastMessage: ChatMessage | null;
+  unread: number;
 };
 
 // Чат в списке слева: проект + последнее сообщение + сколько непрочитанных
@@ -96,6 +106,7 @@ export type UserSettings = {
   notifyApplications: boolean;
   notifyApplicationUpdates: boolean;
   notifyTeam: boolean;
+  notifyDirect: boolean;
 };
 
 // Анонс будущего проекта на главной: команда и стек пока засекречены

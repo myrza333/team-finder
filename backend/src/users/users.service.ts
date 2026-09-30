@@ -14,6 +14,7 @@ const SETTINGS_COLUMNS: Record<keyof UserSettingsDto, string> = {
   notifyApplications: 'notify_applications',
   notifyApplicationUpdates: 'notify_application_updates',
   notifyTeam: 'notify_team',
+  notifyDirect: 'notify_direct',
 };
 
 const settingsJson = `json_build_object(${Object.entries(SETTINGS_COLUMNS)

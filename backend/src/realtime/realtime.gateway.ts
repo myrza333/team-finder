@@ -39,13 +39,16 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       const userId = await this.authenticate(socket);
       if (!userId) return void socket.disconnect(true);
 
-      // Мои команды и их участники — одним запросом
-      const teams = await this.db.query<{ project_id: string; members: string[] }>(
-        `select pm.project_id,
-                array(select m.user_id::text from project_members m where m.project_id = pm.project_id) as members
-         from project_members pm where pm.user_id = $1`,
-        [userId],
-      );
+      // Мои команды (с участниками) и собеседники по личным чатам — параллельно
+      const [teams, partners] = await Promise.all([
+        this.db.query<{ project_id: string; members: string[] }>(
+          `select pm.project_id,
+                  array(select m.user_id::text from project_members m where m.project_id = pm.project_id) as members
+           from project_members pm where pm.user_id = $1`,
+          [userId],
+        ),
+        this.partnersOf(userId),
+      ]);
       const projectIds = teams.map((t) => t.project_id);
       await socket.join([userRoom(userId), ...projectIds.map(projectRoom)]);
 
@@ -53,11 +56,11 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       socket.data.userId = userId;
       const count = (this.connections.get(userId) ?? 0) + 1;
       this.connections.set(userId, count);
-      if (count === 1) this.broadcastPresence(userId, projectIds, true);
+      if (count === 1) this.broadcastPresence(userId, projectIds, partners, true);
 
-      // Новому подключению — кто из товарищей по командам уже в сети (про остальных ему знать незачем)
-      const teammates = new Set(teams.flatMap((t) => t.members));
-      socket.emit('presence:list', [...this.connections.keys()].filter((id) => teammates.has(id)));
+      // Новому подключению — кто из "своих" (команды, личные чаты) уже в сети. Про остальных ему знать незачем
+      const known = new Set([...teams.flatMap((t) => t.members), ...partners]);
+      socket.emit('presence:list', [...this.connections.keys()].filter((id) => known.has(id)));
     } catch (e) {
       // Браузер сам переподключится через пару секунд
       console.warn('WebSocket connection failed:', (e as Error).message);
@@ -73,7 +76,8 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     this.connections.delete(userId);
     try {
-      this.broadcastPresence(userId, await this.projectIdsOf(userId), false);
+      const [projectIds, partners] = await Promise.all([this.projectIdsOf(userId), this.partnersOf(userId)]);
+      this.broadcastPresence(userId, projectIds, partners, false);
     } catch (e) {
       console.warn('Presence update failed:', (e as Error).message);
     }
@@ -93,6 +97,12 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   joinProject(userId: string, projectId: string) {
     this.server.in(userRoom(userId)).socketsJoin(projectRoom(projectId));
     this.toUser(userId, 'membership');
+  }
+
+  // Двое только что начали личный чат: рассказываем каждому, в сети ли другой (иначе точка будет серой до перезахода)
+  introduce(a: string, b: string) {
+    if (this.connections.has(a)) this.toUser(b, 'presence', { userId: a, online: true });
+    if (this.connections.has(b)) this.toUser(a, 'presence', { userId: b, online: true });
   }
 
   leaveProject(userId: string, projectId: string) {
@@ -121,7 +131,19 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
     return rows.map((r) => r.project_id);
   }
 
-  private broadcastPresence(userId: string, projectIds: string[], online: boolean) {
-    if (projectIds.length) this.server.to(projectIds.map(projectRoom)).emit('presence', { userId, online });
+  // С кем у меня личные чаты
+  private async partnersOf(userId: string) {
+    const rows = await this.db.query<{ id: string }>(
+      `select distinct case when owner_id = $1 then user_id else owner_id end::text as id
+       from direct_chats where owner_id = $1 or user_id = $1`,
+      [userId],
+    );
+    return rows.map((r) => r.id);
+  }
+
+  // "В сети / не в сети" — товарищам по командам и собеседникам по личным чатам
+  private broadcastPresence(userId: string, projectIds: string[], partners: string[], online: boolean) {
+    const rooms = [...projectIds.map(projectRoom), ...partners.map(userRoom)];
+    if (rooms.length) this.server.to(rooms).emit('presence', { userId, online });
   }
 }

@@ -78,6 +78,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
                     busy={actions.busyId === a.id}
                     onAccept={() => actions.decide(a.id, "accepted")}
                     onDecline={() => actions.decide(a.id, "rejected")}
+                    onMessage={() => actions.message(a.id)}
                   />
                 ))}
               </div>

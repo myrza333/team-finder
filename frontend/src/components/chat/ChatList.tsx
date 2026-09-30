@@ -1,18 +1,19 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Avatar from "@/components/ui/Avatar/Avatar";
+import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import { clockTime, dayLabel } from "@/lib/format";
-import type { ChatMessage, ChatSummary } from "@/types";
+import type { ChatMessage, ChatSummary, DirectChat } from "@/types";
 import scss from "./Chat.module.scss";
-import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 type ChatListProps = {
-  chats: ChatSummary[];
+  teams: ChatSummary[];
+  directs: DirectChat[];
   loading: boolean;
-  activeId: string | null;
+  activeHref: string | null; // "/chat/<projectId>" или "/chat/d/<chatId>"
   currentUserId: string;
-  unread: (id: string) => number;
 };
 
 // Превью последнего сообщения: "You: ...", "Aida: ..." или системное
@@ -26,11 +27,49 @@ const preview = (m: ChatMessage | null, currentUserId: string) => {
 // Сегодня — время, раньше — день ("Yesterday", "Sep 20")
 const when = (m: ChatMessage) => (dayLabel(m.createdAt) === "Today" ? clockTime(m.createdAt) : dayLabel(m.createdAt));
 
-// Левая колонка: все чаты команд пользователя
-const ChatList = ({ chats, loading, activeId, currentUserId, unread }: ChatListProps) => {
+type ItemProps = {
+  href: string;
+  active: boolean;
+  icon: React.ReactNode;
+  title: string;
+  project?: string; // у личного чата — о каком проекте
+  last: ChatMessage | null;
+  unread: number;
+  currentUserId: string;
+};
+
+const Item = ({ href, active, icon, title, project, last, unread, currentUserId }: ItemProps) => (
+  <li>
+    <Link
+      href={href}
+      className={`${scss.listItem} ${active ? scss.listItemActive : ""}`}
+      aria-current={active ? "page" : undefined}
+    >
+      {icon}
+      <div className={scss.listItemText}>
+        <div className={scss.listItemTop}>
+          <p className={scss.listItemTitle}>{title}</p>
+          {last && <span className={scss.listItemTime}>{when(last)}</span>}
+        </div>
+        {project && <p className={scss.listItemProject}>{project}</p>}
+        <div className={scss.listItemBottom}>
+          <p className={`${scss.listItemPreview} ${unread ? scss.previewUnread : ""}`}>{preview(last, currentUserId)}</p>
+          {unread > 0 && <span className={scss.unread}>{unread}</span>}
+        </div>
+      </div>
+    </Link>
+  </li>
+);
+
+// Левая колонка: чаты команд и личные чаты по поводу проектов
+const ChatList = ({ teams, directs, loading, activeHref, currentUserId }: ChatListProps) => {
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
-  const visible = chats.filter((c) => !q || c.project.title.toLowerCase().includes(q));
+  const has = (...texts: string[]) => !q || texts.some((t) => t.toLowerCase().includes(q));
+  const visibleTeams = teams.filter((c) => has(c.project.title));
+  const visibleDirects = directs.filter((c) => has(c.other.name, c.project.title));
+  // Открытый чат не показывает счётчик непрочитанных
+  const unread = (href: string, count: number) => (href === activeHref ? 0 : count);
 
   return (
     <aside className={scss.list}>
@@ -46,35 +85,58 @@ const ChatList = ({ chats, loading, activeId, currentUserId, unread }: ChatListP
       </div>
 
       <ul className={scss.listItems}>
-        {visible.map(({ project: c, lastMessage: last }) => {
-          const count = unread(c.id);
+        {visibleTeams.length > 0 && (
+          <li>
+            <p className={scss.listSection}>Teams</p>
+          </li>
+        )}
+        {visibleTeams.map(({ project: p, lastMessage, unread: count }) => {
+          const href = `/chat/${p.id}`;
           return (
-            <li key={c.id}>
-              <Link
-                href={`/chat/${c.id}`}
-                className={`${scss.listItem} ${c.id === activeId ? scss.listItemActive : ""}`}
-                aria-current={c.id === activeId ? "page" : undefined}
-              >
-                <span className={scss.chatIcon}><ProjectIcon icon={c.icon} size={20} /></span>
-                <div className={scss.listItemText}>
-                  <div className={scss.listItemTop}>
-                    <p className={scss.listItemTitle}>{c.title}</p>
-                    {last && <span className={scss.listItemTime}>{when(last)}</span>}
-                  </div>
-                  <div className={scss.listItemBottom}>
-                    <p className={`${scss.listItemPreview} ${count ? scss.previewUnread : ""}`}>
-                      {preview(last, currentUserId)}
-                    </p>
-                    {count > 0 && <span className={scss.unread}>{count}</span>}
-                  </div>
-                </div>
-              </Link>
-            </li>
+            <Item
+              key={href}
+              href={href}
+              active={href === activeHref}
+              icon={
+                <span className={scss.chatIcon}>
+                  <ProjectIcon icon={p.icon} size={20} />
+                </span>
+              }
+              title={p.title}
+              last={lastMessage}
+              unread={unread(href, count)}
+              currentUserId={currentUserId}
+            />
           );
         })}
+
+        {visibleDirects.length > 0 && (
+          <li>
+            <p className={scss.listSection}>Direct messages</p>
+          </li>
+        )}
+        {visibleDirects.map((c) => {
+          const href = `/chat/d/${c.id}`;
+          return (
+            <Item
+              key={href}
+              href={href}
+              active={href === activeHref}
+              icon={<Avatar src={c.other.avatarUrl} alt={c.other.name} size={40} />}
+              title={c.other.name}
+              project={`About ${c.project.title}`}
+              last={c.lastMessage}
+              unread={unread(href, c.unread)}
+              currentUserId={currentUserId}
+            />
+          );
+        })}
+
         {loading && <li className={scss.listEmpty}>Loading…</li>}
-        {!loading && visible.length === 0 && (
-          <li className={scss.listEmpty}>{chats.length ? "No chats found" : "Join or create a project to get a team chat"}</li>
+        {!loading && visibleTeams.length + visibleDirects.length === 0 && (
+          <li className={scss.listEmpty}>
+            {teams.length + directs.length ? "No chats found" : "Join a project or message an owner to start chatting"}
+          </li>
         )}
       </ul>
     </aside>

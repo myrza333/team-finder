@@ -9,12 +9,19 @@ import scss from "./Chat.module.scss";
 type MessageListProps = {
   messages: ChatMessage[];
   loading: boolean;
+  emptyText?: string; // что показать в пустом чате
   ownerId: string;
   currentUserId: string;
 };
 
 // Лента сообщений: разделители по дням, системные строки, группировка подряд идущих сообщений одного автора
-const MessageList = ({ messages, loading, ownerId, currentUserId }: MessageListProps) => {
+const MessageList = ({
+  messages,
+  loading,
+  ownerId,
+  currentUserId,
+  emptyText = "No messages yet. Say hi to your team",
+}: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Всегда держим ленту прокрученной вниз (при открытии и при новом сообщении)
@@ -26,7 +33,7 @@ const MessageList = ({ messages, loading, ownerId, currentUserId }: MessageListP
   if (messages.length === 0) {
     return (
       <div className={scss.messages}>
-        <p className={scss.noMessages}>{loading ? "Loading messages…" : "No messages yet. Say hi to your team"}</p>
+        <p className={scss.noMessages}>{loading ? "Loading messages…" : emptyText}</p>
       </div>
     );
   }

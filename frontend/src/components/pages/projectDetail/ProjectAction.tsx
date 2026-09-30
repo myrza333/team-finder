@@ -1,4 +1,5 @@
 "use client";
+import { MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -81,48 +82,59 @@ const ProjectAction = ({ project, currentUserId, myApplication }: ProjectActionP
     );
   }
 
-  if (myApplication?.status === "pending") {
-    return (
-      <div className={scss.actions}>
-        <div className={scss.actionButtons}>
-          <Button variant="outline" size="lg" disabled>
-            Application sent
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            disabled={busy}
-            onClick={() => run(() => api.applications.withdraw(myApplication.id))}
-          >
-            {busy ? "Withdrawing…" : "Withdraw"}
-          </Button>
-        </div>
-        {errorText}
-      </div>
-    );
-  }
-
-  if (myApplication?.status === "rejected") {
-    return (
+  // Не в команде: заявка (в зависимости от её состояния) + "Message owner" — можно сначала всё обсудить
+  const main =
+    myApplication?.status === "pending" ? (
+      <>
+        <Button variant="outline" size="lg" disabled>
+          Application sent
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          disabled={busy}
+          onClick={() => run(() => api.applications.withdraw(myApplication.id))}
+        >
+          {busy ? "Withdrawing…" : "Withdraw"}
+        </Button>
+      </>
+    ) : myApplication?.status === "rejected" ? (
       <Button variant="outline" size="lg" disabled>
         Application declined
       </Button>
-    );
-  }
-
-  if (project.status === "closed") {
-    return (
+    ) : project.status === "closed" ? (
       <Button variant="outline" size="lg" disabled>
         Not recruiting
       </Button>
-    );
-  }
-
-  return (
-    <>
+    ) : (
       <Button size="lg" onClick={() => setApplyOpen(true)}>
         Request to join
       </Button>
+    );
+
+  // Открываем (или создаём) личный чат с владельцем и переходим в него
+  const messageOwner = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const { id } = await api.direct.openWithOwner(project.id);
+      queryClient.invalidateQueries({ queryKey: ["direct-chats"] });
+      router.push(`/chat/d/${id}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className={scss.actions}>
+      <div className={scss.actionButtons}>
+        {main}
+        <Button variant="outline" size="lg" disabled={busy} onClick={messageOwner}>
+          <MessageCircle size={18} strokeWidth={1.75} aria-hidden /> Message owner
+        </Button>
+      </div>
+      {!applyOpen && errorText}
       <Modal open={applyOpen} onClose={() => setApplyOpen(false)} title={`Join ${project.title}`}>
         <ApplyForm
           project={project}
@@ -133,7 +145,7 @@ const ProjectAction = ({ project, currentUserId, myApplication }: ProjectActionP
           }}
         />
       </Modal>
-    </>
+    </div>
   );
 };
 

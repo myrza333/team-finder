@@ -22,6 +22,11 @@ const items = [
     title: "Team changes",
     description: "You were removed from a team, or someone left your project",
   },
+  {
+    key: "notifyDirect",
+    title: "New direct messages",
+    description: "Someone starts a conversation with you about a project",
+  },
 ] as const;
 
 type NotifyKey = (typeof items)[number]["key"];
@@ -40,6 +45,7 @@ const NotificationForm = ({ settings }: { settings: UserSettings }) => {
       notifyApplications: settings.notifyApplications,
       notifyApplicationUpdates: settings.notifyApplicationUpdates,
       notifyTeam: settings.notifyTeam,
+      notifyDirect: settings.notifyDirect,
     },
     save,
   );
@@ -47,7 +53,7 @@ const NotificationForm = ({ settings }: { settings: UserSettings }) => {
   return (
     <SettingsSection
       title="Notifications"
-      description="Choose what shows up in your notifications on TeamFinder. Team chat messages always show up in Messages."
+      description="Choose what shows up in your notifications on TeamFinder. All chat messages always show up in Messages."
     >
       {items.map((item) => (
         <SettingRow key={item.key} title={item.title} description={item.description}>

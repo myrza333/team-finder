@@ -64,8 +64,9 @@ const Header = () => {
     enabled: loggedIn,
   });
   const { data: chats } = useQuery({ queryKey: ["chats"], queryFn: api.chats.list, enabled: loggedIn });
+  const { data: directs } = useQuery({ queryKey: ["direct-chats"], queryFn: api.direct.list, enabled: loggedIn });
   const hasUnread = (unreadNotifications?.count ?? 0) > 0;
-  const hasUnreadMessages = chats?.some((c) => c.unread > 0) ?? false;
+  const hasUnreadMessages = [...(chats ?? []), ...(directs ?? [])].some((c) => c.unread > 0);
 
   const showSearch = !pagesWithOwnSearch.includes(pathname);
 

@@ -548,3 +548,34 @@ $header: 65px; // 64px хедер + 1px нижняя рамка
 .composerInput[aria-invalid] {
   border-color: var(--danger-600);
 }
+
+// =====================================================================
+// Личные чаты
+// =====================================================================
+// Без панели участников справа — переписка занимает всю ширину
+@include xl {
+  .chat.hasActive.noMembers { grid-template-columns: 300px minmax(0, 1fr); }
+}
+
+.subtitleLink {
+  font-weight: 500;
+  color: var(--gray-700);
+  &:hover { color: var(--primary-600); }
+}
+
+// Заголовки разделов в списке: "Teams", "Direct messages"
+.listSection {
+  @include text-xs;
+  padding: 16px 10px 6px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  li:first-child > & { padding-top: 4px; }
+}
+
+.listItemProject {
+  @include text-xs;
+  @include truncate;
+  color: var(--gray-400);
+}

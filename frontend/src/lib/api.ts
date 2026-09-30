@@ -5,6 +5,7 @@ import type {
   ApplicationStatus,
   ChatMessage,
   ChatSummary,
+  DirectChat,
   Project,
   ProjectCategory,
   User,
@@ -136,6 +137,18 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       send: (projectId: string, text: string) =>
         request<ChatMessage>(`/chats/${projectId}/messages`, { method: "POST", body: json({ text }) }),
       markRead: (projectId: string) => request<void>(`/chats/${projectId}/read`, { method: "POST" }),
+    },
+    // Личные чаты по поводу проекта. open* возвращают id чата (существующего или нового)
+    direct: {
+      openWithOwner: (projectId: string) =>
+        request<{ id: string }>(`/projects/${projectId}/direct`, { method: "POST" }),
+      openWithApplicant: (applicationId: string) =>
+        request<{ id: string }>(`/applications/${applicationId}/direct`, { method: "POST" }),
+      list: () => request<DirectChat[]>("/direct"),
+      messages: (chatId: string) => request<ChatMessage[]>(`/direct/${chatId}/messages`),
+      send: (chatId: string, text: string) =>
+        request<ChatMessage>(`/direct/${chatId}/messages`, { method: "POST", body: json({ text }) }),
+      markRead: (chatId: string) => request<void>(`/direct/${chatId}/read`, { method: "POST" }),
     },
     users: {
       list: (query: { q?: string; role?: string; limit?: number } = {}) => request<User[]>("/users", { query }),

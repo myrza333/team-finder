@@ -97,4 +97,5 @@ export class UserSettingsDto {
   @IsOptional() @IsBoolean() notifyApplications?: boolean;
   @IsOptional() @IsBoolean() notifyApplicationUpdates?: boolean;
   @IsOptional() @IsBoolean() notifyTeam?: boolean;
+  @IsOptional() @IsBoolean() notifyDirect?: boolean;
 }

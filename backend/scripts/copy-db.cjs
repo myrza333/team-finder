@@ -15,12 +15,12 @@ const read = (key) => env.match(new RegExp(`^${key}=(.*)$`, 'm'))?.[1]?.trim();
 const fromUrl = read('DATABASE_URL');
 const toUrl = read('NEW_DATABASE_URL');
 
-const SCHEMA_FILES = ['001_schema.sql', '002_projects_and_profile.sql', '004_more_skills.sql', '005_user_avatars.sql', '006_team_activity.sql', '008_project_icons.sql', '009_settings_and_announcements.sql'];
+const SCHEMA_FILES = ['001_schema.sql', '002_projects_and_profile.sql', '004_more_skills.sql', '005_user_avatars.sql', '006_team_activity.sql', '008_project_icons.sql', '009_settings_and_announcements.sql', '010_direct_chats.sql'];
 
 // Порядок важен: сначала то, на что ссылаются другие таблицы
 const TABLES = [
   'users', 'skills', 'user_skills', 'projects', 'project_skills', 'vacancies', 'vacancy_skills',
-  'applications', 'project_members', 'messages', 'notifications', 'user_avatars', 'announcements',
+  'applications', 'project_members', 'messages', 'notifications', 'user_avatars', 'announcements', 'direct_chats', 'direct_messages',
 ];
 
 const host = (url) => url.replace(/^.*@/, '').replace(/\/.*$/, '');
@@ -73,6 +73,7 @@ async function main() {
     // Счётчики автоинкремента — чтобы новые навыки/сообщения не получили уже занятый id
     await to.query("select setval(pg_get_serial_sequence('skills', 'id'), coalesce((select max(id) from skills), 1))");
     await to.query("select setval(pg_get_serial_sequence('messages', 'id'), coalesce((select max(id) from messages), 1))");
+    await to.query("select setval(pg_get_serial_sequence('direct_messages', 'id'), coalesce((select max(id) from direct_messages), 1))");
     await to.query('commit');
   } catch (e) {
     await to.query('rollback');

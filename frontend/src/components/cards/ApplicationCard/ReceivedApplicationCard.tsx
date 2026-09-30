@@ -13,10 +13,18 @@ type ReceivedApplicationCardProps = {
   busy?: boolean; // решение уже отправляется
   onAccept: () => void;
   onDecline: () => void;
+  onMessage: () => void; // личный чат с кандидатом — обсудить до решения
 };
 
-// Входящая заявка: кто, на какую роль, сообщение, навыки, Accept / Decline
-const ReceivedApplicationCard = ({ application: a, showProject = true, busy, onAccept, onDecline }: ReceivedApplicationCardProps) => (
+// Входящая заявка: кто, на какую роль, сообщение, навыки, Accept / Decline / Message
+const ReceivedApplicationCard = ({
+  application: a,
+  showProject = true,
+  busy,
+  onAccept,
+  onDecline,
+  onMessage,
+}: ReceivedApplicationCardProps) => (
   <article className={scss.card}>
     <div className={scss.top}>
       <Link href={`/profile/${a.applicant.id}`} className={scss.person}>
@@ -60,6 +68,9 @@ const ReceivedApplicationCard = ({ application: a, showProject = true, busy, onA
       ) : (
         <StatusBadge status={a.status} />
       )}
+      <button type="button" onClick={onMessage} disabled={busy} className={scss.textLink}>
+        Message
+      </button>
       <Link href={`/profile/${a.applicant.id}`} className={scss.textLink}>
         View profile
       </Link>
