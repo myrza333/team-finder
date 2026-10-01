@@ -20,7 +20,7 @@ type Row = {
   type: NotificationType;
   read: boolean;
   createdAt: string;
-  actor: { id: string; name: string; title: string; avatarUrl: string } | null;
+  actor: { id: string; name: string; title: string; avatarUrl: string | null } | null;
   projectId: string;
   projectTitle: string;
   chatId: string | null;
@@ -45,7 +45,7 @@ const describe = (n: Row): { text: string; href: string } => {
   }
 };
 
-const deletedUser = { id: '', name: 'Deleted user', title: '', avatarUrl: '/avatar-placeholder.svg' };
+const deletedUser = { id: '', name: 'Deleted user', title: '', avatarUrl: null };
 
 @Injectable()
 export class NotificationsService {

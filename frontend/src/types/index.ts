@@ -2,7 +2,7 @@ export type User = {
   id: string;
   name: string;
   title: string; // "Junior Frontend Developer"
-  avatarUrl: string;
+  avatarUrl: string | null; // null — фото нет (рисуется нейтральный силуэт)
   skills: string[];
   projectsCount: number;
   bio?: string | null;

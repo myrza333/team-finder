@@ -48,14 +48,14 @@ const AvatarPicker = ({ user }: { user: User }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null); // выбранное фото показываем сразу, до ответа сервера
-  const hasPhoto = !user.avatarUrl.includes("api.dicebear.com");
+  const hasPhoto = Boolean(user.avatarUrl);
 
   const run = async (action: () => Promise<User>) => {
     setBusy(true);
     setError(null);
     try {
       const updated = await action();
-      await preload(updated.avatarUrl);
+      if (updated.avatarUrl) await preload(updated.avatarUrl);
       applyUser(updated);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");

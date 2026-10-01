@@ -15,3 +15,11 @@
     margin-left: -6px;
   }
 }
+
+// Нет фото: силуэт в сером кружке
+.placeholder {
+  display: inline-grid;
+  place-items: center;
+  background: var(--gray-200);
+  color: var(--gray-500);
+}

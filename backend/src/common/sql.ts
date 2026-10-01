@@ -1,7 +1,7 @@
 // Postgres сам собирает JSON в той форме, которую ждёт фронтенд (camelCase, вложенные массивы)
 
-// Своё фото или нарисованная аватарка по имени
-const avatarUrl = (u: string) => `coalesce(${u}.avatar_url, 'https://api.dicebear.com/7.x/avataaars/svg?seed=' || ${u}.name)`;
+// Фото: загруженное или из Google. Нет фото — null, и фронтенд рисует нейтральный силуэт
+const avatarUrl = (u: string) => `${u}.avatar_url`;
 
 // Публичный профиль учитывает настройки приватности (Settings → Privacy): скрытые ссылки и город — null.
 // own = true — для самого человека (его настройки профиля): там нужны все значения

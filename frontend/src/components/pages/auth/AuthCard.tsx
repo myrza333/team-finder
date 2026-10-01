@@ -22,8 +22,6 @@ const perks = [
   "Chat with your team in one place",
 ];
 
-const avatars = ["Aida", "Bek", "Timur", "Kamila"];
-
 // Каркас Login и Register: слева брендовая панель (только на широких экранах), справа форма
 const AuthCard = ({ title, subtitle, googleLabel, switchText, switchLink, next, error, children }: AuthCardProps) => (
   <div className={scss.page}>
@@ -50,12 +48,6 @@ const AuthCard = ({ title, subtitle, googleLabel, switchText, switchLink, next, 
       </div>
 
       <div className={scss.social}>
-        <div className={scss.socialAvatars}>
-          {avatars.map((seed) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={seed} src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} alt="" />
-          ))}
-        </div>
         <p>Developers, designers and creators are already building together.</p>
       </div>
     </aside>
