@@ -3,13 +3,15 @@ import type { PoolClient } from 'pg';
 import { DatabaseService } from '../database/database.service.js';
 import { ensureSkillIds } from '../common/skills.js';
 import { projectJson } from '../common/sql.js';
+import { hideUnlaunched, launchedSql } from './announced.js';
 import { CreateProjectDto, ProjectsQueryDto, UpdateProjectDto, VacancyDto } from './dto/project.dto.js';
 
 @Injectable()
 export class ProjectsService {
   constructor(private readonly db: DatabaseService) {}
 
-  async findAll(query: ProjectsQueryDto) {
+  // viewerId — кто смотрит (гость — undefined): чужие анонсы ему отдаются урезанными
+  async findAll(query: ProjectsQueryDto, viewerId?: string) {
     const params: unknown[] = [];
     const where: string[] = [];
     const param = (value: unknown) => {
@@ -31,6 +33,9 @@ export class ProjectsService {
     if (query.member) {
       where.push(`exists (select 1 from project_members pm where pm.project_id = p.id and pm.user_id = ${param(query.member)})`);
     }
+    // В общем списке и поиске — только запущенные; анонсы живут на странице Announcements.
+    // Свои проекты (owner / member) показываем все, включая анонсы
+    if (!query.owner && !query.member) where.push(launchedSql('p'));
 
     const rows = await this.db.query<{ project: unknown }>(
       `select ${projectJson('p')} as project
@@ -40,25 +45,25 @@ export class ProjectsService {
        limit ${param(query.limit ?? 50)}`,
       params,
     );
-    return rows.map((r) => r.project);
+    return rows.map((r) => hideUnlaunched(r.project, viewerId));
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, viewerId?: string) {
     const row = await this.db.queryOne<{ project: unknown }>(
       `select ${projectJson('p')} as project from projects p where p.id = $1`,
       [id],
     );
     if (!row) throw new NotFoundException('Project not found');
-    return row.project;
+    return hideUnlaunched(row.project, viewerId);
   }
 
   async create(ownerId: string, dto: CreateProjectDto) {
     const id = await this.db.transaction(async (client) => {
       const { rows } = await client.query<{ id: string }>(
-        `insert into projects (owner_id, title, description, full_description, category, icon, website_url, repo_url)
-         values ($1, $2, $3, $4, $5, coalesce($6, 'rocket'), $7, $8)
+        `insert into projects (owner_id, title, description, full_description, category, icon, website_url, repo_url, launch_at)
+         values ($1, $2, $3, $4, $5, coalesce($6, 'rocket'), $7, $8, $9)
          returning id`,
-        [ownerId, dto.title, dto.description, dto.fullDescription ?? '', dto.category, dto.icon ?? null, dto.websiteUrl ?? null, dto.repoUrl ?? null],
+        [ownerId, dto.title, dto.description, dto.fullDescription ?? '', dto.category, dto.icon ?? null, dto.websiteUrl ?? null, dto.repoUrl ?? null, dto.launchAt ?? null],
       );
       const projectId = rows[0].id;
 
@@ -73,7 +78,7 @@ export class ProjectsService {
       await this.replaceVacancies(client, projectId, dto.vacancies);
       return projectId;
     });
-    return this.findOne(id);
+    return this.findOne(id, ownerId);
   }
 
   async update(id: string, userId: string, dto: UpdateProjectDto) {
@@ -87,6 +92,9 @@ export class ProjectsService {
       icon: dto.icon,
       website_url: dto.websiteUrl,
       repo_url: dto.repoUrl,
+      launch_at: dto.launchAt,
+      // Новая дата запуска — о запуске снова нужно будет сообщить подписчикам
+      launch_notified: dto.launchAt !== undefined ? false : undefined,
       status: dto.status,
     };
     const changed = Object.entries(columns).filter(([, value]) => value !== undefined);
@@ -102,7 +110,7 @@ export class ProjectsService {
       if (dto.stack) await this.replaceStack(client, id, dto.stack);
       if (dto.vacancies) await this.replaceVacancies(client, id, dto.vacancies);
     });
-    return this.findOne(id);
+    return this.findOne(id, userId);
   }
 
   async remove(id: string, userId: string) {

@@ -1,6 +1,6 @@
 import scss from "./StatusBadge.module.scss";
 
-export type Status = "pending" | "accepted" | "rejected" | "recruiting" | "closed" | "owner" | "open";
+export type Status = "pending" | "accepted" | "rejected" | "recruiting" | "closed" | "owner" | "open" | "announced";
 
 const labels: Record<Status, string> = {
   pending: "Pending",
@@ -10,6 +10,7 @@ const labels: Record<Status, string> = {
   closed: "Closed",
   owner: "Owner",
   open: "Open to projects",
+  announced: "Announced",
 };
 
 // Цветной бейдж статуса: заявки, проекты, роль в команде

@@ -7,7 +7,8 @@ import Button from "@/components/ui/Button/Button";
 import Modal from "@/components/ui/Modal/Modal";
 import { Field, Hint, Select, Textarea } from "@/components/ui/Form/Form";
 import { api } from "@/lib/api";
-import type { Application, Project } from "@/types";
+import NotifyMeButton from "@/components/ui/NotifyMeButton/NotifyMeButton";
+import type { Application, LaunchSubscription, Project } from "@/types";
 import scss from "./ProjectDetailPage.module.scss";
 
 const MESSAGE_MAX = 1000;
@@ -16,10 +17,11 @@ type ProjectActionProps = {
   project: Project;
   currentUserId: string;
   myApplication: Application | null; // моя заявка в этот проект, если есть
+  launch: LaunchSubscription | null; // подписка "Notify me" — если проект пока анонс
 };
 
 // Главная кнопка зависит от того, кто смотрит: владелец, участник, уже подавший заявку или новый человек
-const ProjectAction = ({ project, currentUserId, myApplication }: ProjectActionProps) => {
+const ProjectAction = ({ project, currentUserId, myApplication, launch }: ProjectActionProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
@@ -83,8 +85,11 @@ const ProjectAction = ({ project, currentUserId, myApplication }: ProjectActionP
   }
 
   // Не в команде: заявка (в зависимости от её состояния) + "Message owner" — можно сначала всё обсудить
+  // Анонс: заявок ещё нет — можно подписаться на запуск
   const main =
-    myApplication?.status === "pending" ? (
+    project.announced && launch ? (
+      <NotifyMeButton projectId={project.id} initial={launch} size="lg" />
+    ) : myApplication?.status === "pending" ? (
       <>
         <Button variant="outline" size="lg" disabled>
           Application sent

@@ -11,7 +11,7 @@ const HomePage = async () => {
   const [projects, users, announcements] = await Promise.all([
     api.projects.list({ limit: 3 }),
     api.users.list({ limit: 4 }),
-    api.announcements().catch(() => []), // анонсы — не главное: если не загрузились, страница всё равно откроется
+    api.announcements(3).catch(() => []), // анонсы — не главное: если не загрузились, страница всё равно откроется
   ]);
 
   return (

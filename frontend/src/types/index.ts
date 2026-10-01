@@ -57,6 +57,8 @@ export type Project = {
   members: User[];
   status: "open" | "closed";
   createdAt?: string;
+  launchAt?: string | null; // "2026-10-14" — дата запуска; null — уже запущен
+  announced?: boolean; // запуск ещё впереди: проект — анонс (команда и стек скрыты от чужих)
 };
 
 export type ApplicationStatus = "pending" | "accepted" | "rejected";
@@ -111,11 +113,17 @@ export type UserSettings = {
   notifyDirect: boolean;
 };
 
-// Анонс будущего проекта на главной: команда и стек пока засекречены
+// Анонс — проект, который ещё не запустился. Команда и стек засекречены до дня запуска
 export type Announcement = {
-  id: string;
+  id: string; // id проекта
   title: string;
-  bio: string;
+  description: string;
   icon: string;
-  startsAt: string; // "2026-10-14"
+  category: ProjectCategory;
+  launchAt: string; // "2026-10-14"
+  owner: Person;
+  subscribers: number; // сколько человек нажали "Notify me"
+  subscribed: boolean; // я нажал "Notify me"
 };
+
+export type LaunchSubscription = { subscribed: boolean; subscribers: number };

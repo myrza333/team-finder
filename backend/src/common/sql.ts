@@ -49,6 +49,8 @@ export const projectJson = (p: string) => `json_build_object(
   'description', ${p}.description,
   'fullDescription', ${p}.full_description,
   'icon', ${p}.icon,
+  'launchAt', to_char(${p}.launch_at, 'YYYY-MM-DD'),
+  'announced', coalesce(${p}.launch_at > current_date, false),
   'websiteUrl', ${p}.website_url,
   'repoUrl', ${p}.repo_url,
   'category', ${p}.category,

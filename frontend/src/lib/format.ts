@@ -41,3 +41,24 @@ export const clockTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
 export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+// ===== Дата запуска анонса ("2026-10-14") =====
+
+// Сколько дней до запуска (сегодня — 0)
+export const daysUntil = (date: string) => {
+  const today = new Date();
+  const [y, m, d] = date.split("-").map(Number);
+  return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())) / DAY);
+};
+
+// "Launches in 10 days" / "Launches tomorrow" / "Launches today"
+export const launchCountdown = (date: string) => {
+  const days = daysUntil(date);
+  if (days <= 0) return "Launches today";
+  if (days === 1) return "Launches tomorrow";
+  return `Launches in ${plural(days, "day")}`;
+};
+
+// "October 14"
+export const launchDate = (date: string) =>
+  new Date(`${date}T00:00:00`).toLocaleDateString("en-US", { month: "long", day: "numeric" });

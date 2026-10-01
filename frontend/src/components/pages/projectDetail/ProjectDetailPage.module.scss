@@ -31,10 +31,9 @@
   gap: 20px;
   padding: 24px;
   margin-bottom: 28px;
-  @include sm {
-    flex-direction: row;
-    padding: 28px;
-  }
+  @include sm { padding: 28px; }
+  // Кнопки справа — только когда хватает ширины; на планшете и телефоне они под описанием
+  @include lg { flex-direction: row; }
 }
 
 .heroIcon {
@@ -183,13 +182,18 @@ a.person:hover .personName {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  @include sm { align-items: flex-end; }
+  @include lg {
+    flex-shrink: 0;
+    max-width: 360px;
+    align-items: flex-end;
+  }
 }
 
 .actionButtons {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  @include lg { justify-content: flex-end; }
 }
 
 .actionError {
@@ -242,4 +246,45 @@ a.person:hover .personName {
 .linkArrow {
   color: var(--gray-400);
   .link:hover & { color: currentColor; }
+}
+
+// ===== Анонс (проект ещё не запущен) =====
+.launch {
+  @include text-xs;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 600;
+}
+
+// Плашка для владельца: проект пока анонс
+.announcedNote {
+  @include text-sm;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--primary-200);
+  border-radius: var(--radius-xl);
+  background: var(--primary-50);
+  color: var(--gray-700);
+  svg { flex-shrink: 0; margin-top: 2px; color: var(--primary-600); }
+  strong { color: var(--gray-900); }
+}
+
+// "Revealed on launch day" вместо стека, вакансий и команды
+.classified {
+  @include text-sm;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--gray-500);
+  svg { flex-shrink: 0; color: var(--gray-400); }
+  strong { color: var(--gray-700); }
 }

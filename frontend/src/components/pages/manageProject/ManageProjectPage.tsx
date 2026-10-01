@@ -81,7 +81,7 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
         <div className={scss.heroInfo}>
           <div className={scss.titleLine}>
             <h1 className={scss.title}>{project.title}</h1>
-            <StatusBadge status={isRecruiting ? "recruiting" : "closed"} />
+            <StatusBadge status={project.announced ? "announced" : isRecruiting ? "recruiting" : "closed"} />
           </div>
           <p className={scss.description}>{project.description}</p>
         </div>

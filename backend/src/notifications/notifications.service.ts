@@ -10,7 +10,8 @@ export type NotificationType =
   | 'application_rejected' // тебе отказали
   | 'member_removed' // тебя убрали из команды
   | 'member_left' // кто-то вышел из твоей команды
-  | 'direct_new'; // тебе написали лично по поводу проекта (первое сообщение чата)
+  | 'direct_new' // тебе написали лично по поводу проекта (первое сообщение чата)
+  | 'project_launched'; // анонс, на который ты подписался (Notify me), запустился
 
 // Что лежит в notifications.data
 export type NotificationData = { actorId: string; projectId: string; projectTitle: string; applicationId?: string; chatId?: string };
@@ -40,6 +41,8 @@ const describe = (n: Row): { text: string; href: string } => {
       return { text: `removed you from the ${title} team`, href: `/projects/${n.projectId}` };
     case 'member_left':
       return { text: `left the ${title} team`, href: `/my-projects/${n.projectId}` };
+    case 'project_launched':
+      return { text: `launched ${title} — applications are open`, href: `/projects/${n.projectId}` };
     case 'direct_new':
       return { text: `messaged you about ${title}`, href: n.chatId ? `/chat/d/${n.chatId}` : '/chat' };
   }

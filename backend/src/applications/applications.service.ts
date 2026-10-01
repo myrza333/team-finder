@@ -59,8 +59,9 @@ export class ApplicationsService {
       member: boolean;
       existing: 'pending' | 'accepted' | 'rejected' | null;
       vacancy_open: boolean | null;
+      announced: boolean;
     }>(
-      `select p.owner_id, p.status,
+      `select p.owner_id, p.status, coalesce(p.launch_at > current_date, false) as announced,
               exists(select 1 from project_members where project_id = p.id and user_id = $2) as member,
               (select status from applications where project_id = p.id and user_id = $2) as existing,
               (select is_open from vacancies where id = $3 and project_id = p.id) as vacancy_open
@@ -72,6 +73,7 @@ export class ApplicationsService {
     if (state.member) throw new ConflictException("You're already in this team");
     if (state.existing === 'pending') throw new ConflictException("You've already applied to this project");
     if (state.existing === 'rejected') throw new ConflictException('Your application to this project was declined');
+    if (state.announced) throw new BadRequestException("This project hasn't launched yet — applications open on launch day");
     if (state.status === 'closed') throw new BadRequestException("This project isn't looking for people right now");
     if (dto.vacancyId && state.vacancy_open === null) throw new BadRequestException('This position no longer exists');
     if (dto.vacancyId && !state.vacancy_open) throw new BadRequestException('This position is already filled');

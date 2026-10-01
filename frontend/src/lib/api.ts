@@ -5,6 +5,7 @@ import type {
   ApplicationStatus,
   ChatMessage,
   ChatSummary,
+  LaunchSubscription,
   DirectChat,
   Project,
   ProjectCategory,
@@ -37,6 +38,7 @@ export type ProjectInput = {
   icon?: string;
   websiteUrl?: string; // пустая строка — убрать ссылку
   repoUrl?: string;
+  launchAt?: string; // "2026-10-14"; пустая строка — запустить сразу
   stack: string[];
   // id есть у существующих позиций — тогда они обновляются, а заявки на них сохраняют роль
   vacancies: { id?: string; title: string; skills?: string[]; isOpen?: boolean }[];
@@ -169,7 +171,16 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
         request<UserSettings>("/users/me/settings", { method: "PATCH", body: json(data) }),
     },
     skills: () => request<string[]>("/skills"),
-    announcements: () => request<Announcement[]>("/announcements"),
+    // Анонсы: limit 3 — для главной, без limit — все (страница Announcements)
+    announcements: (limit?: number) => request<Announcement[]>("/announcements", { query: { limit } }),
+    // "Notify me" на анонсе
+    launch: {
+      subscription: (projectId: string) => request<LaunchSubscription>(`/projects/${projectId}/notify-me`),
+      subscribe: (projectId: string) =>
+        request<LaunchSubscription>(`/projects/${projectId}/notify-me`, { method: "POST" }),
+      unsubscribe: (projectId: string) =>
+        request<LaunchSubscription>(`/projects/${projectId}/notify-me`, { method: "DELETE" }),
+    },
   };
 };
 

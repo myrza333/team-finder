@@ -1,0 +1,12 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.count {
+  @include text-xs;
+  color: var(--gray-400);
+  white-space: nowrap;
+}

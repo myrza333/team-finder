@@ -116,3 +116,9 @@
   @include text-xs;
   color: var(--gray-400);
 }
+
+// Календарь не растягиваем на всю ширину и красим под тему
+.dateInput {
+  max-width: 220px;
+  color-scheme: light dark;
+}

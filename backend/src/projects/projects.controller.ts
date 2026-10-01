@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
-import { IsBoolean } from 'class-validator';
-import { CurrentUserId } from '../common/current-user.decorator.js';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { CurrentUserId, OptionalUserId } from '../common/current-user.decorator.js';
 import { UuidParamPipe } from '../common/uuid.js';
 import { CreateProjectDto, ProjectsQueryDto, UpdateProjectDto } from './dto/project.dto.js';
+import { LaunchService } from './launch.service.js';
 import { ProjectsService } from './projects.service.js';
 import { TeamService } from './team.service.js';
 
@@ -16,17 +18,36 @@ export class ProjectsController {
   constructor(
     private readonly projects: ProjectsService,
     private readonly team: TeamService,
+    private readonly launch: LaunchService,
   ) {}
 
   @Get()
-  findAll(@Query() query: ProjectsQueryDto) {
-    return this.projects.findAll(query);
+  findAll(@Query() query: ProjectsQueryDto, @OptionalUserId() viewerId?: string) {
+    return this.projects.findAll(query, viewerId);
   }
 
-  // Детальная страница только для вошедших
+  // Детальная страница только для вошедших. Чужой анонс отдаётся урезанным (см. announced.ts)
   @Get(':id')
-  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUserId() _userId: string) {
-    return this.projects.findOne(id);
+  findOne(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string) {
+    return this.projects.findOne(id, userId);
+  }
+
+  // "Notify me" на анонсе: подписан ли я и сколько человек ждут запуска
+  @Get(':id/notify-me')
+  subscription(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string) {
+    return this.launch.subscription(id, userId);
+  }
+
+  // Подписаться: сообщить, когда проект запустится
+  @Post(':id/notify-me')
+  @HttpCode(200)
+  subscribe(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string) {
+    return this.launch.subscribe(id, userId);
+  }
+
+  @Delete(':id/notify-me')
+  unsubscribe(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string) {
+    return this.launch.unsubscribe(id, userId);
   }
 
   @Post()
@@ -78,5 +99,25 @@ export class ProjectsController {
     @Body() dto: VacancyStatusDto,
   ) {
     return this.team.setVacancyOpen(id, vacancyId, userId, dto.isOpen);
+  }
+}
+
+class AnnouncementsQueryDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+}
+
+// Анонсы — проекты с датой запуска в будущем. Главная берёт 3, страница Announcements — все
+@Controller('announcements')
+export class AnnouncementsController {
+  constructor(private readonly launch: LaunchService) {}
+
+  @Get()
+  list(@Query() query: AnnouncementsQueryDto, @OptionalUserId() viewerId?: string) {
+    return this.launch.list(viewerId, query.limit);
   }
 }

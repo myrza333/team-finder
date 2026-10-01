@@ -25,7 +25,7 @@ const ProjectRow = ({ project: p, owned, newApplications = 0 }: ProjectRowProps)
           <Link href={owned ? `/my-projects/${p.id}` : `/projects/${p.id}`} className={scss.title}>
             {p.title}
           </Link>
-          <StatusBadge status={openPositions(p) > 0 ? "recruiting" : "closed"} />
+          <StatusBadge status={p.announced ? "announced" : openPositions(p) > 0 ? "recruiting" : "closed"} />
         </div>
         <p className={scss.description}>{p.description}</p>
         <div className={scss.meta}>

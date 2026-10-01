@@ -11,6 +11,7 @@ import {
   IsUrl,
   IsUUID,
   Length,
+  Matches,
   MaxLength,
   Max,
   Min,
@@ -85,6 +86,14 @@ export class CreateProjectDto {
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: 'Source code must be a valid link like https://github.com/you/project' })
   @MaxLength(300)
   repoUrl?: string | null;
+
+  // Дата запуска "2026-10-14". В будущем — проект сначала анонс (Announcements), в этот день запускается.
+  // Пустая строка / null — запущен сразу
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'Launch date must look like 2026-10-14' })
+  launchAt?: string | null;
 
   @IsArray()
   @ArrayMaxSize(15)

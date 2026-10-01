@@ -20,6 +20,7 @@ type Panel = "menu" | "user" | null;
 const navLinks = [
   { href: "/projects", label: "Projects" },
   { href: "/people", label: "People" },
+  { href: "/announcements", label: "Announcements" },
 ];
 
 const Header = () => {

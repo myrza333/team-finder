@@ -6,3 +6,8 @@ export const CurrentUserId = createParamDecorator((_: unknown, ctx: ExecutionCon
   if (!userId) throw new UnauthorizedException('You need to sign in');
   return userId;
 });
+
+// То же, но гость — не ошибка: вернёт undefined (для страниц, которые видны и без входа)
+export const OptionalUserId = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext) => ctx.switchToHttp().getRequest<AuthedRequest>().userId,
+);

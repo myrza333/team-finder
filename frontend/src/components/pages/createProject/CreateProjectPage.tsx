@@ -14,6 +14,13 @@ import ProjectIcon, { projectIconKeys, projectIcons } from "@/components/ui/Proj
 import scss from "./CreateProjectPage.module.scss";
 
 // "plants.com" → "https://plants.com": так ссылку проще вписать. Пустое поле остаётся пустым (= ссылки нет)
+// Самая ранняя дата запуска в календаре — завтра ("2026-10-02")
+const tomorrow = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
 const withProtocol = (url: string) => {
   const value = url.trim();
   return !value || /^https?:\/\//i.test(value) ? value : `https://${value}`;
@@ -37,6 +44,8 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
     icon: project?.icon ?? "rocket",
     websiteUrl: project?.websiteUrl ?? "",
     repoUrl: project?.repoUrl ?? "",
+    // Уже запущенный проект (дата в прошлом) — поле пустое; будущая дата — проект пока анонс
+    launchAt: project?.announced ? (project.launchAt ?? "") : "",
   });
   const [stack, setStack] = useState<string[]>(project?.stack ?? []);
   const [roles, setRoles] = useState<string[]>(project?.vacancies.map((v) => v.title) ?? ["Frontend Developer"]);
@@ -186,6 +195,19 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               ))}
             </Select>
           </Field>
+
+          {/* Дата запуска в будущем — проект сначала анонс (страница Announcements) */}
+          <div className={scss.links}>
+            <Field label="Launch date" htmlFor="launchAt" hint={<span className={scss.optional}>Optional</span>}>
+              <div className={scss.dateInput}>
+                <Input id="launchAt" type="date" min={tomorrow()} value={form.launchAt} onChange={update("launchAt")} />
+              </div>
+            </Field>
+            <Hint>
+              Not ready yet? Pick a date to announce the project first: until then only its name and short description
+              are public, and applications open on launch day. Leave empty to publish now.
+            </Hint>
+          </div>
 
           <Field label="Tech stack">
             <TagInput
