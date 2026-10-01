@@ -97,3 +97,22 @@
   margin-top: 6px;
   color: var(--gray-400);
 }
+
+// ===== Ссылки проекта =====
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  @include sm { grid-template-columns: 1fr 1fr; gap: 16px; }
+}
+
+.optional {
+  @include text-xs;
+  color: var(--gray-400);
+}

@@ -49,6 +49,8 @@ export type Project = {
   fullDescription: string;
   icon: string;
   category: ProjectCategory;
+  websiteUrl?: string | null; // сам сайт / приложение
+  repoUrl?: string | null; // исходный код (GitHub, GitLab)
   stack: string[];
   vacancies: Vacancy[];
   owner: User;

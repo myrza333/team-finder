@@ -37,14 +37,6 @@ export const CloseIcon = ({ size = 20, className }: IconProps) => (
   </svg>
 );
 
-export const MoreIcon = ({ size = 16, className }: IconProps) => (
-  <svg className={className} width={size} height={size} viewBox="0 0 16 16" fill="none" aria-hidden>
-    <circle cx="8" cy="3" r="1.2" fill="currentColor" />
-    <circle cx="8" cy="8" r="1.2" fill="currentColor" />
-    <circle cx="8" cy="13" r="1.2" fill="currentColor" />
-  </svg>
-);
-
 export const LogoMarkIcon = ({ size = 18, className }: IconProps) => (
   <svg className={className} width={size} height={size} viewBox="0 0 18 18" fill="none" aria-hidden>
     <circle cx="6" cy="6" r="3" fill="white" opacity="0.9" />

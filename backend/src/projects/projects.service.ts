@@ -55,10 +55,10 @@ export class ProjectsService {
   async create(ownerId: string, dto: CreateProjectDto) {
     const id = await this.db.transaction(async (client) => {
       const { rows } = await client.query<{ id: string }>(
-        `insert into projects (owner_id, title, description, full_description, category, icon)
-         values ($1, $2, $3, $4, $5, coalesce($6, 'rocket'))
+        `insert into projects (owner_id, title, description, full_description, category, icon, website_url, repo_url)
+         values ($1, $2, $3, $4, $5, coalesce($6, 'rocket'), $7, $8)
          returning id`,
-        [ownerId, dto.title, dto.description, dto.fullDescription ?? '', dto.category, dto.icon ?? null],
+        [ownerId, dto.title, dto.description, dto.fullDescription ?? '', dto.category, dto.icon ?? null, dto.websiteUrl ?? null, dto.repoUrl ?? null],
       );
       const projectId = rows[0].id;
 
@@ -85,6 +85,8 @@ export class ProjectsService {
       full_description: dto.fullDescription,
       category: dto.category,
       icon: dto.icon,
+      website_url: dto.websiteUrl,
+      repo_url: dto.repoUrl,
       status: dto.status,
     };
     const changed = Object.entries(columns).filter(([, value]) => value !== undefined);

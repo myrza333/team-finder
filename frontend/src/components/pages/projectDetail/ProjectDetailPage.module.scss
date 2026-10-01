@@ -211,3 +211,35 @@ a.person:hover .personName {
 .filled {
   color: var(--gray-400);
 }
+
+// ===== Ссылки проекта (сайт, исходный код) =====
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.link {
+  @include text-xs;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  color: var(--gray-700);
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  &:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+    color: var(--primary-700);
+  }
+}
+
+.linkArrow {
+  color: var(--gray-400);
+  .link:hover & { color: currentColor; }
+}

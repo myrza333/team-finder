@@ -1,18 +1,29 @@
 import Link from "next/link";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar/Avatar";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
-import { MoreIcon } from "@/components/ui/Icons";
 import type { Project } from "@/types";
 import scss from "./ProjectCard.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
+import { Globe } from "lucide-react";
 
 const ProjectCard = ({ project }: { project: Project }) => (
   <article className={scss.card}>
     <div className={scss.top}>
-      <div className={scss.icon}><ProjectIcon icon={project.icon} size={20} /></div>
-      <button className={scss.more} aria-label="More actions">
-        <MoreIcon />
-      </button>
+      <div className={scss.icon}>
+        <ProjectIcon icon={project.icon} size={20} />
+      </div>
+      {/* У проекта есть рабочий сайт — его можно открыть прямо из карточки */}
+      {project.websiteUrl && (
+        <a
+          href={project.websiteUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={scss.live}
+          aria-label={`Open ${project.title} website`}
+        >
+          <Globe size={13} strokeWidth={2} aria-hidden /> Live
+        </a>
+      )}
     </div>
 
     <h3 className={scss.title}>{project.title}</h3>

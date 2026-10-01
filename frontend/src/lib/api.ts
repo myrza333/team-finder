@@ -35,6 +35,8 @@ export type ProjectInput = {
   fullDescription?: string;
   category: ProjectCategory;
   icon?: string;
+  websiteUrl?: string; // пустая строка — убрать ссылку
+  repoUrl?: string;
   stack: string[];
   // id есть у существующих позиций — тогда они обновляются, а заявки на них сохраняют роль
   vacancies: { id?: string; title: string; skills?: string[]; isOpen?: boolean }[];

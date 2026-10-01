@@ -13,6 +13,12 @@ import type { Project, ProjectCategory } from "@/types";
 import ProjectIcon, { projectIconKeys, projectIcons } from "@/components/ui/ProjectIcon/ProjectIcon";
 import scss from "./CreateProjectPage.module.scss";
 
+// "plants.com" → "https://plants.com": так ссылку проще вписать. Пустое поле остаётся пустым (= ссылки нет)
+const withProtocol = (url: string) => {
+  const value = url.trim();
+  return !value || /^https?:\/\//i.test(value) ? value : `https://${value}`;
+};
+
 const toggle = (list: string[], value: string) =>
   list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 
@@ -29,6 +35,8 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
     fullDescription: project?.fullDescription ?? "",
     category: project?.category ?? "",
     icon: project?.icon ?? "rocket",
+    websiteUrl: project?.websiteUrl ?? "",
+    repoUrl: project?.repoUrl ?? "",
   });
   const [stack, setStack] = useState<string[]>(project?.stack ?? []);
   const [roles, setRoles] = useState<string[]>(project?.vacancies.map((v) => v.title) ?? ["Frontend Developer"]);
@@ -66,7 +74,14 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
       const existing = project?.vacancies.find((v) => v.title === title);
       return { id: existing?.id, title, skills: existing?.skills ?? [], isOpen: existing?.isOpen ?? true };
     });
-    save.mutate({ ...form, category: form.category as ProjectCategory, stack, vacancies });
+    save.mutate({
+      ...form,
+      websiteUrl: withProtocol(form.websiteUrl),
+      repoUrl: withProtocol(form.repoUrl),
+      category: form.category as ProjectCategory,
+      stack,
+      vacancies,
+    });
   };
 
   return (
@@ -133,6 +148,33 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               placeholder="About the project"
             />
           </Field>
+
+          {/* Необязательные ссылки: сам сайт/приложение и исходный код. Пустые — на странице проекта их нет */}
+          <div className={scss.links}>
+          <div className={scss.twoColumns}>
+            <Field label="Website" htmlFor="websiteUrl" hint={<span className={scss.optional}>Optional</span>}>
+              <Input
+                id="websiteUrl"
+                inputMode="url"
+                maxLength={300}
+                value={form.websiteUrl}
+                onChange={update("websiteUrl")}
+                placeholder="plants.example.com"
+              />
+            </Field>
+            <Field label="Source code" htmlFor="repoUrl" hint={<span className={scss.optional}>Optional</span>}>
+              <Input
+                id="repoUrl"
+                inputMode="url"
+                maxLength={300}
+                value={form.repoUrl}
+                onChange={update("repoUrl")}
+                placeholder="github.com/you/project"
+              />
+            </Field>
+          </div>
+          <Hint>No link yet? Leave it empty and add it later, when the project goes live.</Hint>
+          </div>
 
           <Field label="Category" htmlFor="category">
             <Select id="category" required value={form.category} onChange={update("category")}>

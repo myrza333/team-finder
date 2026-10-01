@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
@@ -8,13 +8,19 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUrl,
   IsUUID,
   Length,
   MaxLength,
   Max,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
+
+// Пустая строка (или пробелы) в необязательной ссылке = "убрать ссылку" (null в базе)
+const emptyToNull = () =>
+  Transform(({ value }) => (typeof value === 'string' ? value.trim() || null : value));
 
 export const CATEGORIES = ['Development', 'Design', 'AI', 'Startup', 'Education', 'Games', 'Mobile'] as const;
 
@@ -63,6 +69,22 @@ export class CreateProjectDto {
   @IsOptional()
   @IsIn(PROJECT_ICONS)
   icon?: (typeof PROJECT_ICONS)[number];
+
+  // Ссылки необязательные. Пустая строка = "убрать ссылку" (null в базе).
+  // Только http(s) — чтобы нельзя было вписать javascript: и прочее опасное
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: 'Website must be a valid link like https://example.com' })
+  @MaxLength(300)
+  websiteUrl?: string | null;
+
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: 'Source code must be a valid link like https://github.com/you/project' })
+  @MaxLength(300)
+  repoUrl?: string | null;
 
   @IsArray()
   @ArrayMaxSize(15)

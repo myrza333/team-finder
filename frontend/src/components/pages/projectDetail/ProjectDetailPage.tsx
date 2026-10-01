@@ -5,6 +5,7 @@ import Panel from "@/components/ui/Panel/Panel";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import type { Application, Project } from "@/types";
 import ProjectAction from "./ProjectAction";
+import ProjectLinks from "./ProjectLinks";
 import scss from "./ProjectDetailPage.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
@@ -33,6 +34,7 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication }: ProjectDet
             Created by <Link href={`/profile/${project.owner.id}`}>{project.owner.name}</Link>
           </span>
         </div>
+        <ProjectLinks project={project} />
       </div>
       <ProjectAction project={project} currentUserId={currentUserId} myApplication={myApplication} />
     </section>
