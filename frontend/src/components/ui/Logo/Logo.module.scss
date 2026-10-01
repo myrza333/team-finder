@@ -22,6 +22,8 @@
 .md {
   .mark { width: 32px; height: 32px; }
   .text { @include text-lg; line-height: 1; font-weight: 800; }
+  // В шапке на совсем узком телефоне — только значок, иначе шапка не помещается
+  @include small-phone { .text { display: none; } }
 }
 
 .sm {

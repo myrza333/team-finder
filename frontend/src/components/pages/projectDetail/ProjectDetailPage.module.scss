@@ -12,9 +12,12 @@
   margin-bottom: 28px;
   color: var(--gray-400);
   a {
+    flex-shrink: 0; // "My projects" не ломается на две строки — сжимается название проекта
+    white-space: nowrap;
     transition: color 0.15s;
     &:hover { color: var(--primary-600); }
   }
+  @include phone { margin-bottom: 16px; }
 }
 
 .current {
@@ -30,6 +33,7 @@
   align-items: flex-start;
   gap: 20px;
   padding: 24px;
+  @include phone { padding: 16px; }
   margin-bottom: 28px;
   @include sm { padding: 28px; }
   // Кнопки справа — только когда хватает ширины; на планшете и телефоне они под описанием
@@ -84,9 +88,9 @@
 // ===== Сетка: основная колонка + боковая =====
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px;
-  @include lg { grid-template-columns: 2fr 1fr; }
+  @include lg { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 }
 
 .main {

@@ -6,7 +6,7 @@ import scss from "./Logo.module.scss";
 type LogoProps = { size?: "sm" | "md" | "lg" };
 
 const Logo = ({ size = "md" }: LogoProps) => (
-  <Link href="/" className={`${scss.logo} ${scss[size]}`}>
+  <Link href="/" className={`${scss.logo} ${scss[size]}`} aria-label="TeamFinder — home">
     <span className={scss.mark}>
       <LogoMarkIcon size={size === "sm" ? 14 : 18} />
     </span>

@@ -3,7 +3,13 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+  max-width: 100%;
   white-space: nowrap;
+  // Совсем узкий экран: длинная надпись переносится внутри кнопки, а не вылезает
+  @include small-phone {
+    white-space: normal;
+    text-align: center;
+  }
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
@@ -29,19 +35,23 @@
 }
 
 // ===== Размеры =====
+// На телефоне кнопки компактнее
 .sm {
   @include text-xs;
   padding: 6px 12px;
+  @include phone { padding: 5px 10px; }
 }
 
 .md {
   @include text-sm;
   padding: 8px 16px;
+  @include phone { padding: 7px 14px; }
 }
 
 .lg {
   @include text-sm;
   padding: 10px 20px;
+  @include phone { padding: 9px 16px; }
 }
 
 .fullWidth {

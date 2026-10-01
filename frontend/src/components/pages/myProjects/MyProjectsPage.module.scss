@@ -23,6 +23,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 20px;
+  @include phone { padding: 16px; }
   @include sm {
     flex-direction: row;
     align-items: center;
@@ -106,6 +107,7 @@
 .empty {
   @include card;
   padding: 48px 24px;
+  @include phone { padding: 32px 16px; }
   text-align: center;
 }
 

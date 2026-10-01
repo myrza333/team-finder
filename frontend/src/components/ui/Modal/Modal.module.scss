@@ -19,6 +19,7 @@
 
 .body {
   padding: 20px;
+  @include phone { padding: 16px; }
   @include sm { padding: 24px; }
 }
 

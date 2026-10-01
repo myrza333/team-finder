@@ -11,6 +11,7 @@
   align-items: center;
   gap: 24px;
   padding: 24px;
+  @include phone { padding: 16px; }
   margin-bottom: 28px;
   text-align: center;
   @include sm {
@@ -97,9 +98,9 @@
 // ===== Нижняя сетка =====
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px;
-  @include lg { grid-template-columns: 2fr 1fr; }
+  @include lg { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 }
 
 .main {

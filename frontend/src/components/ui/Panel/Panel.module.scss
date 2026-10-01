@@ -11,9 +11,11 @@
 
 .md {
   padding: 24px;
+  @include phone { padding: 16px; }
 }
 
 .sm {
   padding: 20px;
+  @include phone { padding: 16px; }
   .title { @include text-sm; }
 }

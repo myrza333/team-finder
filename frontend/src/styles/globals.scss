@@ -113,6 +113,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  // Узкие телефоны: весь текст (он задан в rem) становится чуть мельче — помещается без прокрутки вбок
+  @media (max-width: 380px) { font-size: 15px; }
+  @media (max-width: 300px) { font-size: 14px; }
 }
 
 body {
@@ -122,6 +125,12 @@ body {
   background: var(--bg);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  // Длинное слово (имя, адрес) переносится, а не растягивает страницу
+  overflow-wrap: break-word;
+}
+
+img {
+  max-width: 100%;
 }
 
 a {

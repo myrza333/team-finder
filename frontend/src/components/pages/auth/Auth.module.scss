@@ -94,6 +94,7 @@
   display: flex;
   justify-content: center;
   padding: 28px 20px 32px;
+  @include phone { padding: 24px 16px 28px; }
   @include sm {
     align-items: center;
     padding: 48px 24px;

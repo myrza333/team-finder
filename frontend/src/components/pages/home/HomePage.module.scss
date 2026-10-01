@@ -4,6 +4,7 @@
   overflow: hidden;
   padding-block: 80px;
   background: var(--bg);
+  @include phone { padding-block: 48px 40px; }
   @include sm { padding-block: 112px; }
 
   // мягкое фиолетовое свечение сверху
@@ -29,6 +30,7 @@
   gap: 6px;
   padding: 4px 12px;
   margin-bottom: 24px;
+  @include phone { margin-bottom: 16px; }
   border-radius: var(--radius-full);
   background: var(--primary-50);
   color: var(--primary-600);
@@ -40,6 +42,7 @@
   margin-bottom: 20px;
   font-size: 2.25rem;
   line-height: 1.25;
+  @include phone { margin-bottom: 12px; font-size: 1.875rem; }
   font-weight: 800;
   color: var(--gray-900);
   @include sm { font-size: 3rem; }
@@ -50,6 +53,7 @@
   @include text-lg;
   max-width: 576px;
   margin: 0 auto 40px;
+  @include phone { @include text-base; margin-bottom: 28px; }
   color: var(--gray-500);
 }
 
@@ -63,6 +67,7 @@
 
 .heroActions .heroButton {
   padding: 14px 24px;
+  @include phone { padding: 11px 20px; }
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
 }
@@ -71,32 +76,36 @@
 .section {
   @include container;
   padding-block: 48px;
+  @include phone { padding-block: 32px; }
 }
 
 .projectsGrid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
-  @include sm { grid-template-columns: repeat(2, 1fr); }
-  @include lg { grid-template-columns: repeat(3, 1fr); }
+  @include sm { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @include lg { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 .peopleGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  // Телефон: 2 колонки, если влезают по 150px, иначе одна (узкие экраны до ~330px)
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
-  @include sm { grid-template-columns: repeat(3, 1fr); }
-  @include lg { grid-template-columns: repeat(4, 1fr); }
+  @include sm { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @include lg { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 // ===== Призыв к действию =====
 .ctaSection {
   @include container;
   padding-block: 64px;
+  @include phone { padding-block: 32px 40px; }
 }
 
 .cta {
   padding: 40px 24px;
+  @include phone { padding: 28px 16px; }
   border-radius: 16px;
   background: var(--primary-50);
   text-align: center;

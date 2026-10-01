@@ -1,8 +1,8 @@
 .options {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
-  @include sm { grid-template-columns: repeat(3, 1fr); }
+  @include sm { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 .option {

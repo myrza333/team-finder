@@ -4,12 +4,17 @@
 @mixin lg { @media (min-width: 1024px) { @content; } }
 @mixin xl { @media (min-width: 1280px) { @content; } }
 
+// Обратное правило — только телефоны (до 640px) и совсем узкие телефоны (до 360px)
+@mixin phone { @media (max-width: 639px) { @content; } }
+@mixin small-phone { @media (max-width: 359px) { @content; } }
+
 // Центрированный контейнер страницы
 @mixin container($max: 1280px) {
   width: 100%;
   max-width: $max;
   margin-inline: auto;
   padding-inline: 16px;
+  @include small-phone { padding-inline: 12px; }
   @include sm { padding-inline: 24px; }
 }
 

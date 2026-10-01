@@ -1,5 +1,6 @@
 .header {
   display: flex;
+  flex-wrap: wrap; // кнопка справа на узком экране уходит под заголовок
   align-items: center;
   justify-content: space-between;
   gap: 16px;

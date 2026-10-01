@@ -12,9 +12,12 @@
   margin-bottom: 24px;
   color: var(--gray-400);
   a {
+    flex-shrink: 0; // "My projects" не ломается на две строки — сжимается название проекта
+    white-space: nowrap;
     transition: color 0.15s;
     &:hover { color: var(--primary-600); }
   }
+  @include phone { margin-bottom: 16px; }
 }
 
 .current {
@@ -29,6 +32,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 24px;
+  @include phone { padding: 16px; }
   margin-bottom: 28px;
   @include lg {
     flex-direction: row;
@@ -84,9 +88,9 @@
 // ===== Сетка =====
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px;
-  @include lg { grid-template-columns: 2fr 1fr; }
+  @include lg { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
 }
 
 .main {
@@ -99,13 +103,15 @@
 .box {
   @include card;
   padding: 24px;
+  @include phone { padding: 16px; }
 }
 
 .blockHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 4px 12px;
   margin-bottom: 16px;
 }
 
@@ -147,6 +153,7 @@
   @include card;
   @include text-sm;
   padding: 32px 24px;
+  @include phone { padding: 24px 16px; }
   text-align: center;
   color: var(--gray-400);
 }
