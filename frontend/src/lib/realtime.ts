@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { io } from "socket.io-client";
 import { useAuth } from "@/auth/useAuth";
 import { api } from "@/lib/api";
-import type { ChatMessage, DirectChat } from "@/types";
+import type { ChatMessage, ChatSummary, DirectChat } from "@/types";
 import { isNotAfter } from "@/lib/format";
 
 // WebSocket идёт на бэкенд напрямую: Vercel не умеет проксировать WebSocket через /api.
@@ -90,6 +90,19 @@ export const useRealtime = () => {
     });
 
     socket.on("presence:list", (ids: string[]) => setOnline(new Set(ids)));
+    // Кто-то из команды открыл чат (или написал) — мои сообщения до этого момента становятся ✓✓.
+    // Своё собственное прочтение не считаем
+    socket.on("chat:read", ({ projectId, userId: readerId, readAt }: { projectId: string; userId: string; readAt: string }) => {
+      if (readerId === userId) return;
+      queryClient.setQueryData<ChatSummary[]>(["chats"], (old) =>
+        old?.map((c) =>
+          c.project.id === projectId && (!c.othersReadAt || !isNotAfter(readAt, c.othersReadAt))
+            ? { ...c, othersReadAt: readAt }
+            : c,
+        ),
+      );
+    });
+
     // Собеседник открыл личный чат (или ответил) — мои сообщения до этого момента становятся ✓✓
     socket.on("direct:read", ({ chatId, readAt }: { chatId: string; readAt: string }) => {
       queryClient.setQueryData<DirectChat[]>(["direct-chats"], (old) =>

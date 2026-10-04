@@ -134,6 +134,7 @@ const Chat = () => {
             onSend={send}
             hasOlder={hasOlder}
             onLoadOlder={loadOlder}
+            readAt={activeTeam.othersReadAt}
             onOpenMembers={() => setMembersOpenFor(activeTeam.project.id)}
           />
         ) : activeDirect && user ? (

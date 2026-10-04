@@ -105,6 +105,7 @@ export type ChatSummary = {
   lastMessage: ChatMessage | null;
   unread: number;
   lastSeen?: Record<string, string | null>; // id участника → когда был в сети
+  othersReadAt: string | null; // до какого момента чат прочитал хоть кто-то из остальных: мои сообщения раньше — ✓✓
 };
 
 // Settings → Privacy и Settings → Notifications (уведомления только на сайте, писем пока нет)

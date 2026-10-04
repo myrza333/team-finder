@@ -20,6 +20,9 @@ export class ChatService {
               (select count(*) from messages m
                where m.project_id = p.id and m.created_at > pm.last_read_at
                  and m.user_id is distinct from $1)::int as unread,
+              -- До какого момента чат прочитал хоть кто-то из остальных: мои сообщения раньше — ✓✓
+              (select max(x.last_read_at) from project_members x
+               where x.project_id = p.id and x.user_id <> $1) as "othersReadAt",
               -- Когда каждый участник был в сети: видно только товарищам по команде
               (select json_object_agg(u.id, u.last_seen_at)
                from project_members x join users u on u.id = x.user_id
@@ -60,7 +63,7 @@ export class ChatService {
 
   async send(projectId: string, userId: string, text: string) {
     // Вставляем, только если автор в команде; заодно своё сообщение сразу "прочитано"
-    const row = await this.db.queryOne<{ message: { id: string } }>(
+    const row = await this.db.queryOne<{ message: { id: string; createdAt: string } }>(
       `with member as (
          update project_members set last_read_at = now()
          where project_id = $1 and user_id = $2
@@ -77,14 +80,18 @@ export class ChatService {
     );
     if (!row) throw new ForbiddenException("You're not a member of this team");
     this.realtime.toProject(projectId, 'chat:message', row.message);
+    // Кто написал, тот прочитал всё до своего сообщения
+    this.realtime.toProject(projectId, 'chat:read', { projectId, userId, readAt: row.message.createdAt });
     return row.message;
   }
 
   async markRead(projectId: string, userId: string) {
-    await this.db.query(
-      'update project_members set last_read_at = now() where project_id = $1 and user_id = $2',
+    const row = await this.db.queryOne<{ read_at: Date }>(
+      'update project_members set last_read_at = now() where project_id = $1 and user_id = $2 returning last_read_at as read_at',
       [projectId, userId],
     );
+    // Остальные участники сразу видят ✓✓ у своих сообщений
+    if (row) this.realtime.toProject(projectId, 'chat:read', { projectId, userId, readAt: row.read_at });
   }
 
   // Системное сообщение ("Aida joined the team") уже вставлено в базу запросом заявок/команды — рассылаем его

@@ -17,6 +17,7 @@ type ChatWindowProps = {
   onSend: (text: string) => Promise<boolean>;
   hasOlder: boolean;
   onLoadOlder: () => Promise<void>;
+  readAt: string | null; // до какого момента чат прочитал хоть кто-то из остальных
   onOpenMembers: () => void;
 };
 
@@ -29,6 +30,7 @@ const ChatWindow = ({
   onSend,
   hasOlder,
   onLoadOlder,
+  readAt,
   onOpenMembers,
 }: ChatWindowProps) => {
   const onlineIds = useOnlineUsers();
@@ -65,6 +67,7 @@ const ChatWindow = ({
         currentUserId={currentUserId}
         hasOlder={hasOlder}
         onLoadOlder={onLoadOlder}
+        readAt={readAt}
       />
       <Composer onSend={onSend} placeholder={t.chat.messageTo(project.title)} />
     </div>

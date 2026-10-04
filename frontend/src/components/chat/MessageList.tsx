@@ -15,7 +15,7 @@ type MessageListProps = {
   emptyText?: string; // что показать в пустом чате
   ownerId: string;
   currentUserId: string;
-  readAt?: string; // личный чат: до какого момента собеседник прочитал — у моих сообщений ✓ / ✓✓
+  readAt?: string | null; // до какого момента прочитал собеседник (в команде — хоть кто-то): у моих сообщений ✓ / ✓✓; null — никто
   hasOlder?: boolean; // есть сообщения старше загруженных
   onLoadOlder?: () => Promise<void>;
 };
@@ -124,7 +124,7 @@ const MessageList = ({
                   <span className={scss.time}>
                     {time}
                     {readAt !== undefined &&
-                      (isNotAfter(m.createdAt, readAt) ? (
+                      (readAt && isNotAfter(m.createdAt, readAt) ? (
                         <CheckCheck size={14} strokeWidth={2} className={scss.read} aria-label={t.chat.read} />
                       ) : (
                         <Check size={14} strokeWidth={2} aria-label={t.chat.sent} />
