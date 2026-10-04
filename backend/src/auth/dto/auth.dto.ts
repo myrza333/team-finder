@@ -6,7 +6,7 @@ const normalizeEmail = () => Transform(({ value }) => (typeof value === 'string'
 export class RegisterDto {
   @IsString()
   @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
-  @Length(2, 60)
+  @Length(2, 60, { message: 'Name must be 2 to 60 characters' })
   name!: string;
 
   @normalizeEmail()

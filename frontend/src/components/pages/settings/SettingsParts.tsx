@@ -95,6 +95,7 @@ export const SaveBar = ({
   justSaved,
   saving = false,
   error = null,
+  invalid = false,
   onSave,
   onReset,
 }: {
@@ -102,6 +103,7 @@ export const SaveBar = ({
   justSaved: boolean;
   saving?: boolean;
   error?: string | null;
+  invalid?: boolean; // в форме ошибка (подсвечена у поля) — сохранять нельзя
   onSave: () => void;
   onReset: () => void;
 }) => {
@@ -124,7 +126,7 @@ export const SaveBar = ({
         <Button variant="outline" onClick={onReset} disabled={!isDirty || saving}>
           {t.common.cancel}
         </Button>
-        <Button onClick={onSave} disabled={!isDirty || saving}>
+        <Button onClick={onSave} disabled={!isDirty || saving || invalid}>
           {saving ? t.common.saving : t.common.saveChanges}
         </Button>
       </div>

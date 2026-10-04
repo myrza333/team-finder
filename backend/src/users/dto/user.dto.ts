@@ -27,7 +27,8 @@ const emptyToNull = () => Transform(({ value }) => (value === '' ? null : value)
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @Length(2, 60)
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Length(2, 60, { message: 'Name must be 2 to 60 characters' })
   name?: string;
 
   @IsOptional()

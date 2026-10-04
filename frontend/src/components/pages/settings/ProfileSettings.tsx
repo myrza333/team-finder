@@ -212,6 +212,7 @@ const ProfileForm = ({ user }: { user: User }) => {
   );
   const v = form.value;
   const set = <K extends keyof typeof v>(key: K, value: (typeof v)[K]) => form.setValue({ ...v, [key]: value });
+  const nameTooShort = v.name.trim().length < 2;
 
   return (
     <>
@@ -221,7 +222,15 @@ const ProfileForm = ({ user }: { user: User }) => {
 
           <div className={scss.twoColumns}>
             <Field label={p.name} htmlFor="name">
-              <Input id="name" value={v.name} onChange={(e) => set("name", e.target.value)} placeholder={p.namePlaceholder} />
+              <Input
+                id="name"
+                value={v.name}
+                maxLength={60}
+                aria-invalid={nameTooShort || undefined}
+                onChange={(e) => set("name", e.target.value)}
+                placeholder={p.namePlaceholder}
+              />
+              {nameTooShort && <Hint error>{p.nameTooShort}</Hint>}
             </Field>
             <Field label={p.location} htmlFor="location">
               <Input
@@ -291,6 +300,7 @@ const ProfileForm = ({ user }: { user: User }) => {
           justSaved={form.justSaved}
           saving={form.saving}
           error={form.error}
+          invalid={nameTooShort}
           onSave={form.save}
           onReset={form.reset}
         />
