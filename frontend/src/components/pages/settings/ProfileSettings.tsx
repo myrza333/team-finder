@@ -181,6 +181,7 @@ const ProfileSettings = () => {
 
 const ProfileForm = ({ user }: { user: User }) => {
   const applyUser = useApplyUser();
+  const router = useRouter();
   const { t } = useI18n();
   const p = t.settings.profile;
   const { data: allSkills = [] } = useQuery({ queryKey: ["skills"], queryFn: api.skills });
@@ -205,6 +206,8 @@ const ProfileForm = ({ user }: { user: User }) => {
         ...Object.fromEntries(socials.map((s) => [s.key, toUrl(s, v.links[s.key])])),
       });
       applyUser(updated);
+      // Сохранили — сразу показываем, как профиль выглядит для других
+      router.push(`/profile/${updated.id}`);
     },
   );
   const v = form.value;
