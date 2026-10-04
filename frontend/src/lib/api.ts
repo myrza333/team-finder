@@ -12,6 +12,8 @@ import type {
   User,
   UserSettings,
 } from "@/types";
+import { DEFAULT_LOCALE, parseLocale } from "@/i18n/config";
+import { translateError } from "@/i18n/translate";
 import { BACKEND_URL } from "./backendUrl";
 
 // В браузере — /api этого же сайта (next.config.ts пересылает на бэкенд), на сервере Next — напрямую на бэкенд
@@ -82,8 +84,10 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
-      const message = Array.isArray(body?.message) ? body.message.join(", ") : (body?.message ?? res.statusText);
-      throw new ApiError(res.status, message);
+      const messages: string[] = Array.isArray(body?.message) ? body.message : [body?.message ?? res.statusText];
+      // В браузере ошибку сразу показываем на языке сайта (он же в <html lang>)
+      const locale = isServer ? DEFAULT_LOCALE : parseLocale(document.documentElement.lang);
+      throw new ApiError(res.status, messages.map((m) => translateError(m, locale)).join(", "));
     }
     return res.status === 204 ? (undefined as T) : res.json();
   }
@@ -196,13 +200,6 @@ export const api = createApi();
 
 // Вход через Google — это переход страницы (не fetch): бэкенд уводит на Google и потом возвращает обратно
 export const googleAuthUrl = (next = "/") => `/api/auth/google?next=${encodeURIComponent(next)}`;
-
-export const authErrorMessages: Record<string, string> = {
-  google_failed: "Couldn't sign in with Google. Please try again.",
-  google_not_configured: "Google sign-in isn't set up yet.",
-  google_taken: "This Google account is already linked to another TeamFinder account.",
-  google_unverified: "Your Google email isn't verified, so we can't link it to an existing account.",
-};
 
 // 404 → null, чтобы страница могла вызвать notFound()
 export async function orNull<T>(promise: Promise<T>): Promise<T | null> {

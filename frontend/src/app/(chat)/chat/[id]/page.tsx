@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getI18n } from "@/i18n/server";
 import { orNull } from "@/lib/api";
 import { serverApi } from "@/lib/api.server";
 
@@ -6,7 +7,8 @@ import { serverApi } from "@/lib/api.server";
 export async function generateMetadata({ params }: PageProps<"/chat/[id]">): Promise<Metadata> {
   const { id } = await params;
   const project = await orNull(serverApi.projects.get(id)).catch(() => null);
-  return { title: project ? `${project.title} · Chat` : "Messages" };
+  const { t } = await getI18n();
+  return { title: project ? t.meta.chat(project.title) : t.meta.messages };
 }
 
 const page = () => null;

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { getI18n } from "@/i18n/server";
 import LegalPage from "@/components/pages/legal/LegalPage";
-import { termsOfService } from "@/data/legal";
 
-export const metadata: Metadata = { title: "Terms of Service" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.meta.terms };
+}
 
-const page = () => (
-  <LegalPage document={termsOfService} related={{ label: "Privacy Policy", href: "/privacy" }} />
-);
+const page = () => <LegalPage kind="terms" />;
 
 export default page;

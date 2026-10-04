@@ -1,0 +1,142 @@
+// Телефон — компактный список (как в настройках телефона), от 640px — три карточки с превью
+.options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  @include sm {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+  &:hover:not(:disabled) { border-color: var(--primary-300); }
+  &:focus-visible {
+    outline: 2px solid var(--primary-300);
+    outline-offset: 2px;
+  }
+  &:disabled { cursor: progress; }
+  @include sm { padding: 10px 10px 14px; }
+}
+
+.selected,
+.selected:hover:not(:disabled) {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 1px var(--primary-600);
+}
+
+// ===== Превью: фраза с главной на этом языке =====
+.preview {
+  display: none;
+  @include sm {
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    overflow: hidden;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--bg-subtle);
+  }
+}
+
+.code {
+  @include text-xs;
+  align-self: flex-start;
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.sample {
+  @include display;
+  @include line-clamp(2);
+  margin-top: auto;
+  font-size: 0.95rem;
+  line-height: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.line {
+  display: block;
+  width: 100%;
+  height: 5px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  background: var(--gray-200);
+}
+
+.lineShort { width: 55%; }
+
+// ===== Подпись =====
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  @include sm { padding-inline: 4px; }
+}
+
+// На телефоне превью нет — код языка стоит в строке слева
+.codeInline {
+  align-self: center;
+  @include sm { display: none; }
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  @include text-sm;
+  @include truncate;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.hint {
+  @include text-xs;
+  @include truncate;
+  color: var(--gray-500);
+}
+
+.radio {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-full);
+  transition: border-color 0.15s, border-width 0.15s;
+  .selected & {
+    border: 5px solid var(--primary-600);
+  }
+}
+
+.note {
+  @include text-xs;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 16px;
+  color: var(--gray-500);
+  svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}

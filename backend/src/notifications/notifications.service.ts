@@ -83,6 +83,9 @@ export class NotificationsService {
       actor: n.actor ?? deletedUser,
       read: n.read,
       createdAt: n.createdAt,
+      // По type и projectTitle фронтенд пишет текст на языке сайта; text — английский запасной вариант
+      type: n.type,
+      projectTitle: n.projectTitle,
       ...describe(n),
     }));
   }

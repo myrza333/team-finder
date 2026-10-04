@@ -6,12 +6,14 @@ import { Field, Input } from "@/components/ui/Form/Form";
 import PasswordInput from "@/components/ui/Form/PasswordInput";
 import { useAuth } from "@/auth/useAuth";
 import { api } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 import AuthCard from "./AuthCard";
 import scss from "./Auth.module.scss";
 
 const RegisterPage = ({ next, error: oauthError }: { next: string; error?: string }) => {
   const router = useRouter();
   const { setUser } = useAuth();
+  const { t } = useI18n();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
       // Новому пользователю сначала предлагаем заполнить профиль, если он не шёл куда-то конкретно
       router.push(next === "/" ? "/settings/profile" : next);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : t.common.somethingWrong);
       setLoading(false);
     }
   };
@@ -35,11 +37,11 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
     <AuthCard
       next={next}
       error={oauthError}
-      title="Create your account"
-      subtitle="Join TeamFinder and start building together"
-      googleLabel="Sign up with Google"
-      switchText="Already have an account?"
-      switchLink={{ label: "Sign in", href: `/login${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}` }}
+      title={t.auth.registerTitle}
+      subtitle={t.auth.registerSubtitle}
+      googleLabel={t.auth.registerGoogle}
+      switchText={t.auth.haveAccount}
+      switchLink={{ label: t.auth.signIn, href: `/login${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}` }}
     >
       <form onSubmit={handleSubmit} className={scss.form}>
         {error && (
@@ -48,7 +50,7 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
           </p>
         )}
 
-        <Field label="Name" htmlFor="name">
+        <Field label={t.auth.name} htmlFor="name">
           <Input
             id="name"
             required
@@ -57,11 +59,11 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
             autoComplete="name"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Your name"
+            placeholder={t.auth.namePlaceholder}
           />
         </Field>
 
-        <Field label="Email" htmlFor="email">
+        <Field label={t.auth.email} htmlFor="email">
           <Input
             id="email"
             type="email"
@@ -69,11 +71,11 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
             autoComplete="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="you@example.com"
+            placeholder={t.auth.emailPlaceholder}
           />
         </Field>
 
-        <Field label="Password" htmlFor="password">
+        <Field label={t.auth.password} htmlFor="password">
           <PasswordInput
             id="password"
             required
@@ -82,12 +84,12 @@ const RegisterPage = ({ next, error: oauthError }: { next: string; error?: strin
             autoComplete="new-password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
-            placeholder="8+ characters"
+            placeholder={t.auth.passwordPlaceholder}
           />
         </Field>
 
         <Button type="submit" fullWidth className={scss.submit} disabled={loading}>
-          {loading ? "Creating account…" : "Create account"}
+          {loading ? t.auth.creating : t.auth.create}
         </Button>
       </form>
     </AuthCard>

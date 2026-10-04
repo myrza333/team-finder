@@ -2,12 +2,13 @@
 import { MonitorIcon, MoonIcon, SunIcon } from "@/components/ui/Icons";
 import { useTheme, type ThemePreference } from "@/lib/useTheme";
 import { SettingsSection } from "./SettingsParts";
+import { useI18n } from "@/i18n/client";
 import scss from "./AppearanceSettings.module.scss";
 
-const options: { value: ThemePreference; label: string; hint: string; icon: React.ReactNode }[] = [
-  { value: "light", label: "Light", hint: "Bright and clean", icon: <SunIcon size={16} /> },
-  { value: "dark", label: "Dark", hint: "Easy on the eyes at night", icon: <MoonIcon size={16} /> },
-  { value: "system", label: "System", hint: "Follows your device", icon: <MonitorIcon size={16} /> },
+const options: { value: ThemePreference; icon: React.ReactNode }[] = [
+  { value: "light", icon: <SunIcon size={16} /> },
+  { value: "dark", icon: <MoonIcon size={16} /> },
+  { value: "system", icon: <MonitorIcon size={16} /> },
 ];
 
 // Мини-копия интерфейса: хедер, боковая колонка и карточка с кнопкой
@@ -36,10 +37,12 @@ const Preview = ({ variant }: { variant: "light" | "dark" }) => (
 
 const AppearanceSettings = () => {
   const { preference, setPreference } = useTheme();
+  const { t } = useI18n();
+  const a = t.settings.appearance;
 
   return (
-    <SettingsSection title="Theme" description="Choose how TeamFinder looks to you. Saved on this device.">
-      <div className={scss.options} role="radiogroup" aria-label="Theme">
+    <SettingsSection title={a.title} description={a.text}>
+      <div className={scss.options} role="radiogroup" aria-label={a.title}>
         {options.map((o) => {
           const selected = preference === o.value;
           return (
@@ -63,8 +66,8 @@ const AppearanceSettings = () => {
               <div className={scss.optionFooter}>
                 <span className={scss.optionIcon}>{o.icon}</span>
                 <div className={scss.optionText}>
-                  <p className={scss.optionLabel}>{o.label}</p>
-                  <p className={scss.optionHint}>{o.hint}</p>
+                  <p className={scss.optionLabel}>{a[o.value]}</p>
+                  <p className={scss.optionHint}>{a[`${o.value}Hint`]}</p>
                 </div>
                 <span className={scss.radio} />
               </div>

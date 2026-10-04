@@ -1,5 +1,6 @@
 "use client";
 import { useId, useState } from "react";
+import { useI18n } from "@/i18n/client";
 import scss from "./TagInput.module.scss";
 
 type TagInputProps = {
@@ -17,9 +18,10 @@ const TagInput = ({
   onChange,
   suggestions,
   max = 15,
-  placeholder = "Type to search...",
-  label = "items",
+  placeholder,
+  label = "",
 }: TagInputProps) => {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const listId = useId();
@@ -53,7 +55,7 @@ const TagInput = ({
           {value.map((skill) => (
             <span key={skill} className={scss.tag}>
               {skill}
-              <button type="button" onClick={() => remove(skill)} aria-label={`Remove ${skill}`}>
+              <button type="button" onClick={() => remove(skill)} aria-label={t.tagInput.remove(skill)}>
                 ×
               </button>
             </span>
@@ -66,9 +68,9 @@ const TagInput = ({
               onKeyDown={onKeyDown}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              placeholder={value.length ? "Add more..." : placeholder}
+              placeholder={value.length ? t.tagInput.addMore : (placeholder ?? t.tagInput.placeholder)}
               aria-controls={listId}
-              aria-label={`Add ${label}`}
+              aria-label={t.tagInput.add(label)}
             />
           )}
         </div>
@@ -94,7 +96,7 @@ const TagInput = ({
       </div>
 
       <p className={scss.counter}>
-        {value.length}/{max} {label} · Press Enter to add
+        {t.tagInput.counter(value.length, max, label)}
       </p>
     </div>
   );

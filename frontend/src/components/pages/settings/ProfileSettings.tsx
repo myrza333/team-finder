@@ -13,6 +13,8 @@ import { MAX_STACKS, stacks } from "@/lib/stacks";
 import type { User } from "@/types";
 import TagInput from "@/components/ui/TagInput/TagInput";
 import { SaveBar, SettingsSection, useSettingsForm } from "./SettingsParts";
+import { useI18n } from "@/i18n/client";
+import { translateError } from "@/i18n/translate";
 import scss from "./Settings.module.scss";
 import local from "./ProfileSettings.module.scss";
 
@@ -23,6 +25,7 @@ const MAX_UPLOAD_MB = 10;
 // Выбор направлений: плитки с иконками, не больше MAX_STACKS. Порядок — как в общем списке
 const StackPicker = ({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) => {
   const full = value.length >= MAX_STACKS;
+  const { t } = useI18n();
   const toggle = (name: string) =>
     onChange(
       value.includes(name) ? value.filter((s) => s !== name) : stacks.map((s) => s.name).filter((n) => n === name || value.includes(n)),
@@ -30,7 +33,7 @@ const StackPicker = ({ value, onChange }: { value: string[]; onChange: (next: st
 
   return (
     <>
-      <div className={local.stacks} role="group" aria-label="Stack">
+      <div className={local.stacks} role="group" aria-label={t.settings.profile.stackTitle}>
         {stacks.map(({ name, Icon }) => {
           const active = value.includes(name);
           return (
@@ -43,13 +46,14 @@ const StackPicker = ({ value, onChange }: { value: string[]; onChange: (next: st
               className={`${local.stack} ${active ? local.stackActive : ""}`}
             >
               <Icon size={16} strokeWidth={1.75} aria-hidden />
-              <span>{name}</span>
+              <span>{t.stacks[name] ?? name}</span>
             </button>
           );
         })}
       </div>
       <p className={local.stackCounter}>
-        {value.length}/{MAX_STACKS} selected{full ? " · unselect one to pick another" : ""}
+        {t.settings.profile.stackCounter(value.length, MAX_STACKS)}
+        {full ? t.settings.profile.stackFull : ""}
       </p>
     </>
   );
@@ -58,6 +62,7 @@ const StackPicker = ({ value, onChange }: { value: string[]; onChange: (next: st
 // Поле ссылки: иконка сети + начало адреса + ник. Можно вставить ссылку целиком — останется только ник
 const SocialField = ({ social, value, onChange }: { social: Social; value: string; onChange: (handle: string) => void }) => {
   const id = `social-${social.key}`;
+  const { t } = useI18n();
   return (
     <div className={local.social}>
       <label htmlFor={id} className={local.socialLabel}>
@@ -70,7 +75,7 @@ const SocialField = ({ social, value, onChange }: { social: Social; value: strin
           id={id}
           value={value}
           onChange={(e) => onChange(toHandle(social, e.target.value))}
-          placeholder="username"
+          placeholder={t.settings.profile.username}
           autoComplete="off"
           spellCheck={false}
         />
@@ -104,6 +109,8 @@ const preload = (src: string) =>
 const AvatarPicker = ({ user }: { user: User }) => {
   const applyUser = useApplyUser();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t, locale } = useI18n();
+  const p = t.settings.profile;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null); // выбранное фото показываем сразу, до ответа сервера
@@ -117,7 +124,7 @@ const AvatarPicker = ({ user }: { user: User }) => {
       if (updated.avatarUrl) await preload(updated.avatarUrl);
       applyUser(updated);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? translateError(e.message, locale) : t.common.somethingWrong);
     } finally {
       setBusy(false);
       setPreview((url) => {
@@ -131,8 +138,8 @@ const AvatarPicker = ({ user }: { user: User }) => {
     const file = e.target.files?.[0];
     e.target.value = ""; // чтобы можно было выбрать тот же файл ещё раз
     if (!file) return;
-    if (!file.type.startsWith("image/")) return setError("Please choose an image file");
-    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) return setError(`The image must be under ${MAX_UPLOAD_MB} MB`);
+    if (!file.type.startsWith("image/")) return setError(p.notImage);
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) return setError(p.tooBig(MAX_UPLOAD_MB));
     setPreview(URL.createObjectURL(file));
     run(async () => api.users.uploadAvatar(await resizeToSquare(file)));
   };
@@ -143,11 +150,11 @@ const AvatarPicker = ({ user }: { user: User }) => {
       <div>
         <div className={local.avatarButtons}>
           <Button variant="outline" disabled={busy} onClick={() => inputRef.current?.click()}>
-            {busy ? "Saving…" : hasPhoto ? "Change photo" : "Upload photo"}
+            {busy ? t.common.saving : hasPhoto ? p.changePhoto : p.uploadPhoto}
           </Button>
           {hasPhoto && (
             <Button variant="outline" disabled={busy} onClick={() => run(api.users.removeAvatar)}>
-              Remove
+              {p.removePhoto}
             </Button>
           )}
         </div>
@@ -158,7 +165,7 @@ const AvatarPicker = ({ user }: { user: User }) => {
           hidden
           onChange={onFile}
         />
-        <Hint error={Boolean(error)}>{error ?? "JPG, PNG, WebP or GIF. It will be cropped to a square."}</Hint>
+        <Hint error={Boolean(error)}>{error ?? p.photoHint}</Hint>
       </div>
     </div>
   );
@@ -166,13 +173,16 @@ const AvatarPicker = ({ user }: { user: User }) => {
 
 const ProfileSettings = () => {
   const { data: user, isError } = useQuery({ queryKey: ["me"], queryFn: api.users.me });
-  if (isError) return <p className={local.state}>Couldn&apos;t load your profile. Is the server running?</p>;
-  if (!user) return <p className={local.state}>Loading…</p>;
+  const { t } = useI18n();
+  if (isError) return <p className={local.state}>{t.settings.profile.loadError}</p>;
+  if (!user) return <p className={local.state}>{t.common.loading}</p>;
   return <ProfileForm user={user} />;
 };
 
 const ProfileForm = ({ user }: { user: User }) => {
   const applyUser = useApplyUser();
+  const { t } = useI18n();
+  const p = t.settings.profile;
   const { data: allSkills = [] } = useQuery({ queryKey: ["skills"], queryFn: api.skills });
 
   const form = useSettingsForm(
@@ -204,35 +214,35 @@ const ProfileForm = ({ user }: { user: User }) => {
 
   return (
     <>
-      <SettingsSection title="Public profile" description="This is how other people see you on TeamFinder.">
+      <SettingsSection title={p.publicTitle} description={p.publicText}>
         <div className={scss.fields}>
           <AvatarPicker user={user} />
 
           <div className={scss.twoColumns}>
-            <Field label="Name" htmlFor="name">
-              <Input id="name" value={v.name} onChange={(e) => set("name", e.target.value)} placeholder="Your name" />
+            <Field label={p.name} htmlFor="name">
+              <Input id="name" value={v.name} onChange={(e) => set("name", e.target.value)} placeholder={p.namePlaceholder} />
             </Field>
-            <Field label="Title" htmlFor="title">
+            <Field label={p.title} htmlFor="title">
               <Input
                 id="title"
                 value={v.title}
                 onChange={(e) => set("title", e.target.value)}
-                placeholder="Frontend Developer"
+                placeholder={p.titlePlaceholder}
               />
             </Field>
           </div>
 
-          <Field label="Location" htmlFor="location">
+          <Field label={p.location} htmlFor="location">
             <Input
               id="location"
               value={v.location}
               onChange={(e) => set("location", e.target.value)}
-              placeholder="City, country"
+              placeholder={p.locationPlaceholder}
             />
           </Field>
 
           <Field
-            label="Bio"
+            label={p.bio}
             htmlFor="bio"
             hint={
               <span className={`${local.counter} ${v.bio.length > BIO_MAX ? local.counterOver : ""}`}>
@@ -246,33 +256,33 @@ const ProfileForm = ({ user }: { user: User }) => {
               maxLength={BIO_MAX}
               value={v.bio}
               onChange={(e) => set("bio", e.target.value)}
-              placeholder="About you"
+              placeholder={p.bioPlaceholder}
             />
           </Field>
         </div>
       </SettingsSection>
 
       <SettingsSection
-        title="Skills"
-        description="Languages and technologies you actually work with, like TypeScript, React or PostgreSQL. Used in search."
+        title={p.skillsTitle}
+        description={p.skillsText}
       >
         <TagInput
           value={v.skills}
           onChange={(skills) => set("skills", skills)}
           suggestions={allSkills}
-          placeholder="Add a skill"
-          label="skills"
+          placeholder={p.addSkill}
+          label={p.skillsLabel}
         />
       </SettingsSection>
 
       <SettingsSection
-        title="Stack"
-        description={`What you do in a team — pick up to ${MAX_STACKS}. Shown on your profile right after skills.`}
+        title={p.stackTitle}
+        description={p.stackText(MAX_STACKS)}
       >
         <StackPicker value={v.stacks} onChange={(next) => set("stacks", next)} />
       </SettingsSection>
 
-      <SettingsSection title="Links" description="Shown on your profile so teammates can contact you.">
+      <SettingsSection title={p.linksTitle} description={p.linksText}>
         <div className={local.links}>
           {socials.map((s) => (
             <SocialField

@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { SendIcon } from "@/components/ui/Icons";
+import { useI18n } from "@/i18n/client";
 import scss from "./Chat.module.scss";
 
 type ComposerProps = {
@@ -16,6 +17,7 @@ const Composer = ({ onSend, placeholder }: ComposerProps) => {
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLTextAreaElement>(null);
+  const { t } = useI18n();
 
   const resize = () => {
     const el = ref.current;
@@ -65,11 +67,11 @@ const Composer = ({ onSend, placeholder }: ComposerProps) => {
         placeholder={placeholder}
         // Не отправилось — красная рамка, текст остаётся в поле
         aria-invalid={failed || undefined}
-        title={failed ? "Message not sent. Try again" : undefined}
+        title={failed ? t.chat.notSent : undefined}
         className={scss.composerInput}
-        aria-label="Message"
+        aria-label={t.chat.messageLabel}
       />
-      <button type="submit" className={scss.sendButton} disabled={!text.trim() || sending} aria-label="Send message">
+      <button type="submit" className={scss.sendButton} disabled={!text.trim() || sending} aria-label={t.chat.send}>
         <SendIcon />
       </button>
     </form>

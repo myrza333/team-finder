@@ -1,4 +1,7 @@
+"use client";
 import Link from "next/link";
+import { useI18n } from "@/i18n/client";
+import { rich } from "@/i18n/rich";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
@@ -24,58 +27,61 @@ const ReceivedApplicationCard = ({
   onAccept,
   onDecline,
   onMessage,
-}: ReceivedApplicationCardProps) => (
-  <article className={scss.card}>
-    <div className={scss.top}>
-      <Link href={`/profile/${a.applicant.id}`} className={scss.person}>
-        <Avatar src={a.applicant.avatarUrl} alt={a.applicant.name} size={44} />
-        <div className={scss.personText}>
-          <p className={scss.name}>{a.applicant.name}</p>
-          <p className={scss.meta}>{a.applicant.title}</p>
-        </div>
-      </Link>
-      <span className={scss.time}>{timeAgo(a.createdAt)}</span>
-    </div>
+}: ReceivedApplicationCardProps) => {
+  const { t, locale } = useI18n();
+  const role = <strong>{a.vacancy?.title ?? t.applications.anyRole}</strong>;
+  return (
+    <article className={scss.card}>
+      <div className={scss.top}>
+        <Link href={`/profile/${a.applicant.id}`} className={scss.person}>
+          <Avatar src={a.applicant.avatarUrl} alt={a.applicant.name} size={44} />
+          <div className={scss.personText}>
+            <p className={scss.name}>{a.applicant.name}</p>
+            <p className={scss.meta}>{a.applicant.title}</p>
+          </div>
+        </Link>
+        <span className={scss.time}>{timeAgo(a.createdAt, locale)}</span>
+      </div>
 
-    <p className={scss.appliedFor}>
-      Applied for <strong>{a.vacancy?.title ?? "any role"}</strong>
-      {showProject && (
-        <>
-          {" "}
-          in <Link href={`/projects/${a.project.id}`}>{a.project.title}</Link>
-        </>
-      )}
-    </p>
+      <p className={scss.appliedFor}>
+        {showProject
+          ? rich(t.applications.appliedFor, {
+              role,
+              project: <Link href={`/projects/${a.project.id}`}>{a.project.title}</Link>,
+            })
+          : rich(t.applications.appliedForRole, { role })}
+      </p>
 
-    {a.message && <p className={scss.message}>{a.message}</p>}
+      {a.message && <p className={scss.message}>{a.message}</p>}
 
-    <TagList>
-      {a.applicant.skills.slice(0, 4).map((s) => (
-        <Tag key={s}>{s}</Tag>
-      ))}
-    </TagList>
+      <TagList>
+        {a.applicant.skills.slice(0, 4).map((s) => (
+          <Tag key={s}>{s}</Tag>
+        ))}
+      </TagList>
 
-    <div className={scss.actions}>
-      {a.status === "pending" ? (
-        <>
-          <Button size="sm" onClick={onAccept} disabled={busy} className={scss.actionButton}>
-            Accept
-          </Button>
-          <Button size="sm" variant="outline" onClick={onDecline} disabled={busy} className={scss.actionButton}>
-            Decline
-          </Button>
-        </>
-      ) : (
-        <StatusBadge status={a.status} />
-      )}
-      <button type="button" onClick={onMessage} disabled={busy} className={scss.textLink}>
-        Message
-      </button>
-      <Link href={`/profile/${a.applicant.id}`} className={scss.textLink}>
-        View profile
-      </Link>
-    </div>
-  </article>
-);
+      <div className={scss.actions}>
+        {a.status === "pending" ? (
+          <>
+            <Button size="sm" onClick={onAccept} disabled={busy} className={scss.actionButton}>
+              {t.applications.accept}
+            </Button>
+            <Button size="sm" variant="outline" onClick={onDecline} disabled={busy} className={scss.actionButton}>
+              {t.applications.decline}
+            </Button>
+          </>
+        ) : (
+          <StatusBadge status={a.status} />
+        )}
+        <button type="button" onClick={onMessage} disabled={busy} className={scss.textLink}>
+          {t.applications.message}
+        </button>
+        <Link href={`/profile/${a.applicant.id}`} className={scss.textLink}>
+          {t.common.viewProfile}
+        </Link>
+      </div>
+    </article>
+  );
+};
 
 export default ReceivedApplicationCard;

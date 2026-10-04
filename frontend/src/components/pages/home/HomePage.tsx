@@ -5,9 +5,11 @@ import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
 import PersonCard from "@/components/cards/PersonCard/PersonCard";
 import Announcements from "./Announcements";
 import { serverApi as api } from "@/lib/api.server";
+import { getI18n } from "@/i18n/server";
 import scss from "./HomePage.module.scss";
 
 const HomePage = async () => {
+  const { t } = await getI18n();
   const [projects, users, announcements] = await Promise.all([
     api.projects.list({ limit: 3 }),
     api.users.list({ limit: 4 }),
@@ -19,17 +21,17 @@ const HomePage = async () => {
       <section className={scss.hero}>
         <div className={scss.heroInner}>
           <div className={scss.badge}>
-            <Sparkles size={14} strokeWidth={1.75} aria-hidden /> Your next great project starts here
+            <Sparkles size={14} strokeWidth={1.75} aria-hidden /> {t.home.badge}
           </div>
-          <h1 className={scss.heroTitle}>Find your team</h1>
-          <p className={scss.heroText}>Find developers, designers and creators for your next project.</p>
+          <h1 className={scss.heroTitle}>{t.home.title}</h1>
+          <p className={scss.heroText}>{t.home.text}</p>
           {/* Два главных сценария: найти проект или собрать команду. Поиск — в хедере */}
           <div className={scss.heroActions}>
             <Button href="/projects" variant="outline" size="lg" className={scss.heroButton}>
-              Browse projects
+              {t.home.browse}
             </Button>
             <Button href="/projects/create" size="lg" className={scss.heroButton}>
-              Create project
+              {t.common.createProject}
             </Button>
           </div>
         </div>
@@ -37,9 +39,9 @@ const HomePage = async () => {
 
       <section className={scss.section}>
         <SectionHeader
-          title="Projects looking for teammates"
-          subtitle="Join exciting projects and build something great together."
-          link={{ label: "View all →", href: "/projects" }}
+          title={t.home.projectsTitle}
+          subtitle={t.home.projectsSubtitle}
+          link={{ label: t.common.viewAll, href: "/projects" }}
         />
         <div className={scss.projectsGrid}>
           {projects.map((p) => (
@@ -50,9 +52,9 @@ const HomePage = async () => {
 
       <section className={scss.section}>
         <SectionHeader
-          title="People looking for projects"
-          subtitle="Talented people ready to join your team."
-          link={{ label: "View all →", href: "/people" }}
+          title={t.home.peopleTitle}
+          subtitle={t.home.peopleSubtitle}
+          link={{ label: t.common.viewAll, href: "/people" }}
         />
         <div className={scss.peopleGrid}>
           {users.map((u) => (
@@ -63,12 +65,10 @@ const HomePage = async () => {
 
       <section className={scss.ctaSection}>
         <div className={scss.cta}>
-          <h2 className={scss.ctaTitle}>Have an idea? Build your team.</h2>
-          <p className={scss.ctaText}>
-            Post your project and find the right people to bring your vision to life.
-          </p>
+          <h2 className={scss.ctaTitle}>{t.home.ctaTitle}</h2>
+          <p className={scss.ctaText}>{t.home.ctaText}</p>
           <Button href="/projects/create" size="lg" className={scss.ctaButton}>
-            Create project
+            {t.common.createProject}
           </Button>
         </div>
       </section>

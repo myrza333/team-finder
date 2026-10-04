@@ -6,6 +6,7 @@ import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { CloseIcon } from "@/components/ui/Icons";
 import { useOnlineUsers } from "@/lib/realtime";
 import type { Project } from "@/types";
+import { useI18n } from "@/i18n/client";
 import scss from "./Chat.module.scss";
 
 type MembersPanelProps = {
@@ -18,6 +19,7 @@ type MembersPanelProps = {
 // Правая колонка: участники команды, владелец первым, онлайн — выше офлайн
 const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelProps) => {
   const onlineUserIds = useOnlineUsers();
+  const { t } = useI18n();
   const isOwner = project.owner.id === currentUserId;
   const members = [...project.members].sort((a, b) => {
     if (a.id === project.owner.id) return -1;
@@ -36,10 +38,10 @@ const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelPro
   return (
     <>
       {open && <div className={scss.overlay} onClick={onClose} aria-hidden />}
-      <aside className={`${scss.members} ${open ? scss.membersOpen : ""}`} aria-label="Team members">
+      <aside className={`${scss.members} ${open ? scss.membersOpen : ""}`} aria-label={t.chat.teamMembers}>
         <div className={scss.membersHead}>
-          <h2 className={scss.membersTitle}>Members · {project.members.length}</h2>
-          <button className={scss.closeMembers} onClick={onClose} aria-label="Close members">
+          <h2 className={scss.membersTitle}>{t.chat.membersCount(project.members.length)}</h2>
+          <button className={scss.closeMembers} onClick={onClose} aria-label={t.chat.closeMembers}>
             <CloseIcon />
           </button>
         </div>
@@ -57,7 +59,7 @@ const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelPro
                   <div className={scss.memberText}>
                     <p className={scss.memberName}>{m.name}</p>
                     <p className={scss.memberTitle}>
-                      {[m.id === currentUserId && "You", online ? "Online" : m.title].filter(Boolean).join(" · ")}
+                      {[m.id === currentUserId && t.chat.you, online ? t.chat.onlineStatus : m.title].filter(Boolean).join(" · ")}
                     </p>
                   </div>
                   {m.id === project.owner.id && <StatusBadge status="owner" />}
@@ -70,11 +72,11 @@ const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelPro
         <div className={scss.membersFooter}>
           {isOwner ? (
             <Link href={`/my-projects/${project.id}`} className={scss.membersLink}>
-              Manage team →
+              {t.chat.manageTeam}
             </Link>
           ) : (
             <Link href={`/projects/${project.id}`} className={scss.membersLink}>
-              View project →
+              {t.chat.viewProject}
             </Link>
           )}
         </div>

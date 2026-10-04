@@ -6,12 +6,14 @@ import { Field, Input } from "@/components/ui/Form/Form";
 import PasswordInput from "@/components/ui/Form/PasswordInput";
 import { useAuth } from "@/auth/useAuth";
 import { api } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 import AuthCard from "./AuthCard";
 import scss from "./Auth.module.scss";
 
 const LoginPage = ({ next, error: oauthError }: { next: string; error?: string }) => {
   const router = useRouter();
   const { setUser } = useAuth();
+  const { t } = useI18n();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ const LoginPage = ({ next, error: oauthError }: { next: string; error?: string }
       setUser(user);
       router.push(next);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : t.common.somethingWrong);
       setLoading(false);
     }
   };
@@ -34,11 +36,11 @@ const LoginPage = ({ next, error: oauthError }: { next: string; error?: string }
     <AuthCard
       next={next}
       error={oauthError}
-      title="Welcome back"
-      subtitle="Sign in to continue to TeamFinder"
-      googleLabel="Continue with Google"
-      switchText="Don't have an account?"
-      switchLink={{ label: "Sign up", href: `/register${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}` }}
+      title={t.auth.loginTitle}
+      subtitle={t.auth.loginSubtitle}
+      googleLabel={t.auth.loginGoogle}
+      switchText={t.auth.noAccount}
+      switchLink={{ label: t.auth.signUp, href: `/register${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}` }}
     >
       <form onSubmit={handleSubmit} className={scss.form}>
         {error && (
@@ -47,7 +49,7 @@ const LoginPage = ({ next, error: oauthError }: { next: string; error?: string }
           </p>
         )}
 
-        <Field label="Email" htmlFor="email">
+        <Field label={t.auth.email} htmlFor="email">
           <Input
             id="email"
             type="email"
@@ -55,11 +57,11 @@ const LoginPage = ({ next, error: oauthError }: { next: string; error?: string }
             autoComplete="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="you@example.com"
+            placeholder={t.auth.emailPlaceholder}
           />
         </Field>
 
-        <Field label="Password" htmlFor="password">
+        <Field label={t.auth.password} htmlFor="password">
           <PasswordInput
             id="password"
             required
@@ -71,7 +73,7 @@ const LoginPage = ({ next, error: oauthError }: { next: string; error?: string }
         </Field>
 
         <Button type="submit" fullWidth className={scss.submit} disabled={loading}>
-          {loading ? "Signing in…" : "Sign in"}
+          {loading ? t.auth.signingIn : t.auth.signIn}
         </Button>
       </form>
     </AuthCard>

@@ -9,6 +9,8 @@ import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import { socials } from "@/lib/socials";
 import { stackIcon } from "@/lib/stacks";
 import type { Project, User } from "@/types";
+import { getI18n } from "@/i18n/server";
+import { rich } from "@/i18n/rich";
 import scss from "./ProfilePage.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
@@ -18,11 +20,12 @@ type ProfilePageProps = {
   isOwn: boolean; // свой профиль — показываем "Edit profile"
 };
 
-const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
+const ProfilePage = async ({ user, projects, isOwn }: ProfilePageProps) => {
+  const { t } = await getI18n();
   const created = projects.filter((p) => p.owner.id === user.id).length;
   const stats = [
-    { label: "Created", value: created },
-    { label: "Joined", value: projects.length - created },
+    { label: t.profile.created, value: created },
+    { label: t.profile.joined, value: projects.length - created },
   ];
 
   return (
@@ -69,7 +72,7 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
           {isOwn && (
             <div className={scss.links}>
               <Button href="/settings/profile" variant="outline">
-                Edit profile
+                {t.profile.edit}
               </Button>
             </div>
           )}
@@ -88,12 +91,12 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
       <div className={scss.grid}>
         <div className={scss.main}>
           {user.bio && (
-            <Panel title="About">
+            <Panel title={t.profile.about}>
               <p className={scss.text}>{user.bio}</p>
             </Panel>
           )}
 
-          <Panel title="Projects">
+          <Panel title={t.profile.projects}>
             {projects.length > 0 ? (
               <ul className={scss.projects}>
                 {projects.map((p) => (
@@ -110,13 +113,13 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
                 ))}
               </ul>
             ) : (
-              <p className={scss.empty}>No projects yet.</p>
+              <p className={scss.empty}>{t.profile.noProjects}</p>
             )}
           </Panel>
         </div>
 
         <div className={scss.side}>
-          <Panel title="Skills">
+          <Panel title={t.profile.skills}>
             <TagList>
               {user.skills.map((skill) => (
                 <Tag key={skill} variant="primary" size="lg">
@@ -128,7 +131,7 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
 
           {/* Направления — после навыков. Пусто: чужому не показываем, себе — подсказка */}
           {(user.stacks?.length || isOwn) && (
-            <Panel title="Stack">
+            <Panel title={t.profile.stack}>
               {user.stacks?.length ? (
                 <ul className={scss.stacks}>
                   {user.stacks.map((name) => {
@@ -138,15 +141,16 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
                         <span className={scss.stackIcon}>
                           <Icon size={16} strokeWidth={1.75} aria-hidden />
                         </span>
-                        {name}
+                        {t.stacks[name] ?? name}
                       </li>
                     );
                   })}
                 </ul>
               ) : (
                 <p className={scss.stackEmpty}>
-                  Add what you do — Frontend, Fullstack, Mobile… —{" "}
-                  <Link href="/settings/profile">in profile settings</Link>.
+                  {rich(t.profile.stackEmpty, {
+                    link: <Link href="/settings/profile">{t.profile.stackEmptyLink}</Link>,
+                  })}
                 </p>
               )}
             </Panel>

@@ -4,10 +4,12 @@ import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "@/styles/globals.scss";
 import Providers from "./providers";
 import { THEME_COOKIE, parseTheme } from "@/lib/theme";
+import { getI18n } from "@/i18n/server";
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin", "cyrillic"],
+  // cyrillic-ext — кыргызские ң, ө, ү
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
 });
 
 const jakarta = Plus_Jakarta_Sans({
@@ -16,29 +18,30 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "TeamFinder — Find your team",
-    template: "%s · TeamFinder",
-  },
-  description: "Find developers, designers and creators for your next project.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return {
+    title: { default: t.meta.title, template: "%s · TeamFinder" },
+    description: t.meta.description,
+  };
+}
 
-// Корневой layout: только шрифты, тема и провайдеры.
+// Корневой layout: только шрифты, тема, язык и провайдеры.
 // Хедер и футер — в (main)/layout.tsx, у страниц входа (auth) их нет.
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Выбранная тема приходит из cookie, поэтому HTML сразу отрисовывается в нужной теме
+  // Выбранные тема и язык приходят из cookie, поэтому HTML сразу отрисовывается как нужно
   const theme = parseTheme((await cookies()).get(THEME_COOKIE)?.value);
+  const { locale } = await getI18n();
 
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${inter.variable} ${jakarta.variable}`}
       data-theme={theme}
       suppressHydrationWarning
     >
       <body>
-        <Providers>{children}</Providers>
+        <Providers locale={locale}>{children}</Providers>
       </body>
     </html>
   );

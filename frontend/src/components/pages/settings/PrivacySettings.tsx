@@ -3,43 +3,26 @@ import Toggle from "@/components/ui/Toggle/Toggle";
 import type { UserSettings } from "@/types";
 import { SaveBar, SettingRow, SettingsSection, useSettingsForm } from "./SettingsParts";
 import { useSaveSettings, useUserSettings } from "./useUserSettings";
+import { useI18n } from "@/i18n/client";
 import scss from "./Settings.module.scss";
 
-const visibilityItems = [
-  {
-    key: "openToProjects",
-    title: "Open to new projects",
-    description: "Show an “Open to projects” badge on your profile and cards.",
-  },
-  {
-    key: "showInPeople",
-    title: "Show me in People search",
-    description: "If off, your profile is visible only to your teammates.",
-  },
-] as const;
+const visibilityKeys = ["openToProjects", "showInPeople"] as const;
+const contactKeys = ["showGithub", "showTelegram", "showSocials", "showLocation"] as const;
 
-const contactItems = [
-  { key: "showGithub", title: "Show GitHub link", description: "Displayed on your public profile." },
-  { key: "showTelegram", title: "Show Telegram link", description: "Displayed on your public profile." },
-  {
-    key: "showSocials",
-    title: "Show other profiles",
-    description: "LinkedIn, Instagram, Codewars and LeetCode links on your public profile.",
-  },
-  { key: "showLocation", title: "Show location", description: "City and country on your profile." },
-] as const;
-
-type PrivacyKey = (typeof visibilityItems)[number]["key"] | (typeof contactItems)[number]["key"];
+type PrivacyKey = (typeof visibilityKeys)[number] | (typeof contactKeys)[number];
 
 const PrivacySettings = () => {
   const { data, isError } = useUserSettings();
-  if (isError) return <p className={scss.state}>Couldn&apos;t load your settings. Try again later.</p>;
-  if (!data) return <p className={scss.state}>Loading…</p>;
+  const { t } = useI18n();
+  if (isError) return <p className={scss.state}>{t.settings.loadError}</p>;
+  if (!data) return <p className={scss.state}>{t.common.loading}</p>;
   return <PrivacyForm settings={data} />;
 };
 
 const PrivacyForm = ({ settings }: { settings: UserSettings }) => {
   const save = useSaveSettings();
+  const { t } = useI18n();
+  const items = t.settings.privacy.items;
   const form = useSettingsForm<Record<PrivacyKey, boolean>>(
     {
       openToProjects: settings.openToProjects,
@@ -52,25 +35,25 @@ const PrivacyForm = ({ settings }: { settings: UserSettings }) => {
     save,
   );
 
-  const renderRows = (items: readonly { key: PrivacyKey; title: string; description: string }[]) =>
-    items.map((item) => (
-      <SettingRow key={item.key} title={item.title} description={item.description}>
+  const renderRows = (keys: readonly PrivacyKey[]) =>
+    keys.map((key) => (
+      <SettingRow key={key} title={items[key].title} description={items[key].description}>
         <Toggle
-          checked={form.value[item.key]}
-          onChange={(v) => form.setValue({ ...form.value, [item.key]: v })}
-          label={item.title}
+          checked={form.value[key]}
+          onChange={(v) => form.setValue({ ...form.value, [key]: v })}
+          label={items[key].title}
         />
       </SettingRow>
     ));
 
   return (
     <>
-      <SettingsSection title="Visibility" description="Control who can find you and how.">
-        {renderRows(visibilityItems)}
+      <SettingsSection title={t.settings.privacy.visibilityTitle} description={t.settings.privacy.visibilityText}>
+        {renderRows(visibilityKeys)}
       </SettingsSection>
 
-      <SettingsSection title="Contact info" description="Your email is never shown publicly.">
-        {renderRows(contactItems)}
+      <SettingsSection title={t.settings.privacy.contactTitle} description={t.settings.privacy.contactText}>
+        {renderRows(contactKeys)}
         <SaveBar
           isDirty={form.isDirty}
           justSaved={form.justSaved}

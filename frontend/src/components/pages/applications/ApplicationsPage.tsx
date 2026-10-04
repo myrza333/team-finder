@@ -11,19 +11,21 @@ import SentApplicationRow from "@/components/cards/ApplicationCard/SentApplicati
 import { api } from "@/lib/api";
 import { useApplicationActions } from "@/lib/useApplicationActions";
 import type { ApplicationStatus } from "@/types";
+import { useI18n } from "@/i18n/client";
 import scss from "./ApplicationsPage.module.scss";
 
 export type ApplicationsTab = "received" | "sent";
 type Filter = ApplicationStatus | "all";
 
-const filters: { value: Filter; label: string }[] = [
-  { value: "pending", label: "Pending" },
-  { value: "accepted", label: "Accepted" },
-  { value: "rejected", label: "Declined" },
-  { value: "all", label: "All" },
-];
+const filters = [
+  { value: "pending", key: "pending" },
+  { value: "accepted", key: "accepted" },
+  { value: "rejected", key: "declined" },
+  { value: "all", key: "all" },
+] as const satisfies readonly { value: Filter; key: string }[];
 
 const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
+  const { t } = useI18n();
   const [tab, setTab] = useState<ApplicationsTab>(initialTab);
   const [filter, setFilter] = useState<Filter>("pending");
   const received = useQuery({ queryKey: ["applications", "received"], queryFn: () => api.applications.received() });
@@ -36,19 +38,19 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
 
   const loadingOrError = (q: { isPending: boolean; isError: boolean }) =>
     q.isError ? (
-      <EmptyState icon={TriangleAlert} text="Couldn't load applications. Try again later." />
+      <EmptyState icon={TriangleAlert} text={t.applications.loadError} />
     ) : q.isPending ? (
-      <p className={scss.state}>Loading…</p>
+      <p className={scss.state}>{t.common.loading}</p>
     ) : null;
 
   return (
     <div className={scss.page}>
-      <PageHeader title="Applications" subtitle="People who want to join your projects, and projects you applied to." />
+      <PageHeader title={t.applications.title} subtitle={t.applications.subtitle} />
 
       <Tabs
         tabs={[
-          { value: "received", label: "Received", count: count("pending") },
-          { value: "sent", label: "Sent" },
+          { value: "received", label: t.applications.received, count: count("pending") },
+          { value: "sent", label: t.applications.sent },
         ]}
         value={tab}
         onChange={setTab}
@@ -63,7 +65,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
               <ChipList>
                 {filters.map((f) => (
                   <Chip key={f.value} size="sm" active={filter === f.value} onClick={() => setFilter(f.value)}>
-                    {f.label} · {count(f.value)}
+                    {t.applications[f.key]} · {count(f.value)}
                   </Chip>
                 ))}
               </ChipList>
@@ -85,7 +87,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
             ) : (
               <EmptyState
                 icon={Inbox}
-                text={filter === "pending" ? "No new applications. You're all caught up!" : "Nothing here yet."}
+                text={filter === "pending" ? t.applications.caughtUp : t.applications.nothing}
               />
             )}
           </>
@@ -104,7 +106,7 @@ const ApplicationsPage = ({ initialTab }: { initialTab: ApplicationsTab }) => {
                 />
               ))
             ) : (
-              <EmptyState icon={Rocket} text="You haven't applied to any projects yet." />
+              <EmptyState icon={Rocket} text={t.applications.noneSent} />
             )}
           </div>
         ))}

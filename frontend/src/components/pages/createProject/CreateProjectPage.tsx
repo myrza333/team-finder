@@ -10,7 +10,8 @@ import TagInput from "@/components/ui/TagInput/TagInput";
 import { allRoles, popularRoles, popularTech, projectCategories } from "@/data/options";
 import { api, type ProjectInput } from "@/lib/api";
 import type { Project, ProjectCategory } from "@/types";
-import ProjectIcon, { projectIconKeys, projectIcons } from "@/components/ui/ProjectIcon/ProjectIcon";
+import ProjectIcon, { projectIconKeys } from "@/components/ui/ProjectIcon/ProjectIcon";
+import { useI18n } from "@/i18n/client";
 import scss from "./CreateProjectPage.module.scss";
 
 // "plants.com" → "https://plants.com": так ссылку проще вписать. Пустое поле остаётся пустым (= ссылки нет)
@@ -33,6 +34,7 @@ const toggle = (list: string[], value: string) =>
 const CreateProjectPage = ({ project }: { project?: Project }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const isEdit = Boolean(project);
   const backHref = project ? `/my-projects/${project.id}` : "/projects";
 
@@ -96,24 +98,20 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
   return (
     <div className={scss.page}>
       <PageHeader
-        title={isEdit ? "Edit project" : "Create a new project"}
-        subtitle={
-          isEdit
-            ? "Update the details and open positions of your project."
-            : "Tell people about your idea and find teammates."
-        }
+        title={isEdit ? t.projectForm.editTitle : t.projectForm.createTitle}
+        subtitle={isEdit ? t.projectForm.editSubtitle : t.projectForm.createSubtitle}
       />
 
       <form onSubmit={handleSubmit}>
         <div className={scss.card}>
-          <Field label="Icon">
+          <Field label={t.projectForm.icon}>
             <div className={scss.icons}>
               {projectIconKeys.map((icon) => (
                 <button
                   key={icon}
                   type="button"
-                  aria-label={`Icon: ${projectIcons[icon].label}`}
-                  title={projectIcons[icon].label}
+                  aria-label={t.projectForm.iconLabel(t.projectIcons[icon])}
+                  title={t.projectIcons[icon]}
                   aria-pressed={form.icon === icon}
                   className={`${scss.icon} ${form.icon === icon ? scss.iconActive : ""}`}
                   onClick={() => setForm({ ...form, icon })}
@@ -124,7 +122,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
             </div>
           </Field>
 
-          <Field label="Project name" htmlFor="title">
+          <Field label={t.projectForm.name} htmlFor="title">
             <Input
               id="title"
               required
@@ -132,36 +130,36 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               maxLength={80}
               value={form.title}
               onChange={update("title")}
-              placeholder="AI Study Platform"
+              placeholder={t.projectForm.namePlaceholder}
             />
           </Field>
 
-          <Field label="Short description" htmlFor="description">
+          <Field label={t.projectForm.short} htmlFor="description">
             <Input
               id="description"
               required
               maxLength={160}
               value={form.description}
               onChange={update("description")}
-              placeholder="One sentence"
+              placeholder={t.projectForm.shortPlaceholder}
             />
           </Field>
 
-          <Field label="Description" htmlFor="fullDescription">
+          <Field label={t.projectForm.description} htmlFor="fullDescription">
             <Textarea
               id="fullDescription"
               rows={4}
               maxLength={3000}
               value={form.fullDescription}
               onChange={update("fullDescription")}
-              placeholder="About the project"
+              placeholder={t.projectForm.descriptionPlaceholder}
             />
           </Field>
 
           {/* Необязательные ссылки: сам сайт/приложение и исходный код. Пустые — на странице проекта их нет */}
           <div className={scss.links}>
           <div className={scss.twoColumns}>
-            <Field label="Website" htmlFor="websiteUrl" hint={<span className={scss.optional}>Optional</span>}>
+            <Field label={t.projectForm.website} htmlFor="websiteUrl" hint={<span className={scss.optional}>{t.common.optional}</span>}>
               <Input
                 id="websiteUrl"
                 inputMode="url"
@@ -171,7 +169,7 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
                 placeholder="plants.example.com"
               />
             </Field>
-            <Field label="Source code" htmlFor="repoUrl" hint={<span className={scss.optional}>Optional</span>}>
+            <Field label={t.projectForm.sourceCode} htmlFor="repoUrl" hint={<span className={scss.optional}>{t.common.optional}</span>}>
               <Input
                 id="repoUrl"
                 inputMode="url"
@@ -182,15 +180,15 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
               />
             </Field>
           </div>
-          <Hint>No link yet? Leave it empty and add it later, when the project goes live.</Hint>
+          <Hint>{t.projectForm.linksHint}</Hint>
           </div>
 
-          <Field label="Category" htmlFor="category">
+          <Field label={t.projectForm.category} htmlFor="category">
             <Select id="category" required value={form.category} onChange={update("category")}>
-              <option value="">Select a category</option>
+              <option value="">{t.projectForm.selectCategory}</option>
               {projectCategories.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {t.categories[c]}
                 </option>
               ))}
             </Select>
@@ -198,26 +196,23 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
 
           {/* Дата запуска в будущем — проект сначала анонс (страница Announcements) */}
           <div className={scss.links}>
-            <Field label="Launch date" htmlFor="launchAt" hint={<span className={scss.optional}>Optional</span>}>
+            <Field label={t.projectForm.launchDate} htmlFor="launchAt" hint={<span className={scss.optional}>{t.common.optional}</span>}>
               <div className={scss.dateInput}>
                 <Input id="launchAt" type="date" min={tomorrow()} value={form.launchAt} onChange={update("launchAt")} />
               </div>
             </Field>
-            <Hint>
-              Not ready yet? Pick a date to announce the project first: until then only its name and short description
-              are public, and applications open on launch day. Leave empty to publish now.
-            </Hint>
+            <Hint>{t.projectForm.launchHint}</Hint>
           </div>
 
-          <Field label="Tech stack">
+          <Field label={t.projectForm.stack}>
             <TagInput
               value={stack}
               onChange={setStack}
               suggestions={allSkills}
-              placeholder="Add a technology"
-              label="technologies"
+              placeholder={t.projectForm.addTech}
+              label={t.projectForm.techLabel}
             />
-            <p className={scss.popularLabel}>Popular</p>
+            <p className={scss.popularLabel}>{t.projectForm.popular}</p>
             <ChipList>
               {popularTech.map((t) => (
                 <Chip key={t} size="sm" active={stack.includes(t)} onClick={() => setStack((s) => toggle(s, t))}>
@@ -227,16 +222,16 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
             </ChipList>
           </Field>
 
-          <Field label="Looking for">
+          <Field label={t.projectForm.lookingFor}>
             <TagInput
               value={roles}
               onChange={setRoles}
               suggestions={allRoles}
               max={10}
-              placeholder="Add a role"
-              label="roles"
+              placeholder={t.projectForm.addRole}
+              label={t.projectForm.rolesLabel}
             />
-            <p className={scss.popularLabel}>Popular</p>
+            <p className={scss.popularLabel}>{t.projectForm.popular}</p>
             <ChipList>
               {popularRoles.map((r) => (
                 <Chip
@@ -255,16 +250,16 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
 
         {save.isError && (
           <div className={scss.error}>
-            <Hint error>Couldn&apos;t save the project: {save.error.message}</Hint>
+            <Hint error>{t.projectForm.saveError(save.error.message)}</Hint>
           </div>
         )}
 
         <div className={scss.actions}>
           <Button href={backHref} variant="outline" size="lg" className={scss.cancel}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button type="submit" size="lg" disabled={save.isPending}>
-            {save.isPending ? "Saving…" : isEdit ? "Save changes" : "Create project"}
+            {save.isPending ? t.common.saving : isEdit ? t.common.saveChanges : t.projectForm.create}
           </Button>
         </div>
       </form>
@@ -272,24 +267,22 @@ const CreateProjectPage = ({ project }: { project?: Project }) => {
       {isEdit && (
         <section className={scss.danger}>
           <div>
-            <h2 className={scss.dangerTitle}>Delete project</h2>
-            <p className={scss.dangerText}>
-              The project, its team chat, vacancies and applications will be deleted. This cannot be undone.
-            </p>
-            {remove.isError && <Hint error>Couldn&apos;t delete: {remove.error.message}</Hint>}
+            <h2 className={scss.dangerTitle}>{t.projectForm.deleteTitle}</h2>
+            <p className={scss.dangerText}>{t.projectForm.deleteText}</p>
+            {remove.isError && <Hint error>{t.projectForm.deleteError(remove.error.message)}</Hint>}
           </div>
           {confirmDelete ? (
             <div className={scss.dangerActions}>
               <Button variant="outline" onClick={() => setConfirmDelete(false)}>
-                Cancel
+                {t.common.cancel}
               </Button>
               <Button variant="danger" onClick={() => remove.mutate()} disabled={remove.isPending}>
-                {remove.isPending ? "Deleting…" : "Yes, delete"}
+                {remove.isPending ? t.projectForm.deleting : t.projectForm.confirmDelete}
               </Button>
             </div>
           ) : (
             <Button variant="danger" onClick={() => setConfirmDelete(true)}>
-              Delete project
+              {t.projectForm.deleteTitle}
             </Button>
           )}
         </section>

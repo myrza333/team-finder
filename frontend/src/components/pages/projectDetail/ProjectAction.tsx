@@ -9,6 +9,7 @@ import { Field, Hint, Select, Textarea } from "@/components/ui/Form/Form";
 import { api } from "@/lib/api";
 import NotifyMeButton from "@/components/ui/NotifyMeButton/NotifyMeButton";
 import type { Application, LaunchSubscription, Project } from "@/types";
+import { useI18n } from "@/i18n/client";
 import scss from "./ProjectDetailPage.module.scss";
 
 const MESSAGE_MAX = 1000;
@@ -24,6 +25,7 @@ type ProjectActionProps = {
 const ProjectAction = ({ project, currentUserId, myApplication, launch }: ProjectActionProps) => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -40,7 +42,7 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
       router.refresh();
       return true;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? e.message : t.common.somethingWrong);
       return false;
     } finally {
       setBusy(false);
@@ -52,7 +54,7 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
   if (project.owner.id === currentUserId) {
     return (
       <Button href={`/my-projects/${project.id}`} size="lg">
-        Manage project
+        {t.project.manage}
       </Button>
     );
   }
@@ -62,20 +64,20 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
       <div className={scss.actions}>
         <div className={scss.actionButtons}>
           <Button href={`/chat/${project.id}`} size="lg">
-            Team chat
+            {t.common.teamChat}
           </Button>
           {confirmLeave ? (
             <>
               <Button variant="danger" size="lg" disabled={busy} onClick={() => run(() => api.projects.leave(project.id))}>
-                {busy ? "Leaving…" : "Yes, leave"}
+                {busy ? t.project.leaving : t.project.confirmLeave}
               </Button>
               <Button variant="outline" size="lg" onClick={() => setConfirmLeave(false)}>
-                Cancel
+                {t.common.cancel}
               </Button>
             </>
           ) : (
             <Button variant="outline" size="lg" onClick={() => setConfirmLeave(true)}>
-              Leave team
+              {t.project.leave}
             </Button>
           )}
         </div>
@@ -92,7 +94,7 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
     ) : myApplication?.status === "pending" ? (
       <>
         <Button variant="outline" size="lg" disabled>
-          Application sent
+          {t.project.applicationSent}
         </Button>
         <Button
           variant="outline"
@@ -100,20 +102,20 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
           disabled={busy}
           onClick={() => run(() => api.applications.withdraw(myApplication.id))}
         >
-          {busy ? "Withdrawing…" : "Withdraw"}
+          {busy ? t.project.withdrawing : t.project.withdraw}
         </Button>
       </>
     ) : myApplication?.status === "rejected" ? (
       <Button variant="outline" size="lg" disabled>
-        Application declined
+        {t.project.declined}
       </Button>
     ) : project.status === "closed" ? (
       <Button variant="outline" size="lg" disabled>
-        Not recruiting
+        {t.project.notRecruiting}
       </Button>
     ) : (
       <Button size="lg" onClick={() => setApplyOpen(true)}>
-        Request to join
+        {t.project.requestToJoin}
       </Button>
     );
 
@@ -126,7 +128,7 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
       queryClient.invalidateQueries({ queryKey: ["direct-chats"] });
       router.push(`/chat/d/${id}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? e.message : t.common.somethingWrong);
       setBusy(false);
     }
   };
@@ -136,11 +138,11 @@ const ProjectAction = ({ project, currentUserId, myApplication, launch }: Projec
       <div className={scss.actionButtons}>
         {main}
         <Button variant="outline" size="lg" disabled={busy} onClick={messageOwner}>
-          <MessageCircle size={18} strokeWidth={1.75} aria-hidden /> Message owner
+          <MessageCircle size={18} strokeWidth={1.75} aria-hidden /> {t.project.messageOwner}
         </Button>
       </div>
       {!applyOpen && errorText}
-      <Modal open={applyOpen} onClose={() => setApplyOpen(false)} title={`Join ${project.title}`}>
+      <Modal open={applyOpen} onClose={() => setApplyOpen(false)} title={t.project.joinTitle(project.title)}>
         <ApplyForm
           project={project}
           busy={busy}
@@ -162,6 +164,7 @@ type ApplyFormProps = {
 };
 
 const ApplyForm = ({ project, busy, error, onSubmit }: ApplyFormProps) => {
+  const { t } = useI18n();
   const openVacancies = project.vacancies.filter((v) => v.isOpen !== false);
   const [vacancyId, setVacancyId] = useState(openVacancies[0]?.id ?? "");
   const [message, setMessage] = useState("");
@@ -174,19 +177,19 @@ const ApplyForm = ({ project, busy, error, onSubmit }: ApplyFormProps) => {
         onSubmit({ vacancyId: vacancyId || undefined, message: message.trim() || undefined });
       }}
     >
-      <Field label="Position" htmlFor="vacancy">
+      <Field label={t.project.position} htmlFor="vacancy">
         <Select id="vacancy" value={vacancyId} onChange={(e) => setVacancyId(e.target.value)}>
           {openVacancies.map((v) => (
             <option key={v.id} value={v.id}>
               {v.title}
             </option>
           ))}
-          <option value="">Any role</option>
+          <option value="">{t.project.anyRole}</option>
         </Select>
       </Field>
 
       <Field
-        label="Message"
+        label={t.project.message}
         htmlFor="message"
         hint={
           <span className={scss.counter}>
@@ -200,14 +203,14 @@ const ApplyForm = ({ project, busy, error, onSubmit }: ApplyFormProps) => {
           maxLength={MESSAGE_MAX}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Your experience and why you want to join"
+          placeholder={t.project.messagePlaceholder}
         />
       </Field>
 
       {error && <Hint error>{error}</Hint>}
 
       <Button type="submit" size="lg" fullWidth disabled={busy}>
-        {busy ? "Sending…" : "Send application"}
+        {busy ? t.project.sending : t.project.sendApplication}
       </Button>
     </form>
   );

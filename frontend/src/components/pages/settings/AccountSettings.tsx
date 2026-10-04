@@ -8,7 +8,8 @@ import { Field, Hint, Input } from "@/components/ui/Form/Form";
 import PasswordInput from "@/components/ui/Form/PasswordInput";
 import { GoogleIcon } from "@/components/ui/Icons";
 import { useAuth } from "@/auth/useAuth";
-import { api, authErrorMessages, googleAuthUrl } from "@/lib/api";
+import { api, googleAuthUrl } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 import { SettingRow, SettingsSection } from "./SettingsParts";
 import scss from "./Settings.module.scss";
 import local from "./AccountSettings.module.scss";
@@ -24,6 +25,8 @@ const AccountSettings = ({ error }: { error?: string }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { logout } = useAuth();
+  const { t } = useI18n();
+  const a = t.settings.account;
   const { data: account } = useQuery({ queryKey: ["account"], queryFn: api.auth.account });
 
   const hasPassword = account?.hasPassword ?? false;
@@ -62,44 +65,44 @@ const AccountSettings = ({ error }: { error?: string }) => {
       await logout();
       router.push("/");
     } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : "Something went wrong");
+      setDeleteError(e instanceof Error ? e.message : t.common.somethingWrong);
     }
   };
 
-  if (!account) return <p className={local.state}>Loading…</p>;
+  if (!account) return <p className={local.state}>{t.common.loading}</p>;
 
   return (
     <>
-      {error && authErrorMessages[error] && (
+      {error && t.auth.oauthErrors[error] && (
         <p className={local.errorBanner} role="alert">
-          {authErrorMessages[error]}
+          {t.auth.oauthErrors[error]}
         </p>
       )}
 
-      <SettingsSection title="Email address" description="Used to sign in and for notifications. Never shown publicly.">
-        <Field label="Email" htmlFor="email">
+      <SettingsSection title={a.emailTitle} description={a.emailText}>
+        <Field label={a.email} htmlFor="email">
           <Input id="email" type="email" value={account.email} readOnly />
         </Field>
-        <Hint>Changing your email will be available later.</Hint>
+        <Hint>{a.emailLater}</Hint>
       </SettingsSection>
 
-      <SettingsSection title="Sign-in methods" description="Ways you can log in to TeamFinder.">
+      <SettingsSection title={a.methodsTitle} description={a.methodsText}>
         <SettingRow
           title={
             <>
               <GoogleIcon /> Google
-              {googleLinked && <span className={`${scss.badge} ${scss.badgeSuccess}`}>Connected</span>}
+              {googleLinked && <span className={`${scss.badge} ${scss.badgeSuccess}`}>{a.connected}</span>}
             </>
           }
-          description={googleLinked ? "You can sign in with your Google account." : "Sign in with one click using your Google account."}
+          description={googleLinked ? a.googleLinked : a.googleUnlinked}
         >
           {googleLinked ? (
             <Button variant="outline" disabled={!hasPassword || unlink.isPending} onClick={() => unlink.mutate()}>
-              Disconnect
+              {a.disconnect}
             </Button>
           ) : (
             <Button variant="outline" href={googleAuthUrl("/settings/account")}>
-              Connect
+              {a.connect}
             </Button>
           )}
         </SettingRow>
@@ -107,30 +110,26 @@ const AccountSettings = ({ error }: { error?: string }) => {
         <SettingRow
           title={
             <>
-              <MailIcon /> Email and password
-              {hasPassword && <span className={`${scss.badge} ${scss.badgeSuccess}`}>Active</span>}
+              <MailIcon /> {a.emailPassword}
+              {hasPassword && <span className={`${scss.badge} ${scss.badgeSuccess}`}>{a.active}</span>}
             </>
           }
-          description={hasPassword ? "You can sign in with your email and password." : "No password set yet."}
+          description={hasPassword ? a.hasPassword : a.noPassword}
         />
 
         {googleLinked && !hasPassword && (
-          <p className={local.note}>Set a password below before disconnecting Google, so you don&apos;t lose access.</p>
+          <p className={local.note}>{a.setPasswordFirst}</p>
         )}
         {unlink.isError && <Hint error>{unlink.error.message}</Hint>}
       </SettingsSection>
 
       <SettingsSection
-        title={hasPassword ? "Change password" : "Set a password"}
-        description={
-          hasPassword
-            ? "Use at least 8 characters. Avoid passwords you use on other sites."
-            : "Add a password to be able to sign in without Google."
-        }
+        title={hasPassword ? a.changeTitle : a.setTitle}
+        description={hasPassword ? a.changeText : a.setText}
       >
         <form onSubmit={submitPassword} className={scss.fields}>
           {hasPassword && (
-            <Field label="Current password" htmlFor="current-password">
+            <Field label={a.current} htmlFor="current-password">
               <PasswordInput
                 id="current-password"
                 autoComplete="current-password"
@@ -140,7 +139,7 @@ const AccountSettings = ({ error }: { error?: string }) => {
             </Field>
           )}
           <div className={scss.twoColumns}>
-            <Field label="New password" htmlFor="new-password">
+            <Field label={a.new} htmlFor="new-password">
               <PasswordInput
                 id="new-password"
                 autoComplete="new-password"
@@ -150,47 +149,47 @@ const AccountSettings = ({ error }: { error?: string }) => {
                   changePassword.reset();
                 }}
               />
-              {tooShort && <Hint error>At least 8 characters</Hint>}
+              {tooShort && <Hint error>{a.tooShort}</Hint>}
             </Field>
-            <Field label="Confirm new password" htmlFor="confirm-password">
+            <Field label={a.confirm} htmlFor="confirm-password">
               <PasswordInput
                 id="confirm-password"
                 autoComplete="new-password"
                 value={pwd.confirm}
                 onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
               />
-              {mismatch && <Hint error>Passwords don&apos;t match</Hint>}
+              {mismatch && <Hint error>{a.mismatch}</Hint>}
             </Field>
           </div>
           <div className={local.formFooter}>
             <span className={changePassword.isError ? local.error : local.success} aria-live="polite">
               {changePassword.isError ? changePassword.error.message : changePassword.isSuccess ? (
                 <>
-                  <Check size={14} strokeWidth={2} aria-hidden /> Password saved
+                  <Check size={14} strokeWidth={2} aria-hidden /> {a.passwordSaved}
                 </>
               ) : (
                 ""
               )}
             </span>
             <Button type="submit" disabled={!canSubmitPwd || changePassword.isPending}>
-              {changePassword.isPending ? "Saving…" : hasPassword ? "Update password" : "Set password"}
+              {changePassword.isPending ? t.common.saving : hasPassword ? a.update : a.set}
             </Button>
           </div>
         </form>
       </SettingsSection>
 
       <SettingsSection
-        title="Delete account"
+        title={a.deleteTitle}
         danger
-        description="Permanently delete your profile, projects, applications and messages. This cannot be undone."
+        description={a.deleteText}
       >
         {!deleteOpen ? (
           <Button variant="danger" onClick={() => setDeleteOpen(true)}>
-            Delete my account
+            {a.deleteButton}
           </Button>
         ) : (
           <div className={local.confirm}>
-            <Field label='Type "DELETE" to confirm' htmlFor="delete-confirm">
+            <Field label={a.deleteConfirm} htmlFor="delete-confirm">
               <Input
                 id="delete-confirm"
                 value={deleteText}
@@ -207,10 +206,10 @@ const AccountSettings = ({ error }: { error?: string }) => {
                   setDeleteText("");
                 }}
               >
-                Cancel
+                {t.common.cancel}
               </Button>
               <Button variant="danger" disabled={deleteText !== "DELETE"} onClick={deleteAccount}>
-                Delete forever
+                {a.deleteForever}
               </Button>
             </div>
             {deleteError && <Hint error>{deleteError}</Hint>}

@@ -38,8 +38,10 @@ export type Person = Pick<User, "id" | "name" | "title" | "avatarUrl">;
 
 export type AppNotification = {
   id: string;
-  actor: Person; // кто совершил действие
-  text: string; // "applied to your project AI Study Platform"
+  actor: Person; // кто совершил действие; id = "" — аккаунт удалён
+  text: string; // "applied to your project AI Study Platform" — английский текст с сервера
+  type?: string; // "application_new" — по нему фронтенд пишет текст на языке сайта
+  projectTitle?: string;
   href: string; // куда ведёт клик
   createdAt: string; // ISO-дата
   read: boolean;

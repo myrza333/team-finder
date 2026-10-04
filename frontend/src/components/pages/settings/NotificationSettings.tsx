@@ -3,43 +3,26 @@ import Toggle from "@/components/ui/Toggle/Toggle";
 import type { UserSettings } from "@/types";
 import { SaveBar, SettingRow, SettingsSection, useSettingsForm } from "./SettingsParts";
 import { useSaveSettings, useUserSettings } from "./useUserSettings";
+import { useI18n } from "@/i18n/client";
 import scss from "./Settings.module.scss";
 
 // Уведомления на сайте (колокольчик). Писем TeamFinder пока не отправляет
-const items = [
-  {
-    key: "notifyApplications",
-    title: "New applications to my projects",
-    description: "Someone wants to join your team",
-  },
-  {
-    key: "notifyApplicationUpdates",
-    title: "Updates on my applications",
-    description: "Your application was accepted or declined",
-  },
-  {
-    key: "notifyTeam",
-    title: "Team changes",
-    description: "You were removed from a team, or someone left your project",
-  },
-  {
-    key: "notifyDirect",
-    title: "New direct messages",
-    description: "Someone starts a conversation with you about a project",
-  },
-] as const;
+const keys = ["notifyApplications", "notifyApplicationUpdates", "notifyTeam", "notifyDirect"] as const;
 
-type NotifyKey = (typeof items)[number]["key"];
+type NotifyKey = (typeof keys)[number];
 
 const NotificationSettings = () => {
   const { data, isError } = useUserSettings();
-  if (isError) return <p className={scss.state}>Couldn&apos;t load your settings. Try again later.</p>;
-  if (!data) return <p className={scss.state}>Loading…</p>;
+  const { t } = useI18n();
+  if (isError) return <p className={scss.state}>{t.settings.loadError}</p>;
+  if (!data) return <p className={scss.state}>{t.common.loading}</p>;
   return <NotificationForm settings={data} />;
 };
 
 const NotificationForm = ({ settings }: { settings: UserSettings }) => {
   const save = useSaveSettings();
+  const { t } = useI18n();
+  const items = t.settings.notifications.items;
   const form = useSettingsForm<Record<NotifyKey, boolean>>(
     {
       notifyApplications: settings.notifyApplications,
@@ -52,15 +35,15 @@ const NotificationForm = ({ settings }: { settings: UserSettings }) => {
 
   return (
     <SettingsSection
-      title="Notifications"
-      description="Choose what shows up in your notifications on TeamFinder. All chat messages always show up in Messages."
+      title={t.settings.notifications.title}
+      description={t.settings.notifications.text}
     >
-      {items.map((item) => (
-        <SettingRow key={item.key} title={item.title} description={item.description}>
+      {keys.map((key) => (
+        <SettingRow key={key} title={items[key].title} description={items[key].description}>
           <Toggle
-            checked={form.value[item.key]}
-            onChange={(v) => form.setValue({ ...form.value, [item.key]: v })}
-            label={item.title}
+            checked={form.value[key]}
+            onChange={(v) => form.setValue({ ...form.value, [key]: v })}
+            label={items[key].title}
           />
         </SettingRow>
       ))}

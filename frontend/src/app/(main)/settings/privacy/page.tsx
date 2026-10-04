@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getI18n } from "@/i18n/server";
 import PrivacySettings from "@/components/pages/settings/PrivacySettings";
 
-export const metadata: Metadata = { title: "Privacy settings" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.meta.privacySettings };
+}
 
 const page = () => <PrivacySettings />;
 

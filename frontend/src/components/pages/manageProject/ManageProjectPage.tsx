@@ -10,7 +10,7 @@ import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import Toggle from "@/components/ui/Toggle/Toggle";
 import ReceivedApplicationCard from "@/components/cards/ApplicationCard/ReceivedApplicationCard";
 import { api } from "@/lib/api";
-import { plural } from "@/lib/format";
+import { useI18n } from "@/i18n/client";
 import { useApplicationActions } from "@/lib/useApplicationActions";
 import type { Project } from "@/types";
 import scss from "./ManageProjectPage.module.scss";
@@ -20,6 +20,7 @@ import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 // После изменений router.refresh() перечитывает project, а заявки обновляет useApplicationActions
 const ManageProjectPage = ({ project }: { project: Project }) => {
   const router = useRouter();
+  const { t } = useI18n();
   const applications = useQuery({
     queryKey: ["applications", "received", { projectId: project.id }],
     queryFn: () => api.applications.received({ projectId: project.id }),
@@ -48,7 +49,7 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
       router.refresh();
     } catch (e) {
       setOpenOverrides((o) => ({ ...o, [id]: !open }));
-      setError(e instanceof Error ? e.message : "Couldn't update the position");
+      setError(e instanceof Error ? e.message : t.manage.positionError);
     }
   };
 
@@ -60,7 +61,7 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
       setConfirmRemove(null);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't remove the member");
+      setError(e instanceof Error ? e.message : t.manage.removeError);
     } finally {
       setRemoving(null);
     }
@@ -70,8 +71,8 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
 
   return (
     <div className={scss.page}>
-      <nav className={scss.breadcrumbs} aria-label="Breadcrumb">
-        <Link href="/my-projects">My projects</Link>
+      <nav className={scss.breadcrumbs} aria-label={t.common.breadcrumb}>
+        <Link href="/my-projects">{t.myProjects.title}</Link>
         <span>/</span>
         <span className={scss.current}>{project.title}</span>
       </nav>
@@ -87,12 +88,12 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
         </div>
         <div className={scss.heroActions}>
           <Button href={`/projects/${project.id}`} variant="outline">
-            View page
+            {t.manage.viewPage}
           </Button>
           <Button href={`/projects/${project.id}/edit`} variant="outline">
-            Edit
+            {t.manage.edit}
           </Button>
-          <Button href={`/chat/${project.id}`}>Team chat</Button>
+          <Button href={`/chat/${project.id}`}>{t.common.teamChat}</Button>
         </div>
       </section>
 
@@ -104,14 +105,14 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
           <section>
             <div className={scss.blockHead}>
               <h2 className={scss.blockTitle}>
-                Applications {pending.length > 0 && <span className={scss.counter}>{pending.length}</span>}
+                {t.manage.applications} {pending.length > 0 && <span className={scss.counter}>{pending.length}</span>}
               </h2>
               <Link href="/applications" className={scss.blockLink}>
-                All applications →
+                {t.manage.allApplications}
               </Link>
             </div>
             {applications.isPending ? (
-              <p className={scss.emptyBox}>Loading…</p>
+              <p className={scss.emptyBox}>{t.common.loading}</p>
             ) : all.length > 0 ? (
               <div className={scss.applications}>
                 {/* Сначала ожидающие, потом уже рассмотренные */}
@@ -128,16 +129,16 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                 ))}
               </div>
             ) : (
-              <p className={scss.emptyBox}>No applications yet. Share your project to get the first ones!</p>
+              <p className={scss.emptyBox}>{t.manage.noApplications}</p>
             )}
           </section>
 
           {/* ===== Вакансии ===== */}
           <section className={scss.box}>
             <div className={scss.blockHead}>
-              <h2 className={scss.blockTitle}>Open positions</h2>
+              <h2 className={scss.blockTitle}>{t.manage.positions}</h2>
               <Link href={`/projects/${project.id}/edit`} className={scss.blockLink}>
-                + Add position
+                {t.manage.addPosition}
               </Link>
             </div>
             {project.vacancies.length > 0 ? (
@@ -157,17 +158,17 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                           ))}
                         </TagList>
                       </div>
-                      <span className={scss.applicants}>{plural(applicants, "applicant")}</span>
+                      <span className={scss.applicants}>{t.manage.applicants(applicants)}</span>
                       <label className={scss.vacancyToggle}>
-                        <span>{open ? "Open" : "Closed"}</span>
-                        <Toggle checked={open} onChange={(val) => toggleVacancy(v.id, val)} label={`${v.title} open`} />
+                        <span>{open ? t.manage.open : t.manage.closed}</span>
+                        <Toggle checked={open} onChange={(val) => toggleVacancy(v.id, val)} label={t.manage.toggleLabel(v.title)} />
                       </label>
                     </li>
                   );
                 })}
               </ul>
             ) : (
-              <p className={scss.emptyBox}>No positions yet. Add one so people know who you&apos;re looking for.</p>
+              <p className={scss.emptyBox}>{t.manage.noPositions}</p>
             )}
           </section>
         </div>
@@ -175,7 +176,7 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
         {/* ===== Команда ===== */}
         <aside className={`${scss.box} ${scss.team}`}>
           <div className={scss.blockHead}>
-            <h2 className={scss.blockTitle}>Team · {project.members.length}</h2>
+            <h2 className={scss.blockTitle}>{t.manage.team(project.members.length)}</h2>
           </div>
           <ul className={scss.members}>
             {project.members.map((m) => {
@@ -194,19 +195,19 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                   ) : confirmRemove === m.id ? (
                     <div className={scss.confirm}>
                       <button className={scss.confirmYes} disabled={removing === m.id} onClick={() => removeMember(m.id)}>
-                        {removing === m.id ? "Removing…" : "Remove"}
+                        {removing === m.id ? t.manage.removing : t.manage.remove}
                       </button>
                       <button className={scss.confirmNo} onClick={() => setConfirmRemove(null)}>
-                        Cancel
+                        {t.common.cancel}
                       </button>
                     </div>
                   ) : (
                     <button
                       className={scss.remove}
                       onClick={() => setConfirmRemove(m.id)}
-                      aria-label={`Remove ${m.name} from team`}
+                      aria-label={t.manage.removeLabel(m.name)}
                     >
-                      Remove
+                      {t.manage.remove}
                     </button>
                   )}
                 </li>

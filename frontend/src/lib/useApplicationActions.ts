@@ -3,11 +3,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 
 // Принять / отклонить / отозвать заявку — общее для страницы Applications и управления проектом
 export const useApplicationActions = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { t } = useI18n();
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,7 +23,7 @@ export const useApplicationActions = () => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      setError(e instanceof Error ? e.message : t.common.somethingWrong);
     } finally {
       setBusyId(null);
     }
@@ -41,7 +43,7 @@ export const useApplicationActions = () => {
         queryClient.invalidateQueries({ queryKey: ["direct-chats"] });
         router.push(`/chat/d/${chat.id}`);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong");
+        setError(e instanceof Error ? e.message : t.common.somethingWrong);
         setBusyId(null);
       }
     },

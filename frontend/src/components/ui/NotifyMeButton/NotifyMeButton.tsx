@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/auth/useAuth";
 import Button from "@/components/ui/Button/Button";
 import { api } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 import type { LaunchSubscription } from "@/types";
 import scss from "./NotifyMeButton.module.scss";
 
@@ -18,6 +19,7 @@ type NotifyMeButtonProps = {
 // "Notify me": в день запуска придёт уведомление. Гостя сначала отправляем войти
 const NotifyMeButton = ({ projectId, initial, size = "sm", showCount = true }: NotifyMeButtonProps) => {
   const { status } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const [state, setState] = useState(initial);
@@ -49,18 +51,16 @@ const NotifyMeButton = ({ projectId, initial, size = "sm", showCount = true }: N
       >
         {state.subscribed ? (
           <>
-            <BellRing size={15} strokeWidth={1.75} aria-hidden /> You&apos;ll be notified
+            <BellRing size={15} strokeWidth={1.75} aria-hidden /> {t.announcements.notified}
           </>
         ) : (
           <>
-            <Bell size={15} strokeWidth={1.75} aria-hidden /> Notify me
+            <Bell size={15} strokeWidth={1.75} aria-hidden /> {t.announcements.notifyMe}
           </>
         )}
       </Button>
       {showCount && state.subscribers > 0 && (
-        <span className={scss.count}>
-          {state.subscribers === 1 ? "1 person" : `${state.subscribers} people`} waiting
-        </span>
+<span className={scss.count}>{t.announcements.waiting(state.subscribers)}</span>
       )}
     </span>
   );

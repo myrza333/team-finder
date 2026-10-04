@@ -2,6 +2,7 @@
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button/Button";
+import { useI18n } from "@/i18n/client";
 import scss from "./Settings.module.scss";
 
 // Блок настроек: заголовок + пояснение + содержимое
@@ -46,6 +47,7 @@ export const SettingRow = ({
 
 // Состояние формы настроек: что было сохранено, что изменено, показать "Saved"
 export const useSettingsForm = <T,>(initial: T, onSave?: (value: T) => Promise<unknown>) => {
+  const { t } = useI18n();
   const [saved, setSaved] = useState(initial);
   const [value, setValue] = useState(initial);
   const [justSaved, setJustSaved] = useState(false);
@@ -75,7 +77,7 @@ export const useSettingsForm = <T,>(initial: T, onSave?: (value: T) => Promise<u
         setSaved(value);
         setJustSaved(true);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong");
+        setError(e instanceof Error ? e.message : t.common.somethingWrong);
       } finally {
         setSaving(false);
       }
@@ -102,27 +104,30 @@ export const SaveBar = ({
   error?: string | null;
   onSave: () => void;
   onReset: () => void;
-}) => (
-  <div className={scss.saveBar}>
-    <span className={`${scss.saveStatus} ${error ? scss.saveError : ""}`} aria-live="polite">
-      {error ??
-        (justSaved ? (
-          <>
-            <Check size={14} strokeWidth={2} aria-hidden /> Changes saved
-          </>
-        ) : isDirty ? (
-          "You have unsaved changes"
-        ) : (
-          ""
-        ))}
-    </span>
-    <div className={scss.saveActions}>
-      <Button variant="outline" onClick={onReset} disabled={!isDirty || saving}>
-        Cancel
-      </Button>
-      <Button onClick={onSave} disabled={!isDirty || saving}>
-        {saving ? "Saving…" : "Save changes"}
-      </Button>
+}) => {
+  const { t } = useI18n();
+  return (
+    <div className={scss.saveBar}>
+      <span className={`${scss.saveStatus} ${error ? scss.saveError : ""}`} aria-live="polite">
+        {error ??
+          (justSaved ? (
+            <>
+              <Check size={14} strokeWidth={2} aria-hidden /> {t.settings.saved}
+            </>
+          ) : isDirty ? (
+            t.settings.unsaved
+          ) : (
+            ""
+          ))}
+      </span>
+      <div className={scss.saveActions}>
+        <Button variant="outline" onClick={onReset} disabled={!isDirty || saving}>
+          {t.common.cancel}
+        </Button>
+        <Button onClick={onSave} disabled={!isDirty || saving}>
+          {saving ? t.common.saving : t.common.saveChanges}
+        </Button>
+      </div>
     </div>
-  </div>
-);
+  );
+};

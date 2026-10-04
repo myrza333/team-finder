@@ -2,7 +2,9 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
+  // Длинный заголовок (на русском и кыргызском) на узком экране — ссылка уходит под него
+  flex-wrap: wrap;
+  gap: 8px 16px;
   margin-bottom: 32px;
 }
 

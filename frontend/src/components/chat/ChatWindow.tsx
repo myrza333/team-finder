@@ -7,6 +7,7 @@ import MessageList from "./MessageList";
 import Composer from "./Composer";
 import scss from "./Chat.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
+import { useI18n } from "@/i18n/client";
 
 type ChatWindowProps = {
   project: Project;
@@ -31,13 +32,14 @@ const ChatWindow = ({
   onOpenMembers,
 }: ChatWindowProps) => {
   const onlineIds = useOnlineUsers();
+  const { t } = useI18n();
   const online = project.members.filter((m) => onlineIds.has(m.id)).length;
 
   return (
     <div className={scss.window}>
       <header className={scss.windowHead}>
         {/* На телефоне — назад к списку чатов */}
-        <Link href="/chat" className={scss.back} aria-label="Back to chats">
+        <Link href="/chat" className={scss.back} aria-label={t.chat.back}>
           <ArrowLeftIcon />
         </Link>
         <span className={scss.chatIcon}><ProjectIcon icon={project.icon} size={20} /></span>
@@ -46,11 +48,11 @@ const ChatWindow = ({
             {project.title}
           </Link>
           <p className={scss.windowSubtitle}>
-            {project.members.length} members · <span className={scss.onlineText}>{online} online</span>
+            {t.common.members(project.members.length)} · <span className={scss.onlineText}>{t.chat.online(online)}</span>
           </p>
         </div>
         {/* Кнопка участников нужна только когда панель не помещается справа */}
-        <button className={scss.membersButton} onClick={onOpenMembers} aria-label="Show members">
+        <button className={scss.membersButton} onClick={onOpenMembers} aria-label={t.chat.showMembers}>
           <UsersIcon />
           <span>{project.members.length}</span>
         </button>
@@ -64,7 +66,7 @@ const ChatWindow = ({
         hasOlder={hasOlder}
         onLoadOlder={onLoadOlder}
       />
-      <Composer onSend={onSend} placeholder={`Message ${project.title}`} />
+      <Composer onSend={onSend} placeholder={t.chat.messageTo(project.title)} />
     </div>
   );
 };

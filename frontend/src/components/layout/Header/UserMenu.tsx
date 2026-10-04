@@ -5,6 +5,7 @@ import Avatar from "@/components/ui/Avatar/Avatar";
 import { ChevronDownIcon, LogoutIcon, SettingsIcon, UserIcon } from "@/components/ui/Icons";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 import type { User } from "@/types";
 import scss from "./Header.module.scss";
 
@@ -47,6 +48,7 @@ const InboxIcon = () => (
 // Аватар в хедере + выпадающее меню (профиль, проекты, заявки, настройки, выход)
 const UserMenu = ({ user, open, onToggle, onClose, onLogout }: UserMenuProps) => {
   const router = useRouter();
+  const { t } = useI18n();
   const { data: pending } = useQuery({ queryKey: ["applications", "pending-counts"], queryFn: api.applications.pendingCounts });
   const newApplications = pending?.total ?? 0;
   const handleLogout = () => {
@@ -70,21 +72,21 @@ const UserMenu = ({ user, open, onToggle, onClose, onLogout }: UserMenuProps) =>
             <p className={scss.dropdownTitle}>{user.title}</p>
           </div>
           <Link href={`/profile/${user.id}`} className={scss.dropdownItem} role="menuitem" onClick={onClose}>
-            <UserIcon /> My profile
+            <UserIcon /> {t.header.myProfile}
           </Link>
           <Link href="/my-projects" className={scss.dropdownItem} role="menuitem" onClick={onClose}>
-            <FolderIcon /> My projects
+            <FolderIcon /> {t.header.myProjects}
           </Link>
           <Link href="/applications" className={scss.dropdownItem} role="menuitem" onClick={onClose}>
-            <InboxIcon /> Applications
+            <InboxIcon /> {t.header.applications}
             {newApplications > 0 && <span className={scss.dropdownCount}>{newApplications}</span>}
           </Link>
           <Link href="/settings" className={scss.dropdownItem} role="menuitem" onClick={onClose}>
-            <SettingsIcon /> Settings
+            <SettingsIcon /> {t.header.settings}
           </Link>
           <div className={scss.dropdownDivider} />
           <button className={`${scss.dropdownItem} ${scss.danger}`} role="menuitem" onClick={handleLogout}>
-            <LogoutIcon /> Log out
+            <LogoutIcon /> {t.header.logOut}
           </button>
         </div>
       )}

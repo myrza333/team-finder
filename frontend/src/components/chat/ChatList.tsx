@@ -4,8 +4,12 @@ import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
-import { clockTime, dayLabel } from "@/lib/format";
+import { clockTime, dayLabel, isToday } from "@/lib/format";
 import type { ChatMessage, ChatSummary, DirectChat } from "@/types";
+import { useI18n } from "@/i18n/client";
+import { translateSystemMessage } from "@/i18n/translate";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/dictionaries";
 import scss from "./Chat.module.scss";
 
 type ChatListProps = {
@@ -17,15 +21,16 @@ type ChatListProps = {
 };
 
 // Превью последнего сообщения: "You: ...", "Aida: ..." или системное
-const preview = (m: ChatMessage | null, currentUserId: string) => {
-  if (!m) return "No messages yet";
-  if (!m.author) return m.text;
-  const name = m.author.id === currentUserId ? "You" : m.author.name.split(" ")[0];
+const preview = (m: ChatMessage | null, currentUserId: string, t: Dictionary) => {
+  if (!m) return t.chat.noMessages;
+  if (!m.author) return translateSystemMessage(m.text, t);
+  const name = m.author.id === currentUserId ? t.chat.you : m.author.name.split(" ")[0];
   return `${name}: ${m.text}`;
 };
 
 // Сегодня — время, раньше — день ("Yesterday", "Sep 20")
-const when = (m: ChatMessage) => (dayLabel(m.createdAt) === "Today" ? clockTime(m.createdAt) : dayLabel(m.createdAt));
+const when = (m: ChatMessage, locale: Locale) =>
+  isToday(m.createdAt) ? clockTime(m.createdAt) : dayLabel(m.createdAt, locale);
 
 type ItemProps = {
   href: string;
@@ -38,32 +43,36 @@ type ItemProps = {
   currentUserId: string;
 };
 
-const Item = ({ href, active, icon, title, project, last, unread, currentUserId }: ItemProps) => (
-  <li>
-    <Link
-      href={href}
-      className={`${scss.listItem} ${active ? scss.listItemActive : ""}`}
-      aria-current={active ? "page" : undefined}
-    >
-      {icon}
-      <div className={scss.listItemText}>
-        <div className={scss.listItemTop}>
-          <p className={scss.listItemTitle}>{title}</p>
-          {last && <span className={scss.listItemTime}>{when(last)}</span>}
+const Item = ({ href, active, icon, title, project, last, unread, currentUserId }: ItemProps) => {
+  const { t, locale } = useI18n();
+  return (
+    <li>
+      <Link
+        href={href}
+        className={`${scss.listItem} ${active ? scss.listItemActive : ""}`}
+        aria-current={active ? "page" : undefined}
+      >
+        {icon}
+        <div className={scss.listItemText}>
+          <div className={scss.listItemTop}>
+            <p className={scss.listItemTitle}>{title}</p>
+            {last && <span className={scss.listItemTime}>{when(last, locale)}</span>}
+          </div>
+          {project && <p className={scss.listItemProject}>{project}</p>}
+          <div className={scss.listItemBottom}>
+            <p className={`${scss.listItemPreview} ${unread ? scss.previewUnread : ""}`}>{preview(last, currentUserId, t)}</p>
+            {unread > 0 && <span className={scss.unread}>{unread}</span>}
+          </div>
         </div>
-        {project && <p className={scss.listItemProject}>{project}</p>}
-        <div className={scss.listItemBottom}>
-          <p className={`${scss.listItemPreview} ${unread ? scss.previewUnread : ""}`}>{preview(last, currentUserId)}</p>
-          {unread > 0 && <span className={scss.unread}>{unread}</span>}
-        </div>
-      </div>
-    </Link>
-  </li>
-);
+      </Link>
+    </li>
+  );
+};
 
 // Левая колонка: чаты команд и личные чаты по поводу проектов
 const ChatList = ({ teams, directs, loading, activeHref, currentUserId }: ChatListProps) => {
   const [query, setQuery] = useState("");
+  const { t } = useI18n();
   const q = query.trim().toLowerCase();
   const has = (...texts: string[]) => !q || texts.some((t) => t.toLowerCase().includes(q));
   const visibleTeams = teams.filter((c) => has(c.project.title));
@@ -74,20 +83,20 @@ const ChatList = ({ teams, directs, loading, activeHref, currentUserId }: ChatLi
   return (
     <aside className={scss.list}>
       <div className={scss.listHead}>
-        <h1 className={scss.listTitle}>Messages</h1>
+        <h1 className={scss.listTitle}>{t.chat.title}</h1>
         <SearchInput
           size="md"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search chats..."
-          aria-label="Search chats"
+          placeholder={t.chat.searchPlaceholder}
+          aria-label={t.chat.searchLabel}
         />
       </div>
 
       <ul className={scss.listItems}>
         {visibleTeams.length > 0 && (
           <li>
-            <p className={scss.listSection}>Teams</p>
+            <p className={scss.listSection}>{t.chat.teams}</p>
           </li>
         )}
         {visibleTeams.map(({ project: p, lastMessage, unread: count }) => {
@@ -112,7 +121,7 @@ const ChatList = ({ teams, directs, loading, activeHref, currentUserId }: ChatLi
 
         {visibleDirects.length > 0 && (
           <li>
-            <p className={scss.listSection}>Direct messages</p>
+            <p className={scss.listSection}>{t.chat.direct}</p>
           </li>
         )}
         {visibleDirects.map((c) => {
@@ -124,7 +133,7 @@ const ChatList = ({ teams, directs, loading, activeHref, currentUserId }: ChatLi
               active={href === activeHref}
               icon={<Avatar src={c.other.avatarUrl} alt={c.other.name} size={40} />}
               title={c.other.name}
-              project={`About ${c.project.title}`}
+              project={t.chat.about(c.project.title)}
               last={c.lastMessage}
               unread={unread(href, c.unread)}
               currentUserId={currentUserId}
@@ -132,10 +141,10 @@ const ChatList = ({ teams, directs, loading, activeHref, currentUserId }: ChatLi
           );
         })}
 
-        {loading && <li className={scss.listEmpty}>Loading…</li>}
+        {loading && <li className={scss.listEmpty}>{t.common.loading}</li>}
         {!loading && visibleTeams.length + visibleDirects.length === 0 && (
           <li className={scss.listEmpty}>
-            {teams.length + directs.length ? "No chats found" : "Join a project or message an owner to start chatting"}
+            {teams.length + directs.length ? t.chat.noChats : t.chat.startHint}
           </li>
         )}
       </ul>

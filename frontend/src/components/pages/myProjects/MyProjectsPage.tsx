@@ -7,15 +7,17 @@ import Avatar, { AvatarStack } from "@/components/ui/Avatar/Avatar";
 import SectionHeader from "@/components/ui/SectionHeader/SectionHeader";
 import { serverApi } from "@/lib/api.server";
 import type { Project } from "@/types";
+import { getI18n } from "@/i18n/server";
+import type { Dictionary } from "@/i18n/dictionaries";
 import scss from "./MyProjectsPage.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
 const openPositions = (p: Project) => p.vacancies.filter((v) => v.isOpen !== false).length;
 
 // Карточка проекта в списке "моих": инфо слева, действия справа
-type ProjectRowProps = { project: Project; owned: boolean; newApplications?: number };
+type ProjectRowProps = { project: Project; owned: boolean; newApplications?: number; t: Dictionary };
 
-const ProjectRow = ({ project: p, owned, newApplications = 0 }: ProjectRowProps) => {
+const ProjectRow = ({ project: p, owned, newApplications = 0, t }: ProjectRowProps) => {
   return (
     <article className={scss.row}>
       <span className={scss.icon}><ProjectIcon icon={p.icon} size={22} /></span>
@@ -35,13 +37,13 @@ const ProjectRow = ({ project: p, owned, newApplications = 0 }: ProjectRowProps)
                 <Avatar key={m.id} src={m.avatarUrl} alt={m.name} size={20} bordered />
               ))}
             </AvatarStack>
-            {p.members.length} members
+            {t.common.members(p.members.length)}
           </span>
-          {owned && <span>{openPositions(p)} open positions</span>}
-          {!owned && <span>Owner: {p.owner.name}</span>}
+          {owned && <span>{t.myProjects.openPositions(openPositions(p))}</span>}
+          {!owned && <span>{t.myProjects.owner(p.owner.name)}</span>}
           {newApplications > 0 && (
             <Link href={`/my-projects/${p.id}`} className={scss.newApps}>
-              {newApplications} new {newApplications === 1 ? "application" : "applications"}
+              {t.myProjects.newApplications(newApplications)}
             </Link>
           )}
         </div>
@@ -49,15 +51,15 @@ const ProjectRow = ({ project: p, owned, newApplications = 0 }: ProjectRowProps)
 
       <div className={scss.actions}>
         <Button href={`/chat/${p.id}`} variant="outline" size="sm">
-          Team chat
+          {t.common.teamChat}
         </Button>
         {owned ? (
           <Button href={`/my-projects/${p.id}`} size="sm">
-            Manage
+            {t.myProjects.manage}
           </Button>
         ) : (
           <Button href={`/projects/${p.id}`} variant="outline" size="sm">
-            View
+            {t.myProjects.view}
           </Button>
         )}
       </div>
@@ -72,21 +74,22 @@ const MyProjectsPage = async ({ userId }: { userId: string }) => {
     serverApi.applications.pendingCounts(),
   ]);
   const joined = memberOf.filter((p) => p.owner.id !== userId);
+  const { t } = await getI18n();
 
   return (
     <div className={scss.page}>
       <PageHeader
-        title="My projects"
-        subtitle="Projects you created and teams you're part of."
-        action={<Button href="/projects/create">+ Create project</Button>}
+        title={t.myProjects.title}
+        subtitle={t.myProjects.subtitle}
+        action={<Button href="/projects/create">{t.common.addProject}</Button>}
       />
 
       <section className={scss.section}>
-        <SectionHeader title={`Created by me · ${owned.length}`} />
+        <SectionHeader title={t.myProjects.created(owned.length)} />
         {owned.length > 0 ? (
           <div className={scss.list}>
             {owned.map((p) => (
-              <ProjectRow key={p.id} project={p} owned newApplications={pending.byProject[p.id] ?? 0} />
+              <ProjectRow key={p.id} project={p} owned newApplications={pending.byProject[p.id] ?? 0} t={t} />
             ))}
           </div>
         ) : (
@@ -94,9 +97,9 @@ const MyProjectsPage = async ({ userId }: { userId: string }) => {
             <div className={scss.emptyIcon}>
               <FolderPlus size={26} strokeWidth={1.75} aria-hidden />
             </div>
-            <p className={scss.emptyText}>You haven&apos;t created any projects yet.</p>
+            <p className={scss.emptyText}>{t.myProjects.emptyCreated}</p>
             <Button href="/projects/create" size="lg">
-              Create your first project
+              {t.myProjects.createFirst}
             </Button>
           </div>
         )}
@@ -104,17 +107,17 @@ const MyProjectsPage = async ({ userId }: { userId: string }) => {
 
       <section className={scss.section}>
         <SectionHeader
-          title={`Joined · ${joined.length}`}
-          link={{ label: "Find projects →", href: "/projects" }}
+          title={t.myProjects.joined(joined.length)}
+          link={{ label: t.myProjects.findProjects, href: "/projects" }}
         />
         {joined.length > 0 ? (
           <div className={scss.list}>
             {joined.map((p) => (
-              <ProjectRow key={p.id} project={p} owned={false} />
+              <ProjectRow key={p.id} project={p} owned={false} t={t} />
             ))}
           </div>
         ) : (
-          <p className={scss.emptyText}>You haven&apos;t joined any teams yet.</p>
+          <p className={scss.emptyText}>{t.myProjects.emptyJoined}</p>
         )}
       </section>
     </div>

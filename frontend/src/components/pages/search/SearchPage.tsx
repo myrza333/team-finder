@@ -5,6 +5,7 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
 import PersonCard from "@/components/cards/PersonCard/PersonCard";
 import { serverApi as api } from "@/lib/api.server";
+import { getI18n } from "@/i18n/server";
 import scss from "./SearchPage.module.scss";
 
 const PROJECTS_LIMIT = 6;
@@ -13,12 +14,13 @@ const PEOPLE_LIMIT = 5;
 // Общий поиск из хедера: проекты и люди на одной странице
 const SearchPage = async ({ query }: { query: string }) => {
   const q = query.trim();
+  const { t } = await getI18n();
 
   if (!q) {
     return (
       <div className={scss.page}>
-        <PageHeader title="Search" subtitle="Find projects and people on TeamFinder." />
-        <EmptyState icon={Search} text="Type something in the search bar above to start." />
+        <PageHeader title={t.search.title} subtitle={t.search.subtitle} />
+        <EmptyState icon={Search} text={t.search.start} />
       </div>
     );
   }
@@ -30,21 +32,21 @@ const SearchPage = async ({ query }: { query: string }) => {
   return (
     <div className={scss.page}>
       <PageHeader
-        title={`Results for “${q}”`}
-        subtitle={`${total} ${total === 1 ? "result" : "results"} across projects and people`}
+        title={t.search.results(q)}
+        subtitle={t.search.total(total)}
       />
 
       {total === 0 ? (
-        <EmptyState icon={SearchX} text="Nothing found. Try a skill like “React” or a role like “Designer”." />
+        <EmptyState icon={SearchX} text={t.search.nothing} />
       ) : (
         <>
           {foundProjects.length > 0 && (
             <section className={scss.section}>
               <SectionHeader
-                title={`Projects · ${foundProjects.length}`}
+                title={t.search.projects(foundProjects.length)}
                 link={
                   foundProjects.length > PROJECTS_LIMIT
-                    ? { label: "Show all →", href: `/projects?q=${encoded}` }
+                    ? { label: t.search.showAll, href: `/projects?q=${encoded}` }
                     : undefined
                 }
               />
@@ -59,10 +61,10 @@ const SearchPage = async ({ query }: { query: string }) => {
           {foundPeople.length > 0 && (
             <section className={scss.section}>
               <SectionHeader
-                title={`People · ${foundPeople.length}`}
+                title={t.search.people(foundPeople.length)}
                 link={
                   foundPeople.length > PEOPLE_LIMIT
-                    ? { label: "Show all →", href: `/people?q=${encoded}` }
+                    ? { label: t.search.showAll, href: `/people?q=${encoded}` }
                     : undefined
                 }
               />

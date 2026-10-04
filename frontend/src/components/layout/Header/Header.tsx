@@ -9,6 +9,7 @@ import { BellIcon, ChatIcon, CloseIcon, MenuIcon } from "@/components/ui/Icons";
 import { useAuth } from "@/auth/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { useI18n } from "@/i18n/client";
 import UserMenu from "./UserMenu";
 import scss from "./Header.module.scss";
 
@@ -18,15 +19,16 @@ const pagesWithOwnSearch = ["/projects", "/people"];
 type Panel = "menu" | "user" | null;
 
 const navLinks = [
-  { href: "/projects", label: "Projects" },
-  { href: "/people", label: "People" },
-  { href: "/announcements", label: "Announcements" },
-];
+  { href: "/projects", key: "projects" },
+  { href: "/people", key: "people" },
+  { href: "/announcements", key: "announcements" },
+] as const;
 
 const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { status, user, logout } = useAuth();
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
 
   // Открыта может быть только одна панель: мобильное меню или меню профиля
@@ -96,7 +98,7 @@ const Header = () => {
       <div className={scss.inner}>
         <Logo />
 
-        <nav className={scss.nav}>{navLinks.map((l) => renderNavLink(l.href, l.label))}</nav>
+        <nav className={scss.nav}>{navLinks.map((l) => renderNavLink(l.href, t.header[l.key]))}</nav>
 
         {showSearch && (
           <form onSubmit={handleSearch} className={scss.search}>
@@ -104,8 +106,8 @@ const Header = () => {
               size="md"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search projects, people..."
-              aria-label="Search"
+              placeholder={t.header.searchPlaceholder}
+              aria-label={t.header.search}
             />
           </form>
         )}
@@ -117,19 +119,19 @@ const Header = () => {
           {status === "guest" && (
             <div className={scss.guest}>
               <Button href="/login" variant="outline" className={scss.loginButton}>
-                Log in
+                {t.header.logIn}
               </Button>
-              <Button href="/register">Sign up</Button>
+              <Button href="/register">{t.header.signUp}</Button>
             </div>
           )}
 
           {status === "authenticated" && user && (
             <>
-              <Link href="/chat" className={scss.bell} aria-label="Messages">
+              <Link href="/chat" className={scss.bell} aria-label={t.header.messages}>
                 <ChatIcon />
                 {hasUnreadMessages && <span className={scss.dot} />}
               </Link>
-              <Link href="/notifications" className={scss.bell} aria-label="Notifications">
+              <Link href="/notifications" className={scss.bell} aria-label={t.header.notifications}>
                 <BellIcon />
                 {hasUnread && <span className={scss.dot} />}
               </Link>
@@ -146,7 +148,7 @@ const Header = () => {
           <button
             className={scss.burger}
             onClick={() => togglePanel("menu")}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-label={menuOpen ? t.header.closeMenu : t.header.openMenu}
             aria-expanded={menuOpen}
           >
             {menuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -158,17 +160,17 @@ const Header = () => {
         <>
           <div className={scss.backdrop} onClick={closePanel} aria-hidden />
           <div className={scss.mobileMenu}>
-            {navLinks.map((l) => renderNavLink(l.href, l.label))}
-            {status === "authenticated" && renderNavLink("/chat", "Messages")}
-            {status === "guest" && renderNavLink("/login", "Log in")}
+            {navLinks.map((l) => renderNavLink(l.href, t.header[l.key]))}
+            {status === "authenticated" && renderNavLink("/chat", t.header.messages)}
+            {status === "guest" && renderNavLink("/login", t.header.logIn)}
             {showSearch && (
               <form onSubmit={handleSearch}>
                 <SearchInput
                   size="md"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search..."
-                  aria-label="Search"
+                  placeholder={t.header.searchShort}
+                  aria-label={t.header.search}
                 />
               </form>
             )}

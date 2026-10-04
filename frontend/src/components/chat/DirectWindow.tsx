@@ -6,6 +6,8 @@ import { useOnlineUsers } from "@/lib/realtime";
 import type { ChatMessage, DirectChat } from "@/types";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
+import { useI18n } from "@/i18n/client";
+import { rich } from "@/i18n/rich";
 import scss from "./Chat.module.scss";
 
 type DirectWindowProps = {
@@ -22,11 +24,12 @@ type DirectWindowProps = {
 const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder, onLoadOlder }: DirectWindowProps) => {
   const online = useOnlineUsers().has(chat.other.id);
   const otherIsOwner = chat.other.id === chat.project.ownerId;
+  const { t } = useI18n();
 
   return (
     <div className={scss.window}>
       <header className={scss.windowHead}>
-        <Link href="/chat" className={scss.back} aria-label="Back to chats">
+        <Link href="/chat" className={scss.back} aria-label={t.chat.back}>
           <ArrowLeftIcon />
         </Link>
         <span className={scss.memberAvatar}>
@@ -38,14 +41,17 @@ const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder
             {chat.other.name}
           </Link>
           <p className={scss.windowSubtitle}>
-            {otherIsOwner ? "Owner of " : "About "}
-            <Link href={`/projects/${chat.project.id}`} className={scss.subtitleLink}>
-              {chat.project.title}
-            </Link>
+            {rich(otherIsOwner ? t.chat.ownerOf : t.chat.aboutProject, {
+              project: (
+                <Link href={`/projects/${chat.project.id}`} className={scss.subtitleLink}>
+                  {chat.project.title}
+                </Link>
+              ),
+            })}
             {online && (
               <>
                 {" "}
-                · <span className={scss.onlineText}>online</span>
+                · <span className={scss.onlineText}>{t.chat.onlineOne}</span>
               </>
             )}
           </p>
@@ -59,9 +65,9 @@ const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder
         currentUserId={currentUserId}
         hasOlder={hasOlder}
         onLoadOlder={onLoadOlder}
-        emptyText={otherIsOwner ? "Ask anything about the project before you apply" : "No messages yet"}
+        emptyText={otherIsOwner ? t.chat.askOwner : t.chat.noMessages}
       />
-      <Composer onSend={onSend} placeholder={`Message ${chat.other.name.split(" ")[0]}`} />
+      <Composer onSend={onSend} placeholder={t.chat.messageTo(chat.other.name.split(" ")[0])} />
     </div>
   );
 };

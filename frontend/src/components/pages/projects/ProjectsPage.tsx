@@ -10,6 +10,7 @@ import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
 import { projectCategories } from "@/data/options";
 import { api } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
+import { useI18n } from "@/i18n/client";
 import type { Project, ProjectCategory } from "@/types";
 import scss from "./ProjectsPage.module.scss";
 
@@ -21,6 +22,7 @@ const sorters = {
 type Sort = "newest" | keyof typeof sorters;
 
 const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
+  const { t } = useI18n();
   const [search, setSearch] = useState(initialQuery);
   const [category, setCategory] = useState<ProjectCategory | null>(null);
   const [sort, setSort] = useState<Sort>("newest");
@@ -38,29 +40,29 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
   return (
     <div className={scss.page}>
       <PageHeader
-        title="Projects"
-        subtitle="Find your next team."
-        action={<Button href="/projects/create">+ Create project</Button>}
+        title={t.projects.title}
+        subtitle={t.projects.subtitle}
+        action={<Button href="/projects/create">{t.common.addProject}</Button>}
       />
 
       <div className={scss.search}>
         <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search projects..."
-          aria-label="Search projects"
+          placeholder={t.projects.searchPlaceholder}
+          aria-label={t.projects.searchLabel}
         />
       </div>
 
       <div className={scss.layout}>
         <aside className={scss.sidebar}>
-          <p className={scss.sidebarTitle}>Category</p>
+          <p className={scss.sidebarTitle}>{t.projects.category}</p>
           <div className={scss.categories}>
             <button
               className={`${scss.category} ${!category ? scss.active : ""}`}
               onClick={() => setCategory(null)}
             >
-              All
+              {t.projects.all}
             </button>
             {projectCategories.map((cat) => (
               <button
@@ -68,7 +70,7 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
                 className={`${scss.category} ${category === cat ? scss.active : ""}`}
                 onClick={() => setCategory(cat === category ? null : cat)}
               >
-                {cat}
+                {t.categories[cat]}
               </button>
             ))}
           </div>
@@ -76,21 +78,21 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
 
         <div className={scss.content}>
           <div className={scss.toolbar}>
-            <p className={scss.count}>{isPending ? "Loading…" : `${projects.length} projects found`}</p>
+            <p className={scss.count}>{isPending ? t.common.loading : t.projects.found(projects.length)}</p>
             <select
               className={scss.sort}
-              aria-label="Sort projects"
+              aria-label={t.projects.sortLabel}
               value={sort}
               onChange={(e) => setSort(e.target.value as Sort)}
             >
-              <option value="newest">Newest</option>
-              <option value="positions">Most open positions</option>
-              <option value="members">Most members</option>
+              <option value="newest">{t.projects.sortNewest}</option>
+              <option value="positions">{t.projects.sortPositions}</option>
+              <option value="members">{t.projects.sortMembers}</option>
             </select>
           </div>
 
           {isError ? (
-            <EmptyState icon={TriangleAlert} text="Couldn't load projects. Is the server running?" />
+            <EmptyState icon={TriangleAlert} text={t.projects.loadError} />
           ) : isPending ? null : projects.length > 0 ? (
             <div className={scss.grid}>
               {projects.map((p) => (
@@ -98,7 +100,7 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
               ))}
             </div>
           ) : (
-            <EmptyState icon={SearchX} text="No projects found. Try a different search." />
+            <EmptyState icon={SearchX} text={t.projects.empty} />
           )}
         </div>
       </div>

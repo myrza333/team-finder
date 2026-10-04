@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getI18n } from "@/i18n/server";
 import LoginPage from "@/components/pages/auth/LoginPage";
 
-export const metadata: Metadata = { title: "Sign in" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.meta.signIn };
+}
 
 // next — куда вернуть после входа (его подставляет proxy.ts при редиректе на /login)
 const page = async ({ searchParams }: PageProps<"/login">) => {

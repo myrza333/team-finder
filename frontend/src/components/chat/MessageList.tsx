@@ -4,6 +4,8 @@ import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import { clockTime, dayLabel } from "@/lib/format";
 import type { ChatMessage } from "@/types";
+import { useI18n } from "@/i18n/client";
+import { translateSystemMessage } from "@/i18n/translate";
 import scss from "./Chat.module.scss";
 
 type MessageListProps = {
@@ -27,8 +29,9 @@ const MessageList = ({
   currentUserId,
   hasOlder,
   onLoadOlder,
-  emptyText = "No messages yet. Say hi to your team",
+  emptyText,
 }: MessageListProps) => {
+  const { t, locale } = useI18n();
   const scrollRef = useRef<HTMLDivElement>(null);
   const atBottom = useRef(true);
   const distanceFromBottom = useRef<number | null>(null);
@@ -70,7 +73,7 @@ const MessageList = ({
   if (messages.length === 0) {
     return (
       <div className={scss.messages}>
-        <p className={scss.noMessages}>{loading ? "Loading messages…" : emptyText}</p>
+        <p className={scss.noMessages}>{loading ? t.chat.loadingMessages : (emptyText ?? t.chat.sayHi)}</p>
       </div>
     );
   }
@@ -87,15 +90,15 @@ const MessageList = ({
       {hasOlder && (
         <div className={scss.loadOlder}>
           <button type="button" onClick={loadOlder} disabled={loadingOlder}>
-            {loadingOlder ? "Loading…" : "Load earlier messages"}
+            {loadingOlder ? t.common.loading : t.chat.loadEarlier}
           </button>
         </div>
       )}
       {messages.map((m, i) => {
         const prev = messages[i - 1];
-        const day = dayLabel(m.createdAt);
+        const day = dayLabel(m.createdAt, locale);
         const time = clockTime(m.createdAt);
-        const newDay = !prev || dayLabel(prev.createdAt) !== day;
+        const newDay = !prev || dayLabel(prev.createdAt, locale) !== day;
         // Начало группы: сменился день, автор или перед этим было системное сообщение
         const groupStart = newDay || !prev?.author || prev.author.id !== m.author?.id;
 
@@ -109,7 +112,7 @@ const MessageList = ({
 
             {!m.author ? (
               <p className={scss.systemMessage}>
-                {m.text} · {time}
+                {translateSystemMessage(m.text, t)} · {time}
               </p>
             ) : m.author.id === currentUserId ? (
               <div className={`${scss.messageRow} ${scss.own} ${groupStart ? scss.groupStart : ""}`}>
@@ -131,7 +134,7 @@ const MessageList = ({
                   {groupStart && (
                     <p className={scss.author}>
                       {m.author.name}
-                      {m.author.id === ownerId && <span className={scss.ownerMark}>Owner</span>}
+                      {m.author.id === ownerId && <span className={scss.ownerMark}>{t.chat.ownerMark}</span>}
                     </p>
                   )}
                   <div className={scss.bubble}>

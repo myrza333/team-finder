@@ -9,14 +9,16 @@ import Chip, { ChipList } from "@/components/ui/Chip/Chip";
 import PersonCard from "@/components/cards/PersonCard/PersonCard";
 import { api } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
+import { useI18n } from "@/i18n/client";
 import scss from "./PeoplePage.module.scss";
 
-const filters = ["All", "Frontend", "Backend", "Designer", "Mobile", "AI", "DevOps"];
+const filters = ["All", "Frontend", "Backend", "Designer", "Mobile", "AI", "DevOps"] as const;
 
 // initialQuery приходит из ?q= (например, по "Show all" со страницы поиска)
 const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
+  const { t } = useI18n();
   const [search, setSearch] = useState(initialQuery);
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>("All");
 
   const q = useDebounce(search.trim());
   const role = activeFilter === "All" ? undefined : activeFilter;
@@ -29,14 +31,14 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
 
   return (
     <div className={scss.page}>
-      <PageHeader title="People" subtitle="Find developers, designers and creators for your team." />
+      <PageHeader title={t.people.title} subtitle={t.people.subtitle} />
 
       <div className={scss.search}>
         <SearchInput
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search people..."
-          aria-label="Search people"
+          placeholder={t.people.searchPlaceholder}
+          aria-label={t.people.searchLabel}
         />
       </div>
 
@@ -44,14 +46,14 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
         <ChipList>
           {filters.map((f) => (
             <Chip key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>
-              {f}
+              {t.people.filters[f]}
             </Chip>
           ))}
         </ChipList>
       </div>
 
       {isError ? (
-        <EmptyState icon={TriangleAlert} text="Couldn't load people. Is the server running?" />
+        <EmptyState icon={TriangleAlert} text={t.people.loadError} />
       ) : isPending ? null : users.length > 0 ? (
         <div className={scss.grid}>
           {users.map((u) => (
@@ -59,7 +61,7 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
           ))}
         </div>
       ) : (
-        <EmptyState icon={Users} text="No people found." />
+        <EmptyState icon={Users} text={t.people.empty} />
       )}
     </div>
   );

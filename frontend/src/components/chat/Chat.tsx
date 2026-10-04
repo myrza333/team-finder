@@ -10,6 +10,7 @@ import ChatList from "./ChatList";
 import ChatWindow from "./ChatWindow";
 import DirectWindow from "./DirectWindow";
 import MembersPanel from "./MembersPanel";
+import { useI18n } from "@/i18n/client";
 import scss from "./Chat.module.scss";
 
 // Столько сообщений бэкенд отдаёт за раз (HISTORY_LIMIT в chat.service.ts и direct.service.ts)
@@ -24,6 +25,7 @@ const Chat = () => {
   const activeId = params.id ?? null;
   const isDirect = pathname.startsWith("/chat/d/");
   const { user } = useAuth();
+  const { t } = useI18n();
   const queryClient = useQueryClient();
 
   const teams = useQuery({ queryKey: ["chats"], queryFn: api.chats.list });
@@ -95,12 +97,12 @@ const Chat = () => {
 
   const loading = teams.isPending || directs.isPending;
   const placeholder = loading
-    ? { title: "Loading chats…", text: "" }
+    ? { title: t.chat.loadingChats, text: "" }
     : teams.isError || directs.isError
-      ? { title: "Couldn't load chats", text: "Check your connection and try again." }
+      ? { title: t.chat.loadError, text: t.chat.loadErrorText }
       : activeId
-        ? { title: "Chat not found", text: "You're not in this chat, or it doesn't exist." }
-        : { title: "Select a chat", text: "Team chats and your direct messages with project owners are on the left." };
+        ? { title: t.chat.notFound, text: t.chat.notFoundText }
+        : { title: t.chat.select, text: t.chat.selectText };
 
   return (
     <div className={`${scss.chat} ${hasActive ? scss.hasActive : ""} ${activeDirect ? scss.noMembers : ""}`}>

@@ -7,6 +7,8 @@ import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import { launchCountdown, launchDate } from "@/lib/format";
 import type { Application, LaunchSubscription, Project } from "@/types";
+import { getI18n } from "@/i18n/server";
+import { rich } from "@/i18n/rich";
 import ProjectAction from "./ProjectAction";
 import ProjectLinks from "./ProjectLinks";
 import scss from "./ProjectDetailPage.module.scss";
@@ -18,7 +20,8 @@ type ProjectDetailPageProps = {
   launch: LaunchSubscription | null; // "Notify me" — для чужого анонса
 };
 
-const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: ProjectDetailPageProps) => {
+const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch }: ProjectDetailPageProps) => {
+  const { t, locale } = await getI18n();
   const isOwner = project.owner.id === currentUserId;
   // Анонс (запуск впереди): чужим не показываем команду, стек и вакансии — их и нет в ответе API
   const announced = Boolean(project.announced && project.launchAt);
@@ -26,8 +29,12 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
 
   return (
     <div className={scss.page}>
-      <nav className={scss.breadcrumbs} aria-label="Breadcrumb">
-        {announced ? <Link href="/announcements">Announcements</Link> : <Link href="/projects">Projects</Link>}
+      <nav className={scss.breadcrumbs} aria-label={t.common.breadcrumb}>
+        {announced ? (
+          <Link href="/announcements">{t.header.announcements}</Link>
+        ) : (
+          <Link href="/projects">{t.header.projects}</Link>
+        )}
         <span>/</span>
         <span className={scss.current}>{project.title}</span>
       </nav>
@@ -35,10 +42,7 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
       {announced && isOwner && (
         <p className={scss.announcedNote}>
           <Megaphone size={16} strokeWidth={1.75} aria-hidden />
-          <span>
-            This project is announced and launches on <strong>{launchDate(project.launchAt!)}</strong>. Until then
-            others see only its name and short description, and applications are closed.
-          </span>
+          <span>{rich(t.project.announcedNote, { date: <strong>{launchDate(project.launchAt!, locale)}</strong> })}</span>
         </p>
       )}
 
@@ -52,13 +56,15 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
           {announced && (
             <p className={scss.launch}>
               <CalendarClock size={14} strokeWidth={1.75} aria-hidden />
-              {launchCountdown(project.launchAt!)} · {launchDate(project.launchAt!)}
+              {launchCountdown(project.launchAt!, locale)} · {launchDate(project.launchAt!, locale)}
             </p>
           )}
           <div className={scss.createdBy}>
             <Avatar src={project.owner.avatarUrl} alt="" size={20} />
             <span>
-              Created by <Link href={`/profile/${project.owner.id}`}>{project.owner.name}</Link>
+              {rich(t.project.createdBy, {
+                name: <Link href={`/profile/${project.owner.id}`}>{project.owner.name}</Link>,
+              })}
             </span>
           </div>
           <ProjectLinks project={project} />
@@ -69,23 +75,19 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
       <div className={scss.grid}>
         <div className={scss.main}>
           {hidden ? (
-            <Panel title="Revealed on launch day">
+            <Panel title={t.project.revealed}>
               <div className={scss.classified}>
                 <Lock size={20} strokeWidth={1.75} aria-hidden />
-                <p>
-                  The team, tech stack and open positions stay secret until{" "}
-                  <strong>{launchDate(project.launchAt!)}</strong>. Press “Notify me” and you&apos;ll get a notification
-                  the moment applications open. Questions before that? Message the owner.
-                </p>
+                <p>{rich(t.project.classified, { date: <strong>{launchDate(project.launchAt!, locale)}</strong> })}</p>
               </div>
             </Panel>
           ) : (
             <>
-              <Panel title="About project">
+              <Panel title={t.project.about}>
                 <p className={scss.text}>{project.fullDescription}</p>
               </Panel>
 
-              <Panel title="Tech stack">
+              <Panel title={t.project.stack}>
                 <TagList>
                   {project.stack.map((tech) => (
                     <Tag key={tech} size="md">
@@ -95,14 +97,14 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
                 </TagList>
               </Panel>
 
-              <Panel title="What we're looking for">
+              <Panel title={t.project.lookingFor}>
                 <div className={scss.vacancies}>
                   {project.vacancies.map((v) => (
                     <div key={v.id} className={scss.vacancy}>
                       <div className={scss.vacancyHead}>
                         <h3 className={scss.vacancyTitle}>{v.title}</h3>
                         <span className={`${scss.positions} ${v.isOpen === false ? scss.filled : ""}`}>
-                          {v.isOpen === false ? "Filled" : "1 position"}
+                          {v.isOpen === false ? t.project.filled : t.project.onePosition}
                         </span>
                       </div>
                       <TagList>
@@ -121,7 +123,7 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
         </div>
 
         <aside className={scss.side}>
-          <Panel title="Project owner" size="sm">
+          <Panel title={t.project.owner} size="sm">
             <div className={scss.person}>
               <Avatar src={project.owner.avatarUrl} alt={project.owner.name} size={40} />
               <div>
@@ -130,12 +132,12 @@ const ProjectDetailPage = ({ project, currentUserId, myApplication, launch }: Pr
               </div>
             </div>
             <Button href={`/profile/${project.owner.id}`} variant="outline" fullWidth className={scss.ownerButton}>
-              View profile
+              {t.common.viewProfile}
             </Button>
           </Panel>
 
           {!hidden && (
-            <Panel title="Team" size="sm">
+            <Panel title={t.project.team} size="sm">
               <ul className={scss.team}>
                 {project.members.map((m) => (
                   <li key={m.id}>
