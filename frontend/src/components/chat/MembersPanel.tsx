@@ -4,22 +4,25 @@ import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { CloseIcon } from "@/components/ui/Icons";
-import { useOnlineUsers } from "@/lib/realtime";
+import { lastSeen as formatLastSeen } from "@/lib/format";
+import { useLastSeen, useOnlineUsers } from "@/lib/realtime";
 import type { Project } from "@/types";
 import { useI18n } from "@/i18n/client";
 import scss from "./Chat.module.scss";
 
 type MembersPanelProps = {
   project: Project;
+  lastSeen: Record<string, string | null>; // когда каждый участник был в сети (из списка чатов)
   currentUserId: string;
   open: boolean; // для шторки на узких экранах; на широких панель видна всегда
   onClose: () => void;
 };
 
 // Правая колонка: участники команды, владелец первым, онлайн — выше офлайн
-const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelProps) => {
+const MembersPanel = ({ project, lastSeen, currentUserId, open, onClose }: MembersPanelProps) => {
   const onlineUserIds = useOnlineUsers();
-  const { t } = useI18n();
+  const seenAt = useLastSeen();
+  const { t, locale } = useI18n();
   const isOwner = project.owner.id === currentUserId;
   const members = [...project.members].sort((a, b) => {
     if (a.id === project.owner.id) return -1;
@@ -49,7 +52,9 @@ const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelPro
         <ul className={scss.memberList}>
           {members.map((m) => {
             const online = onlineUserIds.has(m.id);
-            const status = [m.id === currentUserId && t.chat.you, online && t.chat.onlineStatus].filter(Boolean).join(" · ");
+            const seen = seenAt(m.id, lastSeen[m.id]);
+            const presence = online ? t.chat.onlineStatus : seen && t.chat.lastSeen(formatLastSeen(seen, locale));
+            const status = [m.id === currentUserId && t.chat.you, presence].filter(Boolean).join(" · ");
             return (
               <li key={m.id}>
                 <Link href={`/profile/${m.id}`} className={scss.member}>

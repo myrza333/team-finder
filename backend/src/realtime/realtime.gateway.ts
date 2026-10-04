@@ -56,7 +56,11 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
       socket.data.userId = userId;
       const count = (this.connections.get(userId) ?? 0) + 1;
       this.connections.set(userId, count);
-      if (count === 1) this.broadcastPresence(userId, projectIds, partners, true);
+      if (count === 1) {
+        this.broadcastPresence(userId, projectIds, partners, true);
+        // "Был в сети" — на случай, если отключение не успеет записаться (сервер перезапустили)
+        this.db.query('update users set last_seen_at = now() where id = $1', [userId]).catch(() => {});
+      }
 
       // Новому подключению — кто из "своих" (команды, личные чаты) уже в сети. Про остальных ему знать незачем
       const known = new Set([...teams.flatMap((t) => t.members), ...partners]);
@@ -76,8 +80,13 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
     this.connections.delete(userId);
     try {
-      const [projectIds, partners] = await Promise.all([this.projectIdsOf(userId), this.partnersOf(userId)]);
-      this.broadcastPresence(userId, projectIds, partners, false);
+      // Закрыл последнюю вкладку — запоминаем, когда был в сети, и сразу сообщаем своим
+      const [projectIds, partners, seen] = await Promise.all([
+        this.projectIdsOf(userId),
+        this.partnersOf(userId),
+        this.db.queryOne<{ at: Date }>('update users set last_seen_at = now() where id = $1 returning last_seen_at as at', [userId]),
+      ]);
+      this.broadcastPresence(userId, projectIds, partners, false, seen?.at);
     } catch (e) {
       console.warn('Presence update failed:', (e as Error).message);
     }
@@ -142,8 +151,8 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
   }
 
   // "В сети / не в сети" — товарищам по командам и собеседникам по личным чатам
-  private broadcastPresence(userId: string, projectIds: string[], partners: string[], online: boolean) {
+  private broadcastPresence(userId: string, projectIds: string[], partners: string[], online: boolean, lastSeenAt?: Date) {
     const rooms = [...projectIds.map(projectRoom), ...partners.map(userRoom)];
-    if (rooms.length) this.server.to(rooms).emit('presence', { userId, online });
+    if (rooms.length) this.server.to(rooms).emit('presence', { userId, online, lastSeenAt });
   }
 }

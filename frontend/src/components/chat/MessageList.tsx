@@ -1,8 +1,9 @@
 "use client";
+import { Check, CheckCheck } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
-import { clockTime, dayLabel } from "@/lib/format";
+import { clockTime, dayLabel, isNotAfter } from "@/lib/format";
 import type { ChatMessage } from "@/types";
 import { useI18n } from "@/i18n/client";
 import { translateSystemMessage } from "@/i18n/translate";
@@ -14,6 +15,7 @@ type MessageListProps = {
   emptyText?: string; // что показать в пустом чате
   ownerId: string;
   currentUserId: string;
+  readAt?: string; // личный чат: до какого момента собеседник прочитал — у моих сообщений ✓ / ✓✓
   hasOlder?: boolean; // есть сообщения старше загруженных
   onLoadOlder?: () => Promise<void>;
 };
@@ -27,6 +29,7 @@ const MessageList = ({
   loading,
   ownerId,
   currentUserId,
+  readAt,
   hasOlder,
   onLoadOlder,
   emptyText,
@@ -118,7 +121,15 @@ const MessageList = ({
               <div className={`${scss.messageRow} ${scss.own} ${groupStart ? scss.groupStart : ""}`}>
                 <div className={`${scss.bubble} ${scss.bubbleOwn}`}>
                   <span className={scss.text}>{m.text}</span>
-                  <span className={scss.time}>{time}</span>
+                  <span className={scss.time}>
+                    {time}
+                    {readAt !== undefined &&
+                      (isNotAfter(m.createdAt, readAt) ? (
+                        <CheckCheck size={14} strokeWidth={2} className={scss.read} aria-label={t.chat.read} />
+                      ) : (
+                        <Check size={14} strokeWidth={2} aria-label={t.chat.sent} />
+                      ))}
+                  </span>
                 </div>
               </div>
             ) : (

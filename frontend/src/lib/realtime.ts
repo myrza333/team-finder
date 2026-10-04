@@ -4,7 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { io } from "socket.io-client";
 import { useAuth } from "@/auth/useAuth";
 import { api } from "@/lib/api";
-import type { ChatMessage } from "@/types";
+import type { ChatMessage, DirectChat } from "@/types";
+import { isNotAfter } from "@/lib/format";
 
 // WebSocket идёт на бэкенд напрямую: Vercel не умеет проксировать WebSocket через /api.
 // Адрес подставляет next.config.ts (тот же BACKEND_URL, что и для /api)
@@ -25,6 +26,18 @@ const subscribe = (listener: () => void) => {
 const empty = new Set<string>();
 
 export const useOnlineUsers = () => useSyncExternalStore(subscribe, () => online, () => empty);
+
+// ===== Когда был в сети =====
+// Начальные значения приходят с чатами (API), а свежие — из события "presence", когда человек уходит
+let lastSeen = new Map<string, string>();
+const emptySeen = new Map<string, string>();
+const useLastSeenUpdates = () => useSyncExternalStore(subscribe, () => lastSeen, () => emptySeen);
+
+// fromApi — значение из списка чатов; если человек ушёл уже после загрузки, берём свежее из WebSocket
+export const useLastSeen = () => {
+  const updates = useLastSeenUpdates();
+  return (userId: string, fromApi?: string | null) => updates.get(userId) ?? fromApi ?? null;
+};
 
 // ===== Подключение =====
 // Ставится один раз на весь сайт (в providers.tsx). Сам ничего не рисует —
@@ -77,12 +90,23 @@ export const useRealtime = () => {
     });
 
     socket.on("presence:list", (ids: string[]) => setOnline(new Set(ids)));
-    socket.on("presence", ({ userId: id, online: isOnline }: { userId: string; online: boolean }) => {
-      const next = new Set(online);
-      if (isOnline) next.add(id);
-      else next.delete(id);
-      setOnline(next);
+    // Собеседник открыл личный чат (или ответил) — мои сообщения до этого момента становятся ✓✓
+    socket.on("direct:read", ({ chatId, readAt }: { chatId: string; readAt: string }) => {
+      queryClient.setQueryData<DirectChat[]>(["direct-chats"], (old) =>
+        old?.map((c) => (c.id === chatId && !isNotAfter(readAt, c.otherReadAt) ? { ...c, otherReadAt: readAt } : c)),
+      );
     });
+
+    socket.on(
+      "presence",
+      ({ userId: id, online: isOnline, lastSeenAt }: { userId: string; online: boolean; lastSeenAt?: string }) => {
+        if (!isOnline && lastSeenAt) lastSeen = new Map(lastSeen).set(id, lastSeenAt);
+        const next = new Set(online);
+        if (isOnline) next.add(id);
+        else next.delete(id);
+        setOnline(next);
+      },
+    );
 
     return () => {
       socket.close();

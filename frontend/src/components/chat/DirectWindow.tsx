@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import { ArrowLeftIcon } from "@/components/ui/Icons";
-import { useOnlineUsers } from "@/lib/realtime";
+import { lastSeen as formatLastSeen } from "@/lib/format";
+import { useLastSeen, useOnlineUsers } from "@/lib/realtime";
 import type { ChatMessage, DirectChat } from "@/types";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
@@ -26,7 +27,8 @@ type DirectWindowProps = {
 const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder, onLoadOlder }: DirectWindowProps) => {
   const online = useOnlineUsers().has(chat.other.id);
   const otherIsOwner = chat.other.id === chat.project.ownerId;
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const seenAt = useLastSeen()(chat.other.id, chat.otherLastSeenAt);
 
   return (
     <div className={scss.window}>
@@ -50,13 +52,13 @@ const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder
                 </Link>
               ),
             })}
-            {online && (
-              <>
-                {" "}
-                · <span className={scss.onlineText}>{t.chat.onlineOne}</span>
-              </>
-            )}
           </p>
+          {/* В сети — зелёным, иначе когда был в сети (нет данных — строки нет) */}
+          {online ? (
+            <p className={`${scss.windowStatus} ${scss.onlineText}`}>{t.chat.onlineOne}</p>
+          ) : (
+            seenAt && <p className={scss.windowStatus}>{t.chat.lastSeen(formatLastSeen(seenAt, locale))}</p>
+          )}
         </div>
       </header>
 
@@ -67,6 +69,7 @@ const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder
         currentUserId={currentUserId}
         hasOlder={hasOlder}
         onLoadOlder={onLoadOlder}
+        readAt={chat.otherReadAt}
         emptyText={otherIsOwner ? t.chat.askOwner : t.chat.noMessages}
       />
       {otherIsOwner && (

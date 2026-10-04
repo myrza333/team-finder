@@ -95,6 +95,8 @@ export type DirectChat = {
   other: Person; // собеседник
   lastMessage: ChatMessage | null;
   unread: number;
+  otherReadAt: string; // до какого момента собеседник прочитал чат: мои сообщения раньше — ✓✓
+  otherLastSeenAt: string | null; // когда собеседник был в сети
 };
 
 // Чат в списке слева: проект + последнее сообщение + сколько непрочитанных
@@ -102,6 +104,7 @@ export type ChatSummary = {
   project: Project;
   lastMessage: ChatMessage | null;
   unread: number;
+  lastSeen?: Record<string, string | null>; // id участника → когда был в сети
 };
 
 // Settings → Privacy и Settings → Notifications (уведомления только на сайте, писем пока нет)

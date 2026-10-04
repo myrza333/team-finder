@@ -19,7 +19,11 @@ export class ChatService {
               last.message as "lastMessage",
               (select count(*) from messages m
                where m.project_id = p.id and m.created_at > pm.last_read_at
-                 and m.user_id is distinct from $1)::int as unread
+                 and m.user_id is distinct from $1)::int as unread,
+              -- Когда каждый участник был в сети: видно только товарищам по команде
+              (select json_object_agg(u.id, u.last_seen_at)
+               from project_members x join users u on u.id = x.user_id
+               where x.project_id = p.id) as "lastSeen"
        from project_members pm
        join projects p on p.id = pm.project_id
        left join lateral (

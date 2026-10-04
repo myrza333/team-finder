@@ -70,14 +70,23 @@ const Chat = () => {
   // Шторка участников (на узких экранах) открыта только для того чата, где её открыли
   const [membersOpenFor, setMembersOpenFor] = useState<string | null>(null);
 
-  // Открытый чат = прочитанный. Отмечаем при открытии и при каждом новом чужом сообщении
+  // Открытый чат = прочитанный. Отмечаем при открытии и при каждом новом чужом сообщении —
+  // но только если вкладку действительно видно: иначе у собеседника появились бы ✓✓, хотя никто не читал
   const last = messages.data?.at(-1);
   const lastId = last?.id;
   const lastIsMine = last?.author?.id === user?.id;
   useEffect(() => {
     if (!activeId || !lastId || lastIsMine) return;
-    const markRead = isDirect ? api.direct.markRead(activeId) : api.chats.markRead(activeId);
-    markRead.then(() => queryClient.invalidateQueries({ queryKey: [isDirect ? "direct-chats" : "chats"] }));
+    let done = false;
+    const markRead = () => {
+      if (done || document.visibilityState !== "visible") return;
+      done = true;
+      const request = isDirect ? api.direct.markRead(activeId) : api.chats.markRead(activeId);
+      request.then(() => queryClient.invalidateQueries({ queryKey: [isDirect ? "direct-chats" : "chats"] }));
+    };
+    markRead();
+    document.addEventListener("visibilitychange", markRead);
+    return () => document.removeEventListener("visibilitychange", markRead);
   }, [activeId, isDirect, lastId, lastIsMine, queryClient]);
 
   const send = async (text: string) => {
@@ -152,6 +161,7 @@ const Chat = () => {
       {activeTeam && user && (
         <MembersPanel
           project={activeTeam.project}
+          lastSeen={activeTeam.lastSeen ?? {}}
           currentUserId={user.id}
           open={membersOpenFor === activeTeam.project.id}
           onClose={() => setMembersOpenFor(null)}

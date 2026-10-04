@@ -30,7 +30,10 @@ const chatJson = `json_build_object(
     select count(*) from direct_messages m
     where m.chat_id = c.id and m.user_id <> $1
       and m.created_at > case when c.owner_id = $1 then c.owner_last_read_at else c.user_last_read_at end
-  )::int
+  )::int,
+  -- До какого момента собеседник прочитал чат: мои сообщения раньше этого — ✓✓
+  'otherReadAt', case when c.owner_id = $1 then c.user_last_read_at else c.owner_last_read_at end,
+  'otherLastSeenAt', (select o.last_seen_at from users o where o.id = case when c.owner_id = $1 then c.user_id else c.owner_id end)
 )`;
 
 // Личные чаты "по поводу проекта": человек ↔ владелец
@@ -128,7 +131,7 @@ export class DirectService {
   async send(chatId: string, userId: string, text: string) {
     // Одним запросом: проверка участия, сообщение, "прочитано" для автора,
     // и уведомление собеседнику — только на первое сообщение чата и если он их не выключил
-    const row = await this.db.queryOne<{ message: { chatId: string }; other_id: string; notified: boolean }>(
+    const row = await this.db.queryOne<{ message: { chatId: string; createdAt: string }; other_id: string; notified: boolean }>(
       `with chat as (
          select c.*, case when c.owner_id = $2 then c.user_id else c.owner_id end as other_id,
                 not exists (select 1 from direct_messages where chat_id = c.id) as is_first
@@ -164,20 +167,25 @@ export class DirectService {
     );
     if (!row) throw new NotFoundException('Chat not found');
 
-    // Доставляем обоим: собеседнику и другим открытым вкладкам автора
+    // Доставляем обоим: собеседнику и другим открытым вкладкам автора.
+    // Кто ответил, тот прочитал всё до своего ответа — у собеседника его сообщения становятся ✓✓
     this.realtime.toUser(row.other_id, 'direct:message', row.message);
     this.realtime.toUser(userId, 'direct:message', row.message);
+    this.realtime.toUser(row.other_id, 'direct:read', { chatId, readAt: row.message.createdAt });
     if (row.notified) this.notifications.push(row.other_id);
     return row.message;
   }
 
   async markRead(chatId: string, userId: string) {
-    await this.db.query(
+    const row = await this.db.queryOne<{ other_id: string; read_at: Date }>(
       `update direct_chats set
          owner_last_read_at = case when owner_id = $2 then now() else owner_last_read_at end,
          user_last_read_at  = case when user_id  = $2 then now() else user_last_read_at end
-       where id = $1 and (owner_id = $2 or user_id = $2)`,
+       where id = $1 and (owner_id = $2 or user_id = $2)
+       returning case when owner_id = $2 then user_id else owner_id end as other_id, now() as read_at`,
       [chatId, userId],
     );
+    // Собеседник сразу видит ✓✓ у своих сообщений
+    if (row) this.realtime.toUser(row.other_id, 'direct:read', { chatId, readAt: row.read_at });
   }
 }

@@ -198,6 +198,13 @@ $header: 65px; // 64px хедер + 1px нижняя рамка
   color: var(--gray-500);
 }
 
+// "в сети" / "был(а) в сети вчера в 10:05" под названием проекта
+.windowStatus {
+  @include text-xs;
+  @include truncate;
+  color: var(--gray-500);
+}
+
 .onlineText {
   color: var(--success-600);
 }
@@ -343,13 +350,18 @@ $header: 65px; // 64px хедер + 1px нижняя рамка
   background: var(--primary-600);
   color: var(--on-primary);
   .time { color: rgb(255 255 255 / 0.7); }
+  .read { color: var(--on-primary); }
 }
 
 .text {
   white-space: pre-wrap; // переносы строк из Shift+Enter
 }
 
+// Время и ✓ / ✓✓ у моих сообщений
 .time {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   margin-left: auto;
   font-size: 0.6875rem;
   line-height: 1rem;

@@ -51,6 +51,20 @@ export const clockTime = (iso: string) => {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
+// "Был в сети": "just now" / "today at 14:32" / "yesterday at 10:05" / "Oct 12 at 09:00"
+export function lastSeen(iso: string, locale: Locale) {
+  const t = dictionaries[locale].time;
+  const date = new Date(iso);
+  if (Date.now() - date.getTime() < MINUTE) return t.seenJustNow;
+  const days = daysAgo(date);
+  if (days === 0) return t.seenToday(clockTime(iso));
+  if (days === 1) return t.seenYesterday(clockTime(iso));
+  return t.seenOn(shortDate(date, locale), clockTime(iso));
+}
+
+// Время из базы бывает с микросекундами и в разных форматах — сравниваем как числа
+export const isNotAfter = (a: string, b: string) => new Date(a).getTime() <= new Date(b).getTime();
+
 // ===== Дата запуска анонса ("2026-10-14") =====
 
 // Сколько дней до запуска (сегодня — 0)
