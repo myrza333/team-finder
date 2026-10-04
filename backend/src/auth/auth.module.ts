@@ -8,6 +8,7 @@ import { AuthService } from './auth.service.js';
 import { GoogleService } from './google.service.js';
 import { SESSION_TTL_SECONDS } from './session.js';
 import { SessionGuard } from './session.guard.js';
+import { RateLimitGuard } from '../common/rate-limit.js';
 
 @Module({
   imports: [
@@ -22,6 +23,12 @@ import { SessionGuard } from './session.guard.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleService, { provide: APP_GUARD, useClass: SessionGuard }],
+  // Порядок важен: сначала узнаём пользователя по cookie, потом считаем его запросы
+  providers: [
+    AuthService,
+    GoogleService,
+    { provide: APP_GUARD, useClass: SessionGuard },
+    { provide: APP_GUARD, useClass: RateLimitGuard },
+  ],
 })
 export class AuthModule {}

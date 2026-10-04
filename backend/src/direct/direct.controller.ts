@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/com
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString, Length, Matches } from 'class-validator';
 import { CurrentUserId } from '../common/current-user.decorator.js';
+import { RateLimit } from '../common/rate-limit.js';
 import { UuidParamPipe } from '../common/uuid.js';
 import { DirectService } from './direct.service.js';
 
@@ -25,12 +26,14 @@ export class DirectController {
 
   @Post('projects/:projectId/direct')
   @HttpCode(200)
+  @RateLimit({ name: 'direct-open', limit: 30, windowSec: 3600, by: 'user' })
   openWithOwner(@Param('projectId', UuidParamPipe) projectId: string, @CurrentUserId() userId: string) {
     return this.direct.openWithOwner(projectId, userId);
   }
 
   @Post('applications/:id/direct')
   @HttpCode(200)
+  @RateLimit({ name: 'direct-open', limit: 30, windowSec: 3600, by: 'user' })
   openWithApplicant(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string) {
     return this.direct.openWithApplicant(id, userId);
   }
@@ -55,6 +58,7 @@ export class DirectController {
   }
 
   @Post('direct/:id/messages')
+  @RateLimit({ name: 'message', limit: 30, windowSec: 60, by: 'user' })
   send(@Param('id', UuidParamPipe) id: string, @CurrentUserId() userId: string, @Body() dto: SendDirectDto) {
     return this.direct.send(id, userId, dto.text);
   }

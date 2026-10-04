@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import type { Response } from 'express';
 import { CurrentUserId } from '../common/current-user.decorator.js';
+import { RateLimit } from '../common/rate-limit.js';
 import { UsersService } from '../users/users.service.js';
 import { AuthService } from './auth.service.js';
 import { ChangePasswordDto, LoginDto, RegisterDto } from './dto/auth.dto.js';
@@ -29,6 +30,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @RateLimit({ name: 'register', limit: 5, windowSec: 3600, by: 'ip' })
   async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const { token, user } = await this.auth.register(dto);
     res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
@@ -37,6 +39,11 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
+  // Подбор пароля: не больше 10 попыток к одному email за 15 минут, с одного адреса — 20 в минуту
+  @RateLimit(
+    { name: 'login-email', limit: 10, windowSec: 900, by: 'email' },
+    { name: 'login-ip', limit: 20, windowSec: 60, by: 'ip' },
+  )
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const { token, user } = await this.auth.login(dto);
     res.cookie(SESSION_COOKIE, token, sessionCookieOptions());
@@ -71,6 +78,7 @@ export class AuthController {
 
   @Post('password')
   @HttpCode(204)
+  @RateLimit({ name: 'password', limit: 5, windowSec: 900, by: 'user' })
   changePassword(@CurrentUserId() userId: string, @Body() dto: ChangePasswordDto) {
     return this.auth.changePassword(userId, dto);
   }

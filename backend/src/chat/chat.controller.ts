@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/com
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString, Length, Matches } from 'class-validator';
 import { CurrentUserId } from '../common/current-user.decorator.js';
+import { RateLimit } from '../common/rate-limit.js';
 import { UuidParamPipe } from '../common/uuid.js';
 import { ChatService } from './chat.service.js';
 
@@ -39,6 +40,7 @@ export class ChatController {
   }
 
   @Post(':projectId/messages')
+  @RateLimit({ name: 'message', limit: 30, windowSec: 60, by: 'user' })
   send(
     @Param('projectId', UuidParamPipe) projectId: string,
     @CurrentUserId() userId: string,

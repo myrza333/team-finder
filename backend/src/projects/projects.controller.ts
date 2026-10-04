@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } fr
 import { Type } from 'class-transformer';
 import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { CurrentUserId, OptionalUserId } from '../common/current-user.decorator.js';
+import { RateLimit } from '../common/rate-limit.js';
 import { UuidParamPipe } from '../common/uuid.js';
 import { CreateProjectDto, ProjectsQueryDto, UpdateProjectDto } from './dto/project.dto.js';
 import { LaunchService } from './launch.service.js';
@@ -51,6 +52,7 @@ export class ProjectsController {
   }
 
   @Post()
+  @RateLimit({ name: 'project-create', limit: 10, windowSec: 3600, by: 'user' })
   create(@CurrentUserId() userId: string, @Body() dto: CreateProjectDto) {
     return this.projects.create(userId, dto);
   }

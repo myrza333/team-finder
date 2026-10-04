@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import { CurrentUserId } from '../common/current-user.decorator.js';
+import { RateLimit } from '../common/rate-limit.js';
 import { UuidParamPipe } from '../common/uuid.js';
 import { ApplicationsService } from './applications.service.js';
 import { ApplicationsQueryDto, ApplyDto, DecideDto } from './dto/application.dto.js';
@@ -10,6 +11,7 @@ export class ApplicationsController {
   constructor(private readonly applications: ApplicationsService) {}
 
   @Post('projects/:projectId/applications')
+  @RateLimit({ name: 'apply', limit: 20, windowSec: 3600, by: 'user' })
   apply(
     @Param('projectId', UuidParamPipe) projectId: string,
     @CurrentUserId() userId: string,

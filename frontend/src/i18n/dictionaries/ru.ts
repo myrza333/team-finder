@@ -667,6 +667,7 @@ export const ru: Dictionary = {
   apiErrors: {
     "An account with this email already exists": "Аккаунт с таким email уже существует",
     "Wrong email or password": "Неверный email или пароль",
+    "Too many requests. Please wait a bit and try again.": "Слишком много попыток. Подождите немного и попробуйте снова.",
     "Set a password first, otherwise you will lose access to your account": "Сначала задайте пароль, иначе потеряете доступ к аккаунту",
     "Current password is incorrect": "Текущий пароль неверный",
     "You need to sign in": "Нужно войти в аккаунт",

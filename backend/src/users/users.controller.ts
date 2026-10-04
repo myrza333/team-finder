@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { SESSION_COOKIE } from '../auth/session.js';
 import { CurrentUserId } from '../common/current-user.decorator.js';
+import { RateLimit } from '../common/rate-limit.js';
 import { UuidParamPipe } from '../common/uuid.js';
 import { UpdateProfileDto, UserSettingsDto, UsersQueryDto } from './dto/user.dto.js';
 import { type UploadedImage, UsersService } from './users.service.js';
@@ -62,6 +63,7 @@ export class UsersController {
 
   // Фото приходит как multipart/form-data в поле "file"
   @Put('me/avatar')
+  @RateLimit({ name: 'avatar', limit: 20, windowSec: 3600, by: 'user' })
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: AVATAR_MAX_BYTES } }))
   uploadAvatar(@CurrentUserId() userId: string, @UploadedFile() file: UploadedImage | undefined) {
     return this.users.setAvatar(userId, file);

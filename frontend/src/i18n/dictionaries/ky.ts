@@ -660,6 +660,7 @@ export const ky: Dictionary = {
   apiErrors: {
     "An account with this email already exists": "Мындай email менен аккаунт бар",
     "Wrong email or password": "Email же сырсөз туура эмес",
+    "Too many requests. Please wait a bit and try again.": "Аракет өтө көп болду. Бир аз күтүп, кайра аракет кылыңыз.",
     "Set a password first, otherwise you will lose access to your account": "Адегенде сырсөз коюңуз, болбосо аккаунтка кире албай каласыз",
     "Current password is incorrect": "Учурдагы сырсөз туура эмес",
     "You need to sign in": "Аккаунтка кирүү керек",
