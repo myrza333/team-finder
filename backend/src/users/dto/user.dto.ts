@@ -3,6 +3,7 @@ import {
   ArrayMaxSize,
   IsArray,
   IsBoolean,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -13,6 +14,12 @@ import {
   Min,
   ValidateIf,
 } from 'class-validator';
+
+// Направления человека — тот же список, что stacks во frontend/src/lib/stacks.ts
+export const STACKS = [
+  'Frontend', 'Backend', 'Fullstack', 'Mobile', 'DevOps', 'Cloud', 'Data Science', 'Machine Learning',
+  'Game Development', 'UI/UX Design', 'QA / Testing', 'Embedded', 'Cybersecurity', 'Blockchain',
+] as const;
 
 // Пустая строка в необязательном поле = "очистить поле" (null в базе)
 const emptyToNull = () => Transform(({ value }) => (value === '' ? null : value));
@@ -91,6 +98,13 @@ export class UpdateProfileDto {
   @IsString({ each: true })
   @MaxLength(40, { each: true })
   skills?: string[];
+
+  // Направления (до 4) — только из списка STACKS, чтобы у всех были одинаковые названия
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(4)
+  @IsIn(STACKS, { each: true })
+  stacks?: string[];
 }
 
 export class UsersQueryDto {

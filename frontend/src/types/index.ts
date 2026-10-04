@@ -3,7 +3,8 @@ export type User = {
   name: string;
   title: string; // "Junior Frontend Developer"
   avatarUrl: string | null; // null — фото нет (рисуется нейтральный силуэт)
-  skills: string[];
+  skills: string[]; // языки и технологии
+  stacks?: string[]; // направления: Frontend, Fullstack, Mobile...
   projectsCount: number;
   bio?: string | null;
   location?: string | null;

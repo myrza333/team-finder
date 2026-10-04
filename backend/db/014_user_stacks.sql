@@ -1,0 +1,3 @@
+-- Направления человека ("стек"): Frontend, Backend, Fullstack, Mobile...
+-- В отличие от skills (конкретные языки и технологии) — короткий список из заранее заданных вариантов (STACKS в user.dto.ts)
+alter table users add column stacks text[] not null default '{}';

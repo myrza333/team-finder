@@ -21,6 +21,7 @@ export const userJson = (u: string, own = false) => {
   'codewarsUrl', ${shown('show_socials', 'codewars_url')},
   'leetcodeUrl', ${shown('show_socials', 'leetcode_url')},
   'openToProjects', ${u}.open_to_projects,
+  'stacks', to_json(${u}.stacks),
   'skills', coalesce((
     select json_agg(s.name order by s.name)
     from user_skills us join skills s on s.id = us.skill_id

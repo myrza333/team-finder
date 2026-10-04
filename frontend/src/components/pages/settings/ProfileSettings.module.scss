@@ -85,3 +85,45 @@
   color: var(--gray-400);
   user-select: none;
 }
+
+// ===== Направления (Stack) =====
+.stacks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  @include sm { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.stack {
+  @include text-sm;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--gray-700);
+  text-align: left;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  svg { flex-shrink: 0; color: var(--gray-400); transition: color 0.15s; }
+  span { @include truncate; }
+  &:hover:not(:disabled) { border-color: var(--primary-300); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+.stackActive {
+  border-color: var(--primary-600);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 500;
+  box-shadow: 0 0 0 1px var(--primary-600);
+  svg { color: var(--primary-600); }
+}
+
+.stackCounter {
+  @include text-xs;
+  margin-top: 10px;
+  color: var(--gray-400);
+}

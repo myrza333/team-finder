@@ -110,9 +110,6 @@
   min-width: 0;
 }
 
-.skills {
-  align-self: start;
-}
 
 .text {
   @include text-sm;
@@ -212,4 +209,50 @@
     color: var(--gray-900);
   }
   @include phone { padding: 6px 12px; }
+}
+
+// Правая колонка: Skills, под ними Stack
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  align-self: start;
+}
+
+// ===== Направления (Stack) =====
+.stacks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+}
+
+.stack {
+  @include text-sm;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  color: var(--gray-800);
+}
+
+.stackIcon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+.stackEmpty {
+  @include text-sm;
+  color: var(--gray-400);
+  a {
+    color: var(--primary-600);
+    &:hover { text-decoration: underline; }
+  }
 }

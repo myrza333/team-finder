@@ -57,6 +57,7 @@ export type ProfileInput = Partial<{
   codewarsUrl: string;
   leetcodeUrl: string;
   skills: string[];
+  stacks: string[];
 }>;
 
 // getExtraHeaders нужен серверу: браузер отправляет cookie сам, а Next-серверу её надо передать вручную

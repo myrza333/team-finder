@@ -7,6 +7,7 @@ import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import SocialIcon from "@/components/ui/SocialIcon/SocialIcon";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
 import { socials } from "@/lib/socials";
+import { stackIcon } from "@/lib/stacks";
 import type { Project, User } from "@/types";
 import scss from "./ProfilePage.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
@@ -115,15 +116,43 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
           </Panel>
         </div>
 
-        <Panel title="Skills" className={scss.skills}>
-          <TagList>
-            {user.skills.map((skill) => (
-              <Tag key={skill} variant="primary" size="lg">
-                {skill}
-              </Tag>
-            ))}
-          </TagList>
-        </Panel>
+        <div className={scss.side}>
+          <Panel title="Skills">
+            <TagList>
+              {user.skills.map((skill) => (
+                <Tag key={skill} variant="primary" size="lg">
+                  {skill}
+                </Tag>
+              ))}
+            </TagList>
+          </Panel>
+
+          {/* Направления — после навыков. Пусто: чужому не показываем, себе — подсказка */}
+          {(user.stacks?.length || isOwn) && (
+            <Panel title="Stack">
+              {user.stacks?.length ? (
+                <ul className={scss.stacks}>
+                  {user.stacks.map((name) => {
+                    const Icon = stackIcon(name);
+                    return (
+                      <li key={name} className={scss.stack}>
+                        <span className={scss.stackIcon}>
+                          <Icon size={16} strokeWidth={1.75} aria-hidden />
+                        </span>
+                        {name}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className={scss.stackEmpty}>
+                  Add what you do — Frontend, Fullstack, Mobile… —{" "}
+                  <Link href="/settings/profile">in profile settings</Link>.
+                </p>
+              )}
+            </Panel>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -49,6 +49,7 @@ export class UsersService {
       const q = param(`%${query.q.trim()}%`);
       where.push(`(
         u.name ilike ${q} or u.title ilike ${q}
+        or exists (select 1 from unnest(u.stacks) st where st ilike ${q})
         or exists (select 1 from user_skills us join skills s on s.id = us.skill_id
                    where us.user_id = u.id and s.name ilike ${q})
       )`);
@@ -129,6 +130,7 @@ export class UsersService {
       instagram_url: dto.instagramUrl,
       codewars_url: dto.codewarsUrl,
       leetcode_url: dto.leetcodeUrl,
+      stacks: dto.stacks,
     };
     const changed = Object.entries(columns).filter(([, value]) => value !== undefined);
 

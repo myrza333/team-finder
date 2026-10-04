@@ -9,6 +9,7 @@ import SocialIcon from "@/components/ui/SocialIcon/SocialIcon";
 import { api } from "@/lib/api";
 import { resizeToSquare } from "@/lib/resizeImage";
 import { type Social, type SocialKey, socials, toHandle, toUrl } from "@/lib/socials";
+import { MAX_STACKS, stacks } from "@/lib/stacks";
 import type { User } from "@/types";
 import TagInput from "@/components/ui/TagInput/TagInput";
 import { SaveBar, SettingsSection, useSettingsForm } from "./SettingsParts";
@@ -18,6 +19,41 @@ import local from "./ProfileSettings.module.scss";
 const BIO_MAX = 300;
 
 const MAX_UPLOAD_MB = 10;
+
+// Выбор направлений: плитки с иконками, не больше MAX_STACKS. Порядок — как в общем списке
+const StackPicker = ({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) => {
+  const full = value.length >= MAX_STACKS;
+  const toggle = (name: string) =>
+    onChange(
+      value.includes(name) ? value.filter((s) => s !== name) : stacks.map((s) => s.name).filter((n) => n === name || value.includes(n)),
+    );
+
+  return (
+    <>
+      <div className={local.stacks} role="group" aria-label="Stack">
+        {stacks.map(({ name, Icon }) => {
+          const active = value.includes(name);
+          return (
+            <button
+              key={name}
+              type="button"
+              aria-pressed={active}
+              disabled={!active && full}
+              onClick={() => toggle(name)}
+              className={`${local.stack} ${active ? local.stackActive : ""}`}
+            >
+              <Icon size={16} strokeWidth={1.75} aria-hidden />
+              <span>{name}</span>
+            </button>
+          );
+        })}
+      </div>
+      <p className={local.stackCounter}>
+        {value.length}/{MAX_STACKS} selected{full ? " · unselect one to pick another" : ""}
+      </p>
+    </>
+  );
+};
 
 // Поле ссылки: иконка сети + начало адреса + ник. Можно вставить ссылку целиком — останется только ник
 const SocialField = ({ social, value, onChange }: { social: Social; value: string; onChange: (handle: string) => void }) => {
@@ -146,6 +182,7 @@ const ProfileForm = ({ user }: { user: User }) => {
       location: user.location ?? "",
       bio: user.bio ?? "",
       skills: user.skills,
+      stacks: user.stacks ?? [],
       // В форме — только ники; полные ссылки собираются при сохранении
       links: Object.fromEntries(socials.map((s) => [s.key, toHandle(s, user[s.key])])) as Record<SocialKey, string>,
     },
@@ -156,6 +193,7 @@ const ProfileForm = ({ user }: { user: User }) => {
         location: v.location,
         bio: v.bio,
         skills: v.skills,
+        stacks: v.stacks,
         ...Object.fromEntries(socials.map((s) => [s.key, toUrl(s, v.links[s.key])])),
       });
       applyUser(updated);
@@ -216,7 +254,7 @@ const ProfileForm = ({ user }: { user: User }) => {
 
       <SettingsSection
         title="Skills"
-        description="Used in search, so people can find you by skill. Add the technologies you actually work with."
+        description="Languages and technologies you actually work with, like TypeScript, React or PostgreSQL. Used in search."
       >
         <TagInput
           value={v.skills}
@@ -225,6 +263,13 @@ const ProfileForm = ({ user }: { user: User }) => {
           placeholder="Add a skill"
           label="skills"
         />
+      </SettingsSection>
+
+      <SettingsSection
+        title="Stack"
+        description={`What you do in a team — pick up to ${MAX_STACKS}. Shown on your profile right after skills.`}
+      >
+        <StackPicker value={v.stacks} onChange={(next) => set("stacks", next)} />
       </SettingsSection>
 
       <SettingsSection title="Links" description="Shown on your profile so teammates can contact you.">
