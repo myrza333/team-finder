@@ -521,8 +521,6 @@ export const ky: Dictionary = {
       tooBig: (mb) => `Сүрөттүн көлөмү ${mb} МБдан ашпашы керек`,
       name: "Аты",
       namePlaceholder: "Атыңыз",
-      title: "Кесиби",
-      titlePlaceholder: "Frontend иштеп чыгуучу",
       location: "Жашаган жери",
       locationPlaceholder: "Шаар, өлкө",
       bio: "Өзүңүз жөнүндө",

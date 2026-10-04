@@ -10,7 +10,6 @@ export const userJson = (u: string, own = false) => {
   return `json_build_object(
   'id', ${u}.id,
   'name', ${u}.name,
-  'title', coalesce(${u}.title, ''),
   'avatarUrl', ${avatarUrl(u)},
   'bio', ${u}.bio,
   'location', ${shown('show_location', 'location')},
@@ -35,7 +34,6 @@ export const userJson = (u: string, own = false) => {
 export const personJson = (u: string) => `json_build_object(
   'id', ${u}.id,
   'name', ${u}.name,
-  'title', coalesce(${u}.title, ''),
   'avatarUrl', ${avatarUrl(u)}
 )`;
 

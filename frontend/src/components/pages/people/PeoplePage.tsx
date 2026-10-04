@@ -12,20 +12,31 @@ import { useDebounce } from "@/lib/useDebounce";
 import { useI18n } from "@/i18n/client";
 import scss from "./PeoplePage.module.scss";
 
-const filters = ["All", "Frontend", "Backend", "Designer", "Mobile", "AI", "DevOps"] as const;
+// Фильтр — по направлениям из профиля (Settings → Profile → Stack)
+const filters = {
+  All: undefined,
+  Frontend: "Frontend",
+  Backend: "Backend",
+  Designer: "UI/UX Design",
+  Mobile: "Mobile",
+  AI: "Machine Learning,Data Science",
+  DevOps: "DevOps",
+} as const;
+
+type Filter = keyof typeof filters;
 
 // initialQuery приходит из ?q= (например, по "Show all" со страницы поиска)
 const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
   const { t } = useI18n();
   const [search, setSearch] = useState(initialQuery);
-  const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>("All");
+  const [activeFilter, setActiveFilter] = useState<Filter>("All");
 
   const q = useDebounce(search.trim());
-  const role = activeFilter === "All" ? undefined : activeFilter;
+  const stack = filters[activeFilter];
 
   const { data: users = [], isPending, isError } = useQuery({
-    queryKey: ["users", { q, role }],
-    queryFn: () => api.users.list({ q, role }),
+    queryKey: ["users", { q, stack }],
+    queryFn: () => api.users.list({ q, stack }),
     placeholderData: keepPreviousData,
   });
 
@@ -44,7 +55,7 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
 
       <div className={scss.filters}>
         <ChipList>
-          {filters.map((f) => (
+          {(Object.keys(filters) as Filter[]).map((f) => (
             <Chip key={f} active={activeFilter === f} onClick={() => setActiveFilter(f)}>
               {t.people.filters[f]}
             </Chip>

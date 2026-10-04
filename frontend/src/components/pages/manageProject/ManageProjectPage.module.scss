@@ -255,12 +255,6 @@
   transition: color 0.15s;
 }
 
-.memberTitle {
-  @include text-xs;
-  @include truncate;
-  color: var(--gray-400);
-}
-
 // "Remove" виден при наведении на строку (на телефоне — всегда)
 .remove {
   @include text-xs;

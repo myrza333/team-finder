@@ -1,7 +1,6 @@
 export type User = {
   id: string;
   name: string;
-  title: string; // "Junior Frontend Developer"
   avatarUrl: string | null; // null — фото нет (рисуется нейтральный силуэт)
   skills: string[]; // языки и технологии
   stacks?: string[]; // направления: Frontend, Fullstack, Mobile...
@@ -34,7 +33,7 @@ export type Vacancy = {
 };
 
 // Короткая карточка человека (в чате и уведомлениях навыки не нужны)
-export type Person = Pick<User, "id" | "name" | "title" | "avatarUrl">;
+export type Person = Pick<User, "id" | "name" | "avatarUrl">;
 
 export type AppNotification = {
   id: string;

@@ -37,7 +37,6 @@ const ReceivedApplicationCard = ({
           <Avatar src={a.applicant.avatarUrl} alt={a.applicant.name} size={44} />
           <div className={scss.personText}>
             <p className={scss.name}>{a.applicant.name}</p>
-            <p className={scss.meta}>{a.applicant.title}</p>
           </div>
         </Link>
         <span className={scss.time}>{timeAgo(a.createdAt, locale)}</span>

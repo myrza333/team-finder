@@ -130,12 +130,6 @@
   color: var(--gray-900);
 }
 
-.dropdownTitle {
-  @include text-xs;
-  @include truncate;
-  color: var(--gray-400);
-}
-
 .dropdownItem {
   @include text-sm;
   width: 100%;

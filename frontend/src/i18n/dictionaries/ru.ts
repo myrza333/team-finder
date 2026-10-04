@@ -528,8 +528,6 @@ export const ru: Dictionary = {
       tooBig: (mb) => `Изображение должно быть меньше ${mb} МБ`,
       name: "Имя",
       namePlaceholder: "Ваше имя",
-      title: "Должность",
-      titlePlaceholder: "Frontend-разработчик",
       location: "Город",
       locationPlaceholder: "Город, страна",
       bio: "О себе",

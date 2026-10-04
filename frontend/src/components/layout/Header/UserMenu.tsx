@@ -69,7 +69,6 @@ const UserMenu = ({ user, open, onToggle, onClose, onLogout }: UserMenuProps) =>
         <div className={scss.dropdown} role="menu">
           <div className={scss.dropdownHead}>
             <p className={scss.dropdownName}>{user.name}</p>
-            <p className={scss.dropdownTitle}>{user.title}</p>
           </div>
           <Link href={`/profile/${user.id}`} className={scss.dropdownItem} role="menuitem" onClick={onClose}>
             <UserIcon /> {t.header.myProfile}

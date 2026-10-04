@@ -128,7 +128,6 @@ const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch
               <Avatar src={project.owner.avatarUrl} alt={project.owner.name} size={40} />
               <div>
                 <p className={scss.personName}>{project.owner.name}</p>
-                <p className={scss.personTitle}>{project.owner.title}</p>
               </div>
             </div>
             <Button href={`/profile/${project.owner.id}`} variant="outline" fullWidth className={scss.ownerButton}>
@@ -145,7 +144,6 @@ const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch
                       <Avatar src={m.avatarUrl} alt={m.name} size={32} />
                       <div>
                         <p className={scss.personName}>{m.name}</p>
-                        <p className={scss.personTitle}>{m.title}</p>
                       </div>
                     </Link>
                   </li>

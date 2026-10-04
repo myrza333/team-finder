@@ -35,7 +35,6 @@ const ProfilePage = async ({ user, projects, isOwn }: ProfilePageProps) => {
 
         <div className={scss.info}>
           <h1 className={scss.name}>{user.name}</h1>
-          <p className={scss.title}>{user.title}</p>
           {user.openToProjects && (
             <div className={scss.badge}>
               <StatusBadge status="open" />

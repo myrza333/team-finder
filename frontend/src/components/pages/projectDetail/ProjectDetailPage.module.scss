@@ -166,11 +166,6 @@ a.person:hover .personName {
   transition: color 0.15s;
 }
 
-.personTitle {
-  @include text-xs;
-  color: var(--gray-400);
-}
-
 .ownerButton {
   margin-top: 16px;
 }

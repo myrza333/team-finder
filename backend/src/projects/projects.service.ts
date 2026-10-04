@@ -69,8 +69,8 @@ export class ProjectsService {
 
       // Владелец — первый участник команды; первая строка в чате — "X created the project"
       await client.query(
-        `with owner as (select id, name, title from users where id = $2),
-         member as (insert into project_members (project_id, user_id, role_title) select $1, id, title from owner)
+        `with owner as (select id, name from users where id = $2),
+         member as (insert into project_members (project_id, user_id) select $1, id from owner)
          insert into messages (project_id, text) select $1, name || ' created the project' from owner`,
         [projectId, ownerId],
       );

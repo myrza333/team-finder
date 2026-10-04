@@ -30,7 +30,7 @@ const privacyEn: LegalDocument = {
       list: [
         "Account data: name, email address and password (stored only as a secure hash).",
         "Google sign-in data: your name, email and profile picture, if you choose to sign in with Google.",
-        "Profile data: job title, bio, location, skills, GitHub and Telegram links.",
+        "Profile data: bio, location, skills, GitHub and Telegram links.",
         "Project data: projects you create, vacancies, applications you send or receive.",
         "Messages you send in team chats and the notifications you receive.",
         "Technical data: IP address, browser type and basic usage logs needed to keep the service secure.",
@@ -51,7 +51,7 @@ const privacyEn: LegalDocument = {
       id: "sharing",
       title: "What is visible to others",
       paragraphs: [
-        "Your name, avatar, title, bio, location, skills, links and projects are public to other TeamFinder users. Your email address is never shown publicly. Team chat messages are visible only to members of that project team.",
+        "Your name, avatar, bio, location, skills, links and projects are public to other TeamFinder users. Your email address is never shown publicly. Team chat messages are visible only to members of that project team.",
         "We do not sell your personal data. We share data only with service providers that help us run TeamFinder (such as hosting and database providers), and only as needed to provide the service.",
       ],
     },
@@ -173,7 +173,7 @@ const privacyRu: LegalDocument = {
       list: [
         "Данные аккаунта: имя, адрес электронной почты и пароль (хранится только в виде защищённого хеша).",
         "Данные входа через Google: имя, email и фото профиля, если вы решите входить через Google.",
-        "Данные профиля: должность, информация о себе, город, навыки, ссылки на GitHub и Telegram.",
+        "Данные профиля: информация о себе, город, навыки, ссылки на GitHub и Telegram.",
         "Данные проектов: созданные вами проекты, вакансии, отправленные и полученные заявки.",
         "Сообщения, которые вы отправляете в чатах команд, и уведомления, которые получаете.",
         "Технические данные: IP-адрес, тип браузера и базовые журналы использования, нужные для безопасности сервиса.",
@@ -194,7 +194,7 @@ const privacyRu: LegalDocument = {
       id: "sharing",
       title: "Что видят другие",
       paragraphs: [
-        "Ваше имя, аватар, должность, информация о себе, город, навыки, ссылки и проекты видны другим пользователям TeamFinder. Ваш email никогда не показывается публично. Сообщения чата команды видят только участники этой команды.",
+        "Ваше имя, аватар, информация о себе, город, навыки, ссылки и проекты видны другим пользователям TeamFinder. Ваш email никогда не показывается публично. Сообщения чата команды видят только участники этой команды.",
         "Мы не продаём ваши персональные данные. Мы передаём данные только поставщикам услуг, которые помогают нам обеспечивать работу TeamFinder (например, хостингу и базе данных), и только в объёме, необходимом для работы сервиса.",
       ],
     },
@@ -316,7 +316,7 @@ const privacyKy: LegalDocument = {
       list: [
         "Аккаунттун маалыматы: аты, электрондук почта дареги жана сырсөз (корголгон хеш түрүндө гана сакталат).",
         "Google аркылуу кирүү маалыматы: Google аркылуу кирүүнү тандасаңыз — атыңыз, email жана профиль сүрөтүңүз.",
-        "Профиль маалыматы: кесиби, өзүңүз жөнүндө маалымат, жашаган жери, көндүмдөр, GitHub жана Telegram шилтемелери.",
+        "Профиль маалыматы: өзүңүз жөнүндө маалымат, жашаган жери, көндүмдөр, GitHub жана Telegram шилтемелери.",
         "Долбоор маалыматы: сиз түзгөн долбоорлор, бош орундар, жөнөткөн жана алган арыздарыңыз.",
         "Командалардын чаттарында жөнөткөн билдирүүлөрүңүз жана алган эскертмелериңиз.",
         "Техникалык маалымат: IP-дарек, браузердин түрү жана сервистин коопсуздугу үчүн керектүү негизги колдонуу журналдары.",
@@ -337,7 +337,7 @@ const privacyKy: LegalDocument = {
       id: "sharing",
       title: "Башкалар эмнени көрөт",
       paragraphs: [
-        "Атыңыз, аватарыңыз, кесибиңиз, өзүңүз жөнүндө маалымат, жашаган жериңиз, көндүмдөрүңүз, шилтемелериңиз жана долбоорлоруңуз TeamFinder'дин башка колдонуучуларына көрүнөт. Email'иңиз эч качан ачык көрсөтүлбөйт. Команда чатындагы билдирүүлөрдү ошол команданын мүчөлөрү гана көрөт.",
+        "Атыңыз, аватарыңыз, өзүңүз жөнүндө маалымат, жашаган жериңиз, көндүмдөрүңүз, шилтемелериңиз жана долбоорлоруңуз TeamFinder'дин башка колдонуучуларына көрүнөт. Email'иңиз эч качан ачык көрсөтүлбөйт. Команда чатындагы билдирүүлөрдү ошол команданын мүчөлөрү гана көрөт.",
         "Биз жеке маалыматыңызды сатпайбыз. Маалыматты TeamFinder'дин иштешине жардам берген кызмат көрсөтүүчүлөргө гана (мисалы, хостинг жана маалымат базасы) жана сервистин иштеши үчүн керектүү көлөмдө гана беребиз.",
       ],
     },

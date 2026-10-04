@@ -199,15 +199,15 @@ export class ApplicationsService {
          returning *
        ),
        applicant as (
-         select u.id, u.name, u.title from a join users u on u.id = a.user_id
+         select u.id, u.name from a join users u on u.id = a.user_id
        ),
        filled as (
          update vacancies set is_open = false where id = (select vacancy_id from a)
        ),
        joined as (
          insert into project_members (project_id, user_id, role_title)
-         select a.project_id, a.user_id, coalesce((select title from vacancies where id = a.vacancy_id), applicant.title)
-         from a, applicant
+         select a.project_id, a.user_id, (select title from vacancies where id = a.vacancy_id)
+         from a
          on conflict do nothing
        ),
        m as (

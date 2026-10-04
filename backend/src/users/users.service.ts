@@ -48,13 +48,13 @@ export class UsersService {
     if (query.q?.trim()) {
       const q = param(`%${query.q.trim()}%`);
       where.push(`(
-        u.name ilike ${q} or u.title ilike ${q}
+        u.name ilike ${q}
         or exists (select 1 from unnest(u.stacks) st where st ilike ${q})
         or exists (select 1 from user_skills us join skills s on s.id = us.skill_id
                    where us.user_id = u.id and s.name ilike ${q})
       )`);
     }
-    if (query.role?.trim()) where.push(`u.title ilike ${param(`%${query.role.trim()}%`)}`);
+    if (query.stack?.length) where.push(`u.stacks && ${param(query.stack)}::text[]`);
     // Кто выключил "Show me in People search" — в списке и поиске не появляется
     where.push('u.show_in_people');
 
@@ -120,7 +120,6 @@ export class UsersService {
   async update(id: string, dto: UpdateProfileDto) {
     const columns: Record<string, unknown> = {
       name: dto.name,
-      title: dto.title,
       bio: dto.bio,
       location: dto.location,
       avatar_url: dto.avatarUrl,

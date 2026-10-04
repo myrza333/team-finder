@@ -187,7 +187,6 @@ const ManageProjectPage = ({ project }: { project: Project }) => {
                     <Avatar src={m.avatarUrl} alt={m.name} size={36} />
                     <div className={scss.memberText}>
                       <p className={scss.memberName}>{m.name}</p>
-                      <p className={scss.memberTitle}>{m.title}</p>
                     </div>
                   </Link>
                   {isOwner ? (

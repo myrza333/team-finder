@@ -188,7 +188,6 @@ const ProfileForm = ({ user }: { user: User }) => {
   const form = useSettingsForm(
     {
       name: user.name,
-      title: user.title,
       location: user.location ?? "",
       bio: user.bio ?? "",
       skills: user.skills,
@@ -199,7 +198,6 @@ const ProfileForm = ({ user }: { user: User }) => {
     async (v) => {
       const updated = await api.users.updateMe({
         name: v.name,
-        title: v.title,
         location: v.location,
         bio: v.bio,
         skills: v.skills,
@@ -222,24 +220,15 @@ const ProfileForm = ({ user }: { user: User }) => {
             <Field label={p.name} htmlFor="name">
               <Input id="name" value={v.name} onChange={(e) => set("name", e.target.value)} placeholder={p.namePlaceholder} />
             </Field>
-            <Field label={p.title} htmlFor="title">
+            <Field label={p.location} htmlFor="location">
               <Input
-                id="title"
-                value={v.title}
-                onChange={(e) => set("title", e.target.value)}
-                placeholder={p.titlePlaceholder}
+                id="location"
+                value={v.location}
+                onChange={(e) => set("location", e.target.value)}
+                placeholder={p.locationPlaceholder}
               />
             </Field>
           </div>
-
-          <Field label={p.location} htmlFor="location">
-            <Input
-              id="location"
-              value={v.location}
-              onChange={(e) => set("location", e.target.value)}
-              placeholder={p.locationPlaceholder}
-            />
-          </Field>
 
           <Field
             label={p.bio}

@@ -15,7 +15,6 @@ const PersonCard = ({ user }: { user: User }) => {
         <Avatar src={user.avatarUrl} alt={user.name} size={64} />
       </div>
       <h3 className={scss.name}>{user.name}</h3>
-      <p className={scss.title}>{user.title}</p>
       {user.openToProjects && (
         <div className={scss.badge}>
           <StatusBadge status="open" />

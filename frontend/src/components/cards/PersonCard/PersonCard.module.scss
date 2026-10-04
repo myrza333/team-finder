@@ -19,12 +19,6 @@
   @include text-sm;
   font-weight: 600;
   color: var(--gray-900);
-  margin-bottom: 2px;
-}
-
-.title {
-  @include text-xs;
-  color: var(--gray-500);
   margin-bottom: 12px;
 }
 

@@ -31,11 +31,6 @@ export class UpdateProfileDto {
   name?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(80)
-  title?: string;
-
-  @IsOptional()
   @emptyToNull()
   @ValidateIf((_, v) => v !== null)
   @IsString()
@@ -113,10 +108,13 @@ export class UsersQueryDto {
   @MaxLength(100)
   q?: string;
 
+  // Фильтр People по направлениям: "Frontend" или несколько через запятую — "Machine Learning,Data Science"
   @IsOptional()
-  @IsString()
-  @MaxLength(40)
-  role?: string;
+  @Transform(({ value }) => (typeof value === 'string' ? value.split(',').map((s) => s.trim()).filter(Boolean) : value))
+  @IsArray()
+  @ArrayMaxSize(STACKS.length)
+  @IsIn(STACKS, { each: true })
+  stack?: string[];
 
   @IsOptional()
   @Type(() => Number)

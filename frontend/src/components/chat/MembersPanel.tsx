@@ -49,6 +49,7 @@ const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelPro
         <ul className={scss.memberList}>
           {members.map((m) => {
             const online = onlineUserIds.has(m.id);
+            const status = [m.id === currentUserId && t.chat.you, online && t.chat.onlineStatus].filter(Boolean).join(" · ");
             return (
               <li key={m.id}>
                 <Link href={`/profile/${m.id}`} className={scss.member}>
@@ -58,9 +59,7 @@ const MembersPanel = ({ project, currentUserId, open, onClose }: MembersPanelPro
                   </span>
                   <div className={scss.memberText}>
                     <p className={scss.memberName}>{m.name}</p>
-                    <p className={scss.memberTitle}>
-                      {[m.id === currentUserId && t.chat.you, online ? t.chat.onlineStatus : m.title].filter(Boolean).join(" · ")}
-                    </p>
+                    {status && <p className={scss.memberTitle}>{status}</p>}
                   </div>
                   {m.id === project.owner.id && <StatusBadge status="owner" />}
                 </Link>

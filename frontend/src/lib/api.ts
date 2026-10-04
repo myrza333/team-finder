@@ -48,7 +48,6 @@ export type ProjectInput = {
 
 export type ProfileInput = Partial<{
   name: string;
-  title: string;
   bio: string;
   location: string;
   avatarUrl: string;
@@ -167,7 +166,8 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       markRead: (chatId: string) => request<void>(`/direct/${chatId}/read`, { method: "POST" }),
     },
     users: {
-      list: (query: { q?: string; role?: string; limit?: number } = {}) => request<User[]>("/users", { query }),
+      // stack — направления через запятую: "Machine Learning,Data Science"
+      list: (query: { q?: string; stack?: string; limit?: number } = {}) => request<User[]>("/users", { query }),
       get: (id: string) => request<User>(`/users/${id}`),
       me: () => request<User>("/users/me"),
       updateMe: (data: ProfileInput) => request<User>("/users/me", { method: "PATCH", body: json(data) }),

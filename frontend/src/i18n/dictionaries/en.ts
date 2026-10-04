@@ -527,8 +527,6 @@ export const en = {
       tooBig: (mb: number) => `The image must be under ${mb} MB`,
       name: "Name",
       namePlaceholder: "Your name",
-      title: "Title",
-      titlePlaceholder: "Frontend Developer",
       location: "Location",
       locationPlaceholder: "City, country",
       bio: "Bio",
