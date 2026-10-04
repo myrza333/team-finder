@@ -41,14 +41,6 @@
   margin-bottom: 8px;
 }
 
-.bio {
-  @include text-sm;
-  max-width: 448px;
-  color: var(--gray-600);
-  margin-bottom: 12px;
-  @include sm { margin-inline: 0; }
-}
-
 .location {
   @include text-xs;
   display: flex;

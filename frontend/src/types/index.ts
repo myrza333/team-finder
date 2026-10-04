@@ -14,8 +14,6 @@ export type User = {
   instagramUrl?: string | null;
   codewarsUrl?: string | null;
   leetcodeUrl?: string | null;
-  teamsCount?: number;
-  contributionsCount?: number;
   openToProjects?: boolean; // значок "Open to projects" (Settings → Privacy)
 };
 

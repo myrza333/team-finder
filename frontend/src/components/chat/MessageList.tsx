@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import { clockTime, dayLabel } from "@/lib/format";
@@ -12,7 +12,12 @@ type MessageListProps = {
   emptyText?: string; // что показать в пустом чате
   ownerId: string;
   currentUserId: string;
+  hasOlder?: boolean; // есть сообщения старше загруженных
+  onLoadOlder?: () => Promise<void>;
 };
+
+// Ближе к низу, чем на столько пикселей, — считаем, что человек внизу и следит за новыми сообщениями
+const BOTTOM_ZONE = 80;
 
 // Лента сообщений: разделители по дням, системные строки, группировка подряд идущих сообщений одного автора
 const MessageList = ({
@@ -20,15 +25,47 @@ const MessageList = ({
   loading,
   ownerId,
   currentUserId,
+  hasOlder,
+  onLoadOlder,
   emptyText = "No messages yet. Say hi to your team",
 }: MessageListProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const atBottom = useRef(true);
+  const distanceFromBottom = useRef<number | null>(null);
+  const [loadingOlder, setLoadingOlder] = useState(false);
 
-  // Всегда держим ленту прокрученной вниз (при открытии и при новом сообщении)
-  useEffect(() => {
+  const firstId = messages[0]?.id;
+  const last = messages.at(-1);
+  const lastIsMine = last?.author?.id === currentUserId;
+
+  // Новое сообщение: прокручиваем вниз, если человек и так внизу или это его сообщение.
+  // Если он читает историю выше — не сбиваем
+  useLayoutEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length]);
+    if (el && (atBottom.current || lastIsMine)) el.scrollTop = el.scrollHeight;
+  }, [last?.id, lastIsMine]);
+
+  // Подгрузились старые сообщения сверху: оставляем на экране то же место, что было
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el || distanceFromBottom.current === null) return;
+    el.scrollTop = el.scrollHeight - distanceFromBottom.current;
+    distanceFromBottom.current = null;
+  }, [firstId]);
+
+  const loadOlder = async () => {
+    const el = scrollRef.current;
+    if (!el || !onLoadOlder) return;
+    setLoadingOlder(true);
+    distanceFromBottom.current = el.scrollHeight - el.scrollTop;
+    try {
+      await onLoadOlder();
+    } catch {
+      distanceFromBottom.current = null;
+    } finally {
+      setLoadingOlder(false);
+    }
+  };
 
   if (messages.length === 0) {
     return (
@@ -39,7 +76,21 @@ const MessageList = ({
   }
 
   return (
-    <div className={scss.messages} ref={scrollRef}>
+    <div
+      className={scss.messages}
+      ref={scrollRef}
+      onScroll={(e) => {
+        const el = e.currentTarget;
+        atBottom.current = el.scrollHeight - el.scrollTop - el.clientHeight < BOTTOM_ZONE;
+      }}
+    >
+      {hasOlder && (
+        <div className={scss.loadOlder}>
+          <button type="button" onClick={loadOlder} disabled={loadingOlder}>
+            {loadingOlder ? "Loading…" : "Load earlier messages"}
+          </button>
+        </div>
+      )}
       {messages.map((m, i) => {
         const prev = messages[i - 1];
         const day = dayLabel(m.createdAt);

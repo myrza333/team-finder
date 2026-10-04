@@ -14,10 +14,12 @@ type DirectWindowProps = {
   loading: boolean;
   currentUserId: string;
   onSend: (text: string) => Promise<boolean>;
+  hasOlder: boolean;
+  onLoadOlder: () => Promise<void>;
 };
 
 // Личный чат: собеседник в шапке, под именем — о каком проекте разговор
-const DirectWindow = ({ chat, messages, loading, currentUserId, onSend }: DirectWindowProps) => {
+const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder, onLoadOlder }: DirectWindowProps) => {
   const online = useOnlineUsers().has(chat.other.id);
   const otherIsOwner = chat.other.id === chat.project.ownerId;
 
@@ -55,6 +57,8 @@ const DirectWindow = ({ chat, messages, loading, currentUserId, onSend }: Direct
         loading={loading}
         ownerId={chat.project.ownerId}
         currentUserId={currentUserId}
+        hasOlder={hasOlder}
+        onLoadOlder={onLoadOlder}
         emptyText={otherIsOwner ? "Ask anything about the project before you apply" : "No messages yet"}
       />
       <Composer onSend={onSend} placeholder={`Message ${chat.other.name.split(" ")[0]}`} />

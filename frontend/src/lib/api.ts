@@ -142,7 +142,9 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
     },
     chats: {
       list: () => request<ChatSummary[]>("/chats"),
-      messages: (projectId: string) => request<ChatMessage[]>(`/chats/${projectId}/messages`),
+      // before — id сообщения: вернутся те, что старше него
+      messages: (projectId: string, before?: string) =>
+        request<ChatMessage[]>(`/chats/${projectId}/messages`, { query: { before } }),
       send: (projectId: string, text: string) =>
         request<ChatMessage>(`/chats/${projectId}/messages`, { method: "POST", body: json({ text }) }),
       markRead: (projectId: string) => request<void>(`/chats/${projectId}/read`, { method: "POST" }),
@@ -154,7 +156,8 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       openWithApplicant: (applicationId: string) =>
         request<{ id: string }>(`/applications/${applicationId}/direct`, { method: "POST" }),
       list: () => request<DirectChat[]>("/direct"),
-      messages: (chatId: string) => request<ChatMessage[]>(`/direct/${chatId}/messages`),
+      messages: (chatId: string, before?: string) =>
+        request<ChatMessage[]>(`/direct/${chatId}/messages`, { query: { before } }),
       send: (chatId: string, text: string) =>
         request<ChatMessage>(`/direct/${chatId}/messages`, { method: "POST", body: json({ text }) }),
       markRead: (chatId: string) => request<void>(`/direct/${chatId}/read`, { method: "POST" }),

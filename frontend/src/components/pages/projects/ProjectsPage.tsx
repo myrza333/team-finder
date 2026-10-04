@@ -10,13 +10,20 @@ import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
 import { projectCategories } from "@/data/options";
 import { api } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
-import type { ProjectCategory } from "@/types";
+import type { Project, ProjectCategory } from "@/types";
 import scss from "./ProjectsPage.module.scss";
+
+const sorters = {
+  positions: (p: Project) => p.vacancies.filter((v) => v.isOpen !== false).length,
+  members: (p: Project) => p.members.length,
+};
+
+type Sort = "newest" | keyof typeof sorters;
 
 const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
   const [search, setSearch] = useState(initialQuery);
   const [category, setCategory] = useState<ProjectCategory | null>(null);
-  const [sort, setSort] = useState("recommended");
+  const [sort, setSort] = useState<Sort>("newest");
   const q = useDebounce(search.trim());
 
   const { data = [], isPending, isError } = useQuery({
@@ -25,7 +32,8 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
     placeholderData: keepPreviousData,
   });
 
-  const projects = sort === "members" ? [...data].sort((a, b) => b.members.length - a.members.length) : data;
+  // Сервер отдаёт новые первыми, остальные варианты сортируем здесь
+  const projects = sort === "newest" ? data : [...data].sort((a, b) => sorters[sort](b) - sorters[sort](a));
 
   return (
     <div className={scss.page}>
@@ -73,10 +81,10 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
               className={scss.sort}
               aria-label="Sort projects"
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => setSort(e.target.value as Sort)}
             >
-              <option value="recommended">Recommended</option>
               <option value="newest">Newest</option>
+              <option value="positions">Most open positions</option>
               <option value="members">Most members</option>
             </select>
           </div>

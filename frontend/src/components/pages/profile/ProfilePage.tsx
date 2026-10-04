@@ -19,10 +19,10 @@ type ProfilePageProps = {
 };
 
 const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
+  const created = projects.filter((p) => p.owner.id === user.id).length;
   const stats = [
-    { label: "Projects", value: user.projectsCount },
-    { label: "Teams", value: user.teamsCount ?? 0 },
-    { label: "Contributions", value: user.contributionsCount ?? 0 },
+    { label: "Created", value: created },
+    { label: "Joined", value: projects.length - created },
   ];
 
   return (
@@ -38,7 +38,6 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
               <StatusBadge status="open" />
             </div>
           )}
-          {user.bio && <p className={scss.bio}>{user.bio}</p>}
           {user.location && (
             <p className={scss.location}>
               <MapPin size={14} strokeWidth={1.75} aria-hidden /> {user.location}
@@ -97,7 +96,7 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
           <Panel title="Projects">
             {projects.length > 0 ? (
               <ul className={scss.projects}>
-                {projects.slice(0, 3).map((p) => (
+                {projects.map((p) => (
                   <li key={p.id}>
                     <Link href={`/projects/${p.id}`} className={scss.project}>
                       <span className={scss.projectIcon}><ProjectIcon icon={p.icon} size={18} /></span>

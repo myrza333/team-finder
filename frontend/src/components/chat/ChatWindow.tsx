@@ -14,11 +14,22 @@ type ChatWindowProps = {
   loading: boolean;
   currentUserId: string;
   onSend: (text: string) => Promise<boolean>;
+  hasOlder: boolean;
+  onLoadOlder: () => Promise<void>;
   onOpenMembers: () => void;
 };
 
 // Центральная часть: шапка чата, лента сообщений, поле ввода
-const ChatWindow = ({ project, messages, loading, currentUserId, onSend, onOpenMembers }: ChatWindowProps) => {
+const ChatWindow = ({
+  project,
+  messages,
+  loading,
+  currentUserId,
+  onSend,
+  hasOlder,
+  onLoadOlder,
+  onOpenMembers,
+}: ChatWindowProps) => {
   const onlineIds = useOnlineUsers();
   const online = project.members.filter((m) => onlineIds.has(m.id)).length;
 
@@ -45,7 +56,14 @@ const ChatWindow = ({ project, messages, loading, currentUserId, onSend, onOpenM
         </button>
       </header>
 
-      <MessageList messages={messages} loading={loading} ownerId={project.owner.id} currentUserId={currentUserId} />
+      <MessageList
+        messages={messages}
+        loading={loading}
+        ownerId={project.owner.id}
+        currentUserId={currentUserId}
+        hasOlder={hasOlder}
+        onLoadOlder={onLoadOlder}
+      />
       <Composer onSend={onSend} placeholder={`Message ${project.title}`} />
     </div>
   );

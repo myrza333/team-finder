@@ -253,6 +253,24 @@ $header: 65px; // 64px хедер + 1px нижняя рамка
   }
 }
 
+.loadOlder {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+  button {
+    @include text-xs;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    border: 1px solid var(--gray-200);
+    color: var(--primary-600);
+    font-weight: 500;
+    transition: border-color 0.15s;
+    &:hover:not(:disabled) { border-color: var(--primary-300); }
+    &:disabled { color: var(--gray-400); cursor: default; }
+  }
+}
+
 .systemMessage {
   @include text-xs;
   margin: 8px 0;
