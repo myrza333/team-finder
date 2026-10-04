@@ -9,6 +9,7 @@ import { launchCountdown, launchDate } from "@/lib/format";
 import type { Application, LaunchSubscription, Project } from "@/types";
 import { getI18n } from "@/i18n/server";
 import { rich } from "@/i18n/rich";
+import AskOwnerButton from "./AskOwnerButton";
 import ProjectAction from "./ProjectAction";
 import ProjectLinks from "./ProjectLinks";
 import scss from "./ProjectDetailPage.module.scss";
@@ -26,6 +27,8 @@ const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch
   // Анонс (запуск впереди): чужим не показываем команду, стек и вакансии — их и нет в ответе API
   const announced = Boolean(project.announced && project.launchAt);
   const hidden = announced && !isOwner;
+  // Спросить владельца о свободной позиции может тот, кто ещё не в команде (у команды есть общий чат)
+  const canAsk = !isOwner && !project.members.some((m) => m.id === currentUserId);
 
   return (
     <div className={scss.page}>
@@ -99,23 +102,27 @@ const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch
 
               <Panel title={t.project.lookingFor}>
                 <div className={scss.vacancies}>
-                  {project.vacancies.map((v) => (
-                    <div key={v.id} className={scss.vacancy}>
-                      <div className={scss.vacancyHead}>
-                        <h3 className={scss.vacancyTitle}>{v.title}</h3>
-                        <span className={`${scss.positions} ${v.isOpen === false ? scss.filled : ""}`}>
-                          {v.isOpen === false ? t.project.filled : t.project.onePosition}
-                        </span>
+                  {project.vacancies.map((v) => {
+                    const askable = canAsk && v.isOpen !== false;
+                    return (
+                      <div key={v.id} className={`${scss.vacancy} ${askable ? scss.vacancyAskable : ""}`}>
+                        <div className={scss.vacancyHead}>
+                          <h3 className={scss.vacancyTitle}>{v.title}</h3>
+                          <span className={`${scss.positions} ${v.isOpen === false ? scss.filled : ""}`}>
+                            {v.isOpen === false ? t.project.filled : t.project.onePosition}
+                          </span>
+                        </div>
+                        <TagList>
+                          {v.skills.map((skill) => (
+                            <Tag key={skill} variant="primary">
+                              {skill}
+                            </Tag>
+                          ))}
+                        </TagList>
+                        {askable && <AskOwnerButton projectId={project.id} vacancyId={v.id} vacancyTitle={v.title} />}
                       </div>
-                      <TagList>
-                        {v.skills.map((skill) => (
-                          <Tag key={skill} variant="primary">
-                            {skill}
-                          </Tag>
-                        ))}
-                      </TagList>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </Panel>
             </>

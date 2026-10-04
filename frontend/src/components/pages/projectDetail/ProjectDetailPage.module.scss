@@ -125,6 +125,53 @@
   border-radius: var(--radius-lg);
 }
 
+// Свободная позиция: вся карточка — кнопка "Ask the owner" (её ::after растянут на карточку)
+.vacancyAskable {
+  position: relative;
+  transition: border-color 0.15s, background-color 0.15s;
+  &:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+  }
+  &:has(.ask:focus-visible) {
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 2px var(--primary-300);
+  }
+}
+
+.askRow {
+  margin-top: 12px;
+}
+
+.ask {
+  @include text-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: var(--primary-600);
+  outline: none;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+  }
+  &:disabled { cursor: progress; }
+}
+
+.askArrow {
+  transition: transform 0.15s;
+  .vacancyAskable:hover & { transform: translateX(3px); }
+}
+
+.askError {
+  @include text-xs;
+  position: relative; // над растянутой кнопкой — текст можно выделить
+  margin-top: 6px;
+  color: var(--danger-600);
+}
+
 .vacancyHead {
   display: flex;
   align-items: center;

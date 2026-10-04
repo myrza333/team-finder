@@ -357,6 +357,65 @@ $header: 65px; // 64px хедер + 1px нижняя рамка
 }
 
 // ===== Поле ввода =====
+// ===== Готовые вопросы о позиции (над полем ввода) =====
+.quick {
+  padding: 12px 16px 0;
+  border-top: 1px solid var(--gray-100);
+  background: var(--surface);
+  @include md { padding: 14px 20px 0; }
+  // Одна линия-разделитель на весь низ чата, а не две
+  & + .composer { border-top: none; }
+}
+
+.quickTitle {
+  @include text-xs;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--gray-500);
+}
+
+.quickList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  // На телефоне — одна строка с прокруткой вбок, чтобы вопросы не съедали переписку
+  @include phone {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -16px;
+    padding: 0 16px 2px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+}
+
+.quickButton {
+  @include text-sm;
+  max-width: 100%;
+  padding: 7px 12px;
+  border: 1px solid var(--primary-200);
+  border-radius: 12px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  text-align: left;
+  transition: border-color 0.15s, background-color 0.15s;
+  &:hover:not(:disabled) {
+    border-color: var(--primary-400);
+    background: var(--primary-100);
+  }
+  &:focus-visible {
+    outline: 2px solid var(--primary-300);
+    outline-offset: 2px;
+  }
+  &:disabled { opacity: 0.6; cursor: progress; }
+  @include phone {
+    flex-shrink: 0;
+    max-width: none;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+}
+
 .composer {
   display: flex;
   align-items: flex-end;

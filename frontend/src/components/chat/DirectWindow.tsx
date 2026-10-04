@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import { ArrowLeftIcon } from "@/components/ui/Icons";
@@ -6,6 +7,7 @@ import { useOnlineUsers } from "@/lib/realtime";
 import type { ChatMessage, DirectChat } from "@/types";
 import MessageList from "./MessageList";
 import Composer from "./Composer";
+import QuickQuestions from "./QuickQuestions";
 import { useI18n } from "@/i18n/client";
 import { rich } from "@/i18n/rich";
 import scss from "./Chat.module.scss";
@@ -67,6 +69,15 @@ const DirectWindow = ({ chat, messages, loading, currentUserId, onSend, hasOlder
         onLoadOlder={onLoadOlder}
         emptyText={otherIsOwner ? t.chat.askOwner : t.chat.noMessages}
       />
+      {otherIsOwner && (
+        <Suspense fallback={null}>
+          <QuickQuestions
+            projectId={chat.project.id}
+            asked={messages.filter((m) => m.author?.id === currentUserId).map((m) => m.text)}
+            onSend={onSend}
+          />
+        </Suspense>
+      )}
       <Composer onSend={onSend} placeholder={t.chat.messageTo(chat.other.name.split(" ")[0])} />
     </div>
   );
