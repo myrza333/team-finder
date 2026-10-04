@@ -101,3 +101,10 @@
   @include sm { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   @include xl { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+// "Показать ещё" под списком
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}

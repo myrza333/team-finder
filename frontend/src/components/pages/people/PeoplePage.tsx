@@ -1,7 +1,8 @@
 "use client";
 import { TriangleAlert, Users } from "lucide-react";
 import { useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import Button from "@/components/ui/Button/Button";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
@@ -25,6 +26,8 @@ const filters = {
 
 type Filter = keyof typeof filters;
 
+const PAGE_SIZE = 24;
+
 // initialQuery приходит из ?q= (например, по "Show all" со страницы поиска)
 const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
   const { t } = useI18n();
@@ -34,11 +37,16 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
   const q = useDebounce(search.trim());
   const stack = filters[activeFilter];
 
-  const { data: users = [], isPending, isError } = useQuery({
+  // По PAGE_SIZE человек; неполная страница — значит, больше никого нет
+  const list = useInfiniteQuery({
     queryKey: ["users", { q, stack }],
-    queryFn: () => api.users.list({ q, stack }),
+    queryFn: ({ pageParam }) => api.users.list({ q, stack, limit: PAGE_SIZE, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (last, pages) => (last.length === PAGE_SIZE ? pages.length * PAGE_SIZE : undefined),
     placeholderData: keepPreviousData,
   });
+  const { isPending, isError } = list;
+  const users = (list.data?.pages.flat() ?? []).filter((u, i, all) => all.findIndex((x) => x.id === u.id) === i);
 
   return (
     <div className={scss.page}>
@@ -66,11 +74,20 @@ const PeoplePage = ({ initialQuery = "" }: { initialQuery?: string }) => {
       {isError ? (
         <EmptyState icon={TriangleAlert} text={t.people.loadError} />
       ) : isPending ? null : users.length > 0 ? (
-        <div className={scss.grid}>
-          {users.map((u) => (
-            <PersonCard key={u.id} user={u} />
-          ))}
-        </div>
+        <>
+          <div className={scss.grid}>
+            {users.map((u) => (
+              <PersonCard key={u.id} user={u} />
+            ))}
+          </div>
+          {list.hasNextPage && (
+            <div className={scss.more}>
+              <Button variant="outline" onClick={() => list.fetchNextPage()} disabled={list.isFetchingNextPage}>
+                {list.isFetchingNextPage ? t.common.loading : t.common.showMore}
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <EmptyState icon={Users} text={t.people.empty} />
       )}

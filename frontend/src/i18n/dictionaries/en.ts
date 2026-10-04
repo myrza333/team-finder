@@ -43,6 +43,7 @@ export const en = {
     somethingWrong: "Something went wrong",
     viewProfile: "View profile",
     viewAll: "View all →",
+    showMore: "Show more",
     teamChat: "Team chat",
     createProject: "Create project",
     addProject: "+ Create project",

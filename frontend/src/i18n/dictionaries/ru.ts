@@ -50,6 +50,7 @@ export const ru: Dictionary = {
     somethingWrong: "Что-то пошло не так",
     viewProfile: "Профиль",
     viewAll: "Смотреть все →",
+    showMore: "Показать ещё",
     teamChat: "Чат команды",
     createProject: "Создать проект",
     addProject: "+ Создать проект",

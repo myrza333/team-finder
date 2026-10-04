@@ -32,6 +32,8 @@ export class ApiError extends Error {
 type Query = Record<string, string | number | undefined | null>;
 type ExtraHeaders = () => Promise<Record<string, string>>;
 
+export type ProjectSort = "newest" | "positions" | "members";
+
 export type ProjectInput = {
   title: string;
   description: string;
@@ -63,7 +65,8 @@ export type ProfileInput = Partial<{
 
 // getExtraHeaders нужен серверу: браузер отправляет cookie сам, а Next-серверу её надо передать вручную
 export const createApi = (getExtraHeaders?: ExtraHeaders) => {
-  async function request<T>(path: string, init: RequestInit & { query?: Query } = {}): Promise<T> {
+  // Сам запрос и разбор ошибки; request() — то же, но сразу отдаёт JSON
+  async function send(path: string, init: RequestInit & { query?: Query } = {}): Promise<Response> {
     const url = new URL(API_URL + path, isServer ? undefined : window.location.origin);
     Object.entries(init.query ?? {}).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
@@ -88,6 +91,11 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
       const locale = isServer ? DEFAULT_LOCALE : parseLocale(document.documentElement.lang);
       throw new ApiError(res.status, messages.map((m) => translateError(m, locale)).join(", "));
     }
+    return res;
+  }
+
+  async function request<T>(path: string, init: RequestInit & { query?: Query } = {}): Promise<T> {
+    const res = await send(path, init);
     return res.status === 204 ? (undefined as T) : res.json();
   }
 
@@ -110,6 +118,11 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
     projects: {
       list: (query: { q?: string; category?: string | null; owner?: string; member?: string; limit?: number } = {}) =>
         request<Project[]>("/projects", { query }),
+      // Страница списка для "Показать ещё": проекты + сколько всего подходит под фильтр
+      page: async (query: { q?: string; category?: string | null; sort?: ProjectSort; limit: number; offset: number }) => {
+        const res = await send("/projects", { query });
+        return { items: (await res.json()) as Project[], total: Number(res.headers.get("X-Total-Count") ?? 0) };
+      },
       get: (id: string) => request<Project>(`/projects/${id}`),
       create: (data: ProjectInput) => request<Project>("/projects", { method: "POST", body: json(data) }),
       update: (id: string, data: Partial<ProjectInput> & { status?: "open" | "closed" }) =>
@@ -167,7 +180,8 @@ export const createApi = (getExtraHeaders?: ExtraHeaders) => {
     },
     users: {
       // stack — направления через запятую: "Machine Learning,Data Science"
-      list: (query: { q?: string; stack?: string; limit?: number } = {}) => request<User[]>("/users", { query }),
+      list: (query: { q?: string; stack?: string; limit?: number; offset?: number } = {}) =>
+        request<User[]>("/users", { query }),
       get: (id: string) => request<User>(`/users/${id}`),
       me: () => request<User>("/users/me"),
       updateMe: (data: ProfileInput) => request<User>("/users/me", { method: "PATCH", body: json(data) }),

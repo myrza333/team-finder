@@ -1,41 +1,45 @@
 "use client";
 import { SearchX, TriangleAlert } from "lucide-react";
 import { useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import SearchInput from "@/components/ui/SearchInput/SearchInput";
 import Button from "@/components/ui/Button/Button";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import ProjectCard from "@/components/cards/ProjectCard/ProjectCard";
 import { projectCategories } from "@/data/options";
-import { api } from "@/lib/api";
+import { api, type ProjectSort } from "@/lib/api";
 import { useDebounce } from "@/lib/useDebounce";
 import { useI18n } from "@/i18n/client";
-import type { Project, ProjectCategory } from "@/types";
+import type { ProjectCategory } from "@/types";
 import scss from "./ProjectsPage.module.scss";
 
-const sorters = {
-  positions: (p: Project) => p.vacancies.filter((v) => v.isOpen !== false).length,
-  members: (p: Project) => p.members.length,
-};
-
-type Sort = "newest" | keyof typeof sorters;
+const PAGE_SIZE = 24;
 
 const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
   const { t } = useI18n();
   const [search, setSearch] = useState(initialQuery);
   const [category, setCategory] = useState<ProjectCategory | null>(null);
-  const [sort, setSort] = useState<Sort>("newest");
+  const [sort, setSort] = useState<ProjectSort>("newest");
   const q = useDebounce(search.trim());
 
-  const { data = [], isPending, isError } = useQuery({
-    queryKey: ["projects", { q, category }],
-    queryFn: () => api.projects.list({ q, category }),
+  // По PAGE_SIZE проектов; "Показать ещё" догружает следующую страницу. Сортирует сервер
+  const list = useInfiniteQuery({
+    queryKey: ["projects", { q, category, sort }],
+    queryFn: ({ pageParam }) => api.projects.page({ q, category, sort, limit: PAGE_SIZE, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: (last, pages) => {
+      const loaded = pages.reduce((n, page) => n + page.items.length, 0);
+      return loaded < last.total ? loaded : undefined;
+    },
     placeholderData: keepPreviousData,
   });
-
-  // Сервер отдаёт новые первыми, остальные варианты сортируем здесь
-  const projects = sort === "newest" ? data : [...data].sort((a, b) => sorters[sort](b) - sorters[sort](a));
+  const { isPending, isError } = list;
+  // Пока листали, могли появиться новые проекты и сдвинуть страницы — повторы убираем
+  const projects = (list.data?.pages.flatMap((page) => page.items) ?? []).filter(
+    (p, i, all) => all.findIndex((x) => x.id === p.id) === i,
+  );
+  const total = list.data?.pages[0]?.total ?? 0;
 
   return (
     <div className={scss.page}>
@@ -78,12 +82,12 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
 
         <div className={scss.content}>
           <div className={scss.toolbar}>
-            <p className={scss.count}>{isPending ? t.common.loading : t.projects.found(projects.length)}</p>
+            <p className={scss.count}>{isPending ? t.common.loading : t.projects.found(total)}</p>
             <select
               className={scss.sort}
               aria-label={t.projects.sortLabel}
               value={sort}
-              onChange={(e) => setSort(e.target.value as Sort)}
+              onChange={(e) => setSort(e.target.value as ProjectSort)}
             >
               <option value="newest">{t.projects.sortNewest}</option>
               <option value="positions">{t.projects.sortPositions}</option>
@@ -94,11 +98,20 @@ const ProjectsPage = ({ initialQuery = "" }: { initialQuery?: string }) => {
           {isError ? (
             <EmptyState icon={TriangleAlert} text={t.projects.loadError} />
           ) : isPending ? null : projects.length > 0 ? (
-            <div className={scss.grid}>
-              {projects.map((p) => (
-                <ProjectCard key={p.id} project={p} />
-              ))}
-            </div>
+            <>
+              <div className={scss.grid}>
+                {projects.map((p) => (
+                  <ProjectCard key={p.id} project={p} />
+                ))}
+              </div>
+              {list.hasNextPage && (
+                <div className={scss.more}>
+                  <Button variant="outline" onClick={() => list.fetchNextPage()} disabled={list.isFetchingNextPage}>
+                    {list.isFetchingNextPage ? t.common.loading : t.common.showMore}
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
             <EmptyState icon={SearchX} text={t.projects.empty} />
           )}

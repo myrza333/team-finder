@@ -6,6 +6,13 @@ import { projectJson } from '../common/sql.js';
 import { hideUnlaunched, launchedSql } from './announced.js';
 import { CreateProjectDto, ProjectsQueryDto, UpdateProjectDto, VacancyDto } from './dto/project.dto.js';
 
+// Порядок всегда однозначный (в конце created_at и id) — иначе при "Показать ещё" проекты могли бы повторяться
+const ORDER: Record<NonNullable<ProjectsQueryDto['sort']>, string> = {
+  newest: 'p.created_at desc, p.id',
+  positions: '(select count(*) from vacancies v where v.project_id = p.id and v.is_open) desc, p.created_at desc, p.id',
+  members: '(select count(*) from project_members m where m.project_id = p.id) desc, p.created_at desc, p.id',
+};
+
 @Injectable()
 export class ProjectsService {
   constructor(private readonly db: DatabaseService) {}
@@ -37,15 +44,16 @@ export class ProjectsService {
     // Свои проекты (owner / member) показываем все, включая анонсы
     if (!query.owner && !query.member) where.push(launchedSql('p'));
 
-    const rows = await this.db.query<{ project: unknown }>(
-      `select ${projectJson('p')} as project
+    // total — сколько всего подходит под фильтр (для "Найдено: N" и кнопки "Показать ещё")
+    const rows = await this.db.query<{ project: unknown; total: number }>(
+      `select ${projectJson('p')} as project, count(*) over ()::int as total
        from projects p
        ${where.length ? `where ${where.join(' and ')}` : ''}
-       order by p.created_at desc, p.id
-       limit ${param(query.limit ?? 50)}`,
+       order by ${ORDER[query.sort ?? 'newest']}
+       limit ${param(query.limit ?? 50)} offset ${param(query.offset ?? 0)}`,
       params,
     );
-    return rows.map((r) => hideUnlaunched(r.project, viewerId));
+    return { items: rows.map((r) => hideUnlaunched(r.project, viewerId)), total: rows[0]?.total ?? 0 };
   }
 
   async findOne(id: string, viewerId?: string) {

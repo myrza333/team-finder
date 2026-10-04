@@ -123,6 +123,14 @@ export class UsersQueryDto {
   @Min(1)
   @Max(100)
   limit?: number;
+
+  // "Показать ещё": сколько записей пропустить
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(10000)
+  offset?: number;
 }
 
 // Settings → Privacy и Settings → Notifications. Все поля необязательные: меняется то, что прислали

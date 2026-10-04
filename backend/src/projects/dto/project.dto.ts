@@ -114,6 +114,9 @@ export class UpdateProjectDto extends PartialType(CreateProjectDto) {
   status?: 'open' | 'closed';
 }
 
+// Сортировка списка Projects: новые, больше открытых позиций, больше участников
+export const PROJECT_SORTS = ['newest', 'positions', 'members'] as const;
+
 export class ProjectsQueryDto {
   @IsOptional()
   @IsString()
@@ -133,9 +136,21 @@ export class ProjectsQueryDto {
   member?: string;
 
   @IsOptional()
+  @IsIn(PROJECT_SORTS)
+  sort?: (typeof PROJECT_SORTS)[number];
+
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(100)
   limit?: number;
+
+  // "Показать ещё": сколько записей пропустить
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(10000)
+  offset?: number;
 }

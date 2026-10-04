@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { Type } from 'class-transformer';
 import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { CurrentUserId, OptionalUserId } from '../common/current-user.decorator.js';
@@ -23,8 +24,15 @@ export class ProjectsController {
   ) {}
 
   @Get()
-  findAll(@Query() query: ProjectsQueryDto, @OptionalUserId() viewerId?: string) {
-    return this.projects.findAll(query, viewerId);
+  // Ответ — массив проектов; сколько всего подходит под фильтр — в заголовке X-Total-Count
+  async findAll(
+    @Query() query: ProjectsQueryDto,
+    @OptionalUserId() viewerId: string | undefined,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { items, total } = await this.projects.findAll(query, viewerId);
+    res.setHeader('X-Total-Count', total);
+    return items;
   }
 
   // Детальная страница только для вошедших. Чужой анонс отдаётся урезанным (см. announced.ts)

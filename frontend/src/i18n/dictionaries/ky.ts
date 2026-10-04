@@ -43,6 +43,7 @@ export const ky: Dictionary = {
     somethingWrong: "Бир нерсе туура эмес болду",
     viewProfile: "Профилди көрүү",
     viewAll: "Баарын көрүү →",
+    showMore: "Дагы көрсөтүү",
     teamChat: "Команда чаты",
     createProject: "Долбоор түзүү",
     addProject: "+ Долбоор түзүү",

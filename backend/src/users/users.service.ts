@@ -63,7 +63,7 @@ export class UsersService {
        from users u
        ${where.length ? `where ${where.join(' and ')}` : ''}
        order by u.created_at, u.id
-       limit ${param(query.limit ?? 50)}`,
+       limit ${param(query.limit ?? 50)} offset ${param(query.offset ?? 0)}`,
       params,
     );
     return rows.map((r) => r.user);
