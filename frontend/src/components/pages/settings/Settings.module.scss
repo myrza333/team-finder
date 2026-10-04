@@ -70,6 +70,8 @@
 // ===== Секция =====
 .section {
   @include card;
+  // Переход по якорю (#stack) — секция встаёт под закреплённой шапкой, а не за ней
+  scroll-margin-top: 80px;
   padding: 20px;
   @include phone { padding: 16px; }
   @include sm { padding: 28px; }

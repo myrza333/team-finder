@@ -388,8 +388,9 @@ export const ru: Dictionary = {
     noProjects: "Проектов пока нет.",
     skills: "Навыки",
     stack: "Направления",
-    stackEmpty: "Укажите, чем вы занимаетесь — Frontend, Fullstack, Mobile… — {link}.",
-    stackEmptyLink: "в настройках профиля",
+    stackPromptTitle: "Укажите направления",
+    stackPromptText: "Фильтры в разделе «Люди» — Frontend, Backend, Дизайнеры и другие — ищут по направлениям. Укажите, чем вы занимаетесь, чтобы команды могли вас найти.",
+    stackPromptAction: "Указать направления",
   },
 
   search: {
@@ -553,7 +554,7 @@ export const ru: Dictionary = {
       addSkill: "Добавить навык",
       skillsLabel: "навыков",
       stackTitle: "Направления",
-      stackText: (max) => `Чем вы занимаетесь в команде — выберите до ${max}. Показываются в профиле сразу после навыков.`,
+      stackText: (max) => `Чем вы занимаетесь в команде — выберите до ${max}. По ним ищут фильтры в разделе «Люди», а ещё они показываются в профиле.`,
       stackCounter: (n, max) => `Выбрано ${n} из ${max}`,
       stackFull: " · снимите одно, чтобы выбрать другое",
       linksTitle: "Ссылки",

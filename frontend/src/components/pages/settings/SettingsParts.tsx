@@ -7,17 +7,19 @@ import scss from "./Settings.module.scss";
 
 // Блок настроек: заголовок + пояснение + содержимое
 export const SettingsSection = ({
+  id,
   title,
   description,
   danger,
   children,
 }: {
+  id?: string; // якорь: /settings/profile#stack
   title: string;
   description?: string;
   danger?: boolean;
   children: React.ReactNode;
 }) => (
-  <section className={`${scss.section} ${danger ? scss.dangerSection : ""}`}>
+  <section id={id} className={`${scss.section} ${danger ? scss.dangerSection : ""}`}>
     <div className={scss.sectionHead}>
       <h2 className={scss.sectionTitle}>{title}</h2>
       {description && <p className={scss.sectionDescription}>{description}</p>}

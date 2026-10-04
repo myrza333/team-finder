@@ -386,8 +386,9 @@ export const en = {
     noProjects: "No projects yet.",
     skills: "Skills",
     stack: "Stack",
-    stackEmpty: "Add what you do — Frontend, Fullstack, Mobile… — {link}.",
-    stackEmptyLink: "in profile settings",
+    stackPromptTitle: "Add your stack",
+    stackPromptText: "People filters — Frontend, Backend, Designer and others — find people by stack. Pick what you do so teams can find you.",
+    stackPromptAction: "Add stack",
   },
 
   search: {
@@ -554,7 +555,7 @@ export const en = {
       addSkill: "Add a skill",
       skillsLabel: "skills",
       stackTitle: "Stack",
-      stackText: (max: number) => `What you do in a team — pick up to ${max}. Shown on your profile right after skills.`,
+      stackText: (max: number) => `What you do in a team — pick up to ${max}. People filters search by it, and it's shown on your profile.`,
       stackCounter: (n: number, max: number) => `${n}/${max} selected`,
       stackFull: " · unselect one to pick another",
       linksTitle: "Links",

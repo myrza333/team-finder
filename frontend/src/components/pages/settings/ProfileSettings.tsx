@@ -1,7 +1,7 @@
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import { Field, Hint, Input, Textarea } from "@/components/ui/Form/Form";
@@ -214,6 +214,11 @@ const ProfileForm = ({ user }: { user: User }) => {
   const set = <K extends keyof typeof v>(key: K, value: (typeof v)[K]) => form.setValue({ ...v, [key]: value });
   const nameTooShort = v.name.trim().length < 2;
 
+  // Пришли по ссылке "Указать направления" из профиля (#stack) — форма загружается позже ссылки, поэтому прокручиваем сами
+  useEffect(() => {
+    if (window.location.hash === "#stack") document.getElementById("stack")?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <>
       <SettingsSection title={p.publicTitle} description={p.publicText}>
@@ -276,10 +281,7 @@ const ProfileForm = ({ user }: { user: User }) => {
         />
       </SettingsSection>
 
-      <SettingsSection
-        title={p.stackTitle}
-        description={p.stackText(MAX_STACKS)}
-      >
+      <SettingsSection id="stack" title={p.stackTitle} description={p.stackText(MAX_STACKS)}>
         <StackPicker value={v.stacks} onChange={(next) => set("stacks", next)} />
       </SettingsSection>
 

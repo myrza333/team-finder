@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { Layers, MapPin } from "lucide-react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
@@ -10,7 +10,6 @@ import { socials } from "@/lib/socials";
 import { stackIcon } from "@/lib/stacks";
 import type { Project, User } from "@/types";
 import { getI18n } from "@/i18n/server";
-import { rich } from "@/i18n/rich";
 import scss from "./ProfilePage.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
 
@@ -87,6 +86,22 @@ const ProfilePage = async ({ user, projects, isOwn }: ProfilePageProps) => {
         </div>
       </section>
 
+      {/* Свой профиль без направлений: фильтры People ищут по ним — мягко напоминаем */}
+      {isOwn && !user.stacks?.length && (
+        <section className={scss.stackPrompt}>
+          <span className={scss.stackPromptIcon}>
+            <Layers size={20} strokeWidth={1.75} aria-hidden />
+          </span>
+          <div className={scss.stackPromptText}>
+            <p className={scss.stackPromptTitle}>{t.profile.stackPromptTitle}</p>
+            <p>{t.profile.stackPromptText}</p>
+          </div>
+          <Button href="/settings/profile#stack" size="sm">
+            {t.profile.stackPromptAction}
+          </Button>
+        </section>
+      )}
+
       <div className={scss.grid}>
         <div className={scss.main}>
           {user.bio && (
@@ -128,30 +143,22 @@ const ProfilePage = async ({ user, projects, isOwn }: ProfilePageProps) => {
             </TagList>
           </Panel>
 
-          {/* Направления — после навыков. Пусто: чужому не показываем, себе — подсказка */}
-          {(user.stacks?.length || isOwn) && (
+          {/* Направления — после навыков. Пусто — блока нет (себе напоминаем плашкой сверху) */}
+          {user.stacks && user.stacks.length > 0 && (
             <Panel title={t.profile.stack}>
-              {user.stacks?.length ? (
-                <ul className={scss.stacks}>
-                  {user.stacks.map((name) => {
-                    const Icon = stackIcon(name);
-                    return (
-                      <li key={name} className={scss.stack}>
-                        <span className={scss.stackIcon}>
-                          <Icon size={16} strokeWidth={1.75} aria-hidden />
-                        </span>
-                        {t.stacks[name] ?? name}
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className={scss.stackEmpty}>
-                  {rich(t.profile.stackEmpty, {
-                    link: <Link href="/settings/profile">{t.profile.stackEmptyLink}</Link>,
-                  })}
-                </p>
-              )}
+              <ul className={scss.stacks}>
+                {user.stacks.map((name) => {
+                  const Icon = stackIcon(name);
+                  return (
+                    <li key={name} className={scss.stack}>
+                      <span className={scss.stackIcon}>
+                        <Icon size={16} strokeWidth={1.75} aria-hidden />
+                      </span>
+                      {t.stacks[name] ?? name}
+                    </li>
+                  );
+                })}
+              </ul>
             </Panel>
           )}
         </div>
