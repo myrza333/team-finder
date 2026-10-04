@@ -2,13 +2,10 @@
 import { Info } from "lucide-react";
 import { useState } from "react";
 import { useI18n, useSetLocale } from "@/i18n/client";
-import { locales, type Locale } from "@/i18n/config";
+import { localeNames, locales, type Locale } from "@/i18n/config";
 import { dictionaries } from "@/i18n/dictionaries";
 import { SettingsSection } from "./SettingsParts";
 import scss from "./LanguageSettings.module.scss";
-
-// Название языка на нём самом — его узнают, даже если сайт сейчас на непонятном языке
-const nativeNames: Record<Locale, string> = { en: "English", ru: "Русский", ky: "Кыргызча" };
 
 const LanguageSettings = () => {
   const { t, locale } = useI18n();
@@ -54,7 +51,7 @@ const LanguageSettings = () => {
                 </span>
                 <div className={scss.text}>
                   <p className={scss.label} lang={code}>
-                    {nativeNames[code]}
+                    {localeNames[code]}
                   </p>
                   <p className={scss.hint}>{code === locale ? l.current : l.names[code]}</p>
                 </div>

@@ -1,0 +1,33 @@
+.switcher {
+  @include text-xs;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+  color: var(--gray-400);
+}
+
+.icon {
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+
+.option {
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: var(--gray-500);
+  transition: color 0.15s, background-color 0.15s;
+  &:hover:not(:disabled) { color: var(--gray-700); }
+  &:focus-visible {
+    outline: 2px solid var(--primary-300);
+    outline-offset: 1px;
+  }
+  &:disabled { cursor: progress; }
+}
+
+.active,
+.active:hover:not(:disabled) {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-weight: 600;
+}

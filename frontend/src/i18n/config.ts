@@ -9,3 +9,6 @@ export const LOCALE_COOKIE = "tf-lang";
 
 export const parseLocale = (value: string | null | undefined): Locale =>
   locales.includes(value as Locale) ? (value as Locale) : DEFAULT_LOCALE;
+
+// Название языка на нём самом — его узнают, даже если сайт сейчас на непонятном языке
+export const localeNames: Record<Locale, string> = { en: "English", ru: "Русский", ky: "Кыргызча" };

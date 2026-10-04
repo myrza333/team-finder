@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo/Logo";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher/LanguageSwitcher";
 import { getI18n } from "@/i18n/server";
 import type { Dictionary } from "@/i18n/dictionaries";
 import scss from "./Footer.module.scss";
@@ -61,6 +62,7 @@ const Footer = async () => {
 
         <div className={scss.bottom}>
           <span>{t.footer.rights}</span>
+          <LanguageSwitcher />
           <div className={scss.legal}>
             <Link href="/privacy">{t.footer.privacy}</Link>
             <Link href="/terms">{t.footer.terms}</Link>

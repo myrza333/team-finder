@@ -215,6 +215,11 @@
   }
 }
 
+.language {
+  justify-content: center;
+  margin-top: 20px;
+}
+
 .legal {
   @include text-xs;
   margin-top: 16px;

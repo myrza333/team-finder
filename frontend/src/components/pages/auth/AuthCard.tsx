@@ -2,6 +2,7 @@
 import { Check } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/ui/Logo/Logo";
+import LanguageSwitcher from "@/components/ui/LanguageSwitcher/LanguageSwitcher";
 import { GoogleIcon, LogoMarkIcon } from "@/components/ui/Icons";
 import { googleAuthUrl } from "@/lib/api";
 import { useI18n } from "@/i18n/client";
@@ -87,6 +88,8 @@ const AuthCard = ({ title, subtitle, googleLabel, switchText, switchLink, next, 
               privacy: <Link href="/privacy">{t.auth.privacyLink}</Link>,
             })}
           </p>
+
+          <LanguageSwitcher className={scss.language} />
         </div>
       </main>
     </div>
