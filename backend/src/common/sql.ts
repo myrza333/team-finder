@@ -16,6 +16,10 @@ export const userJson = (u: string, own = false) => {
   'location', ${shown('show_location', 'location')},
   'githubUrl', ${shown('show_github', 'github_url')},
   'telegramUrl', ${shown('show_telegram', 'telegram_url')},
+  'linkedinUrl', ${shown('show_socials', 'linkedin_url')},
+  'instagramUrl', ${shown('show_socials', 'instagram_url')},
+  'codewarsUrl', ${shown('show_socials', 'codewars_url')},
+  'leetcodeUrl', ${shown('show_socials', 'leetcode_url')},
   'openToProjects', ${u}.open_to_projects,
   'skills', coalesce((
     select json_agg(s.name order by s.name)

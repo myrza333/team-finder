@@ -11,6 +11,7 @@ const SETTINGS_COLUMNS: Record<keyof UserSettingsDto, string> = {
   showGithub: 'show_github',
   showTelegram: 'show_telegram',
   showLocation: 'show_location',
+  showSocials: 'show_socials',
   notifyApplications: 'notify_applications',
   notifyApplicationUpdates: 'notify_application_updates',
   notifyTeam: 'notify_team',
@@ -124,6 +125,10 @@ export class UsersService {
       avatar_url: dto.avatarUrl,
       github_url: dto.githubUrl,
       telegram_url: dto.telegramUrl,
+      linkedin_url: dto.linkedinUrl,
+      instagram_url: dto.instagramUrl,
+      codewars_url: dto.codewarsUrl,
+      leetcode_url: dto.leetcodeUrl,
     };
     const changed = Object.entries(columns).filter(([, value]) => value !== undefined);
 

@@ -60,6 +60,31 @@ export class UpdateProfileDto {
   @IsUrl({ host_whitelist: ['t.me'] })
   telegramUrl?: string | null;
 
+  // Ссылки только на "свой" сайт — нельзя подсунуть под видом LinkedIn что-то постороннее
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @IsUrl({ host_whitelist: ['linkedin.com'] })
+  linkedinUrl?: string | null;
+
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @IsUrl({ host_whitelist: ['instagram.com'] })
+  instagramUrl?: string | null;
+
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @IsUrl({ host_whitelist: ['codewars.com'] })
+  codewarsUrl?: string | null;
+
+  @IsOptional()
+  @emptyToNull()
+  @ValidateIf((_, v) => v !== null)
+  @IsUrl({ host_whitelist: ['leetcode.com'] })
+  leetcodeUrl?: string | null;
+
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(15)
@@ -94,6 +119,7 @@ export class UserSettingsDto {
   @IsOptional() @IsBoolean() showGithub?: boolean;
   @IsOptional() @IsBoolean() showTelegram?: boolean;
   @IsOptional() @IsBoolean() showLocation?: boolean;
+  @IsOptional() @IsBoolean() showSocials?: boolean;
   @IsOptional() @IsBoolean() notifyApplications?: boolean;
   @IsOptional() @IsBoolean() notifyApplicationUpdates?: boolean;
   @IsOptional() @IsBoolean() notifyTeam?: boolean;

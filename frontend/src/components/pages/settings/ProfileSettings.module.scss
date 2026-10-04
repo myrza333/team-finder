@@ -26,3 +26,62 @@
   text-align: center;
   color: var(--gray-400);
 }
+
+// ===== Ссылки (GitHub, LinkedIn, ...) =====
+.links {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  @include sm { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; }
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.socialLabel {
+  @include text-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+// [github.com/][username] — одна рамка на всё поле
+.socialInput {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  &:focus-within {
+    border-color: var(--primary-400);
+    box-shadow: 0 0 0 2px var(--primary-300);
+  }
+  input {
+    @include text-sm;
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px 10px 2px;
+    border: 0;
+    background: transparent;
+    outline: none;
+    &::placeholder { color: var(--gray-400); }
+  }
+}
+
+.socialPrefix {
+  @include text-sm;
+  @include truncate;
+  flex-shrink: 1;
+  max-width: 60%;
+  padding-left: 12px;
+  color: var(--gray-400);
+  user-select: none;
+}

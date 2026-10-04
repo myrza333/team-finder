@@ -52,6 +52,10 @@ export type ProfileInput = Partial<{
   avatarUrl: string;
   githubUrl: string;
   telegramUrl: string;
+  linkedinUrl: string;
+  instagramUrl: string;
+  codewarsUrl: string;
+  leetcodeUrl: string;
   skills: string[];
 }>;
 

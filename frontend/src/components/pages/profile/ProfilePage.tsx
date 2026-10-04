@@ -4,7 +4,9 @@ import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
 import Panel from "@/components/ui/Panel/Panel";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import SocialIcon from "@/components/ui/SocialIcon/SocialIcon";
 import Tag, { TagList } from "@/components/ui/Tag/Tag";
+import { socials } from "@/lib/socials";
 import type { Project, User } from "@/types";
 import scss from "./ProfilePage.module.scss";
 import ProjectIcon from "@/components/ui/ProjectIcon/ProjectIcon";
@@ -42,23 +44,35 @@ const ProfilePage = ({ user, projects, isOwn }: ProfilePageProps) => {
             </p>
           )}
 
-          <div className={scss.links}>
-            {user.githubUrl && (
-              <Button href={user.githubUrl} variant="outline" target="_blank" rel="noreferrer">
-                GitHub
-              </Button>
-            )}
-            {user.telegramUrl && (
-              <Button href={user.telegramUrl} variant="outline" target="_blank" rel="noreferrer">
-                Telegram
-              </Button>
-            )}
-            {isOwn && (
-              <Button href="/settings" variant="outline">
+          {/* Ссылки: только заполненные (и не скрытые в Settings → Privacy) */}
+          {socials.some((s) => user[s.key]) && (
+            <ul className={scss.socials}>
+              {socials
+                .filter((s) => user[s.key])
+                .map((s) => (
+                  <li key={s.key}>
+                    <a
+                      href={user[s.key]!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={scss.socialLink}
+                      title={user[s.key]!}
+                    >
+                      <SocialIcon social={s.key} size={16} />
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+            </ul>
+          )}
+
+          {isOwn && (
+            <div className={scss.links}>
+              <Button href="/settings/profile" variant="outline">
                 Edit profile
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className={scss.stats}>

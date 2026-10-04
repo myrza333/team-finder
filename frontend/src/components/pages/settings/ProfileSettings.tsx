@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
-import { Field, Hint, Input, PrefixInput, Textarea } from "@/components/ui/Form/Form";
+import { Field, Hint, Input, Textarea } from "@/components/ui/Form/Form";
+import SocialIcon from "@/components/ui/SocialIcon/SocialIcon";
 import { api } from "@/lib/api";
 import { resizeToSquare } from "@/lib/resizeImage";
+import { type Social, type SocialKey, socials, toHandle, toUrl } from "@/lib/socials";
 import type { User } from "@/types";
 import TagInput from "@/components/ui/TagInput/TagInput";
 import { SaveBar, SettingsSection, useSettingsForm } from "./SettingsParts";
@@ -15,10 +17,31 @@ import local from "./ProfileSettings.module.scss";
 
 const BIO_MAX = 300;
 
-// Из "https://github.com/timur" достаём "timur" для поля с приставкой
-const handle = (url?: string | null) => url?.replace(/^https?:\/\/(www\.)?(github\.com|t\.me)\/?/, "") ?? "";
-
 const MAX_UPLOAD_MB = 10;
+
+// Поле ссылки: иконка сети + начало адреса + ник. Можно вставить ссылку целиком — останется только ник
+const SocialField = ({ social, value, onChange }: { social: Social; value: string; onChange: (handle: string) => void }) => {
+  const id = `social-${social.key}`;
+  return (
+    <div className={local.social}>
+      <label htmlFor={id} className={local.socialLabel}>
+        <SocialIcon social={social.key} size={16} />
+        {social.label}
+      </label>
+      <div className={local.socialInput}>
+        <span className={local.socialPrefix}>{social.prefix}</span>
+        <input
+          id={id}
+          value={value}
+          onChange={(e) => onChange(toHandle(social, e.target.value))}
+          placeholder="username"
+          autoComplete="off"
+          spellCheck={false}
+        />
+      </div>
+    </div>
+  );
+};
 
 // Имя и аватарка есть не только в "me", но и в списках людей/проектов и на серверных страницах —
 // после изменения профиля обновляем всё, иначе новое было бы видно только после перезагрузки
@@ -123,8 +146,8 @@ const ProfileForm = ({ user }: { user: User }) => {
       location: user.location ?? "",
       bio: user.bio ?? "",
       skills: user.skills,
-      github: handle(user.githubUrl),
-      telegram: handle(user.telegramUrl),
+      // В форме — только ники; полные ссылки собираются при сохранении
+      links: Object.fromEntries(socials.map((s) => [s.key, toHandle(s, user[s.key])])) as Record<SocialKey, string>,
     },
     async (v) => {
       const updated = await api.users.updateMe({
@@ -133,8 +156,7 @@ const ProfileForm = ({ user }: { user: User }) => {
         location: v.location,
         bio: v.bio,
         skills: v.skills,
-        githubUrl: v.github ? `https://github.com/${v.github}` : "",
-        telegramUrl: v.telegram ? `https://t.me/${v.telegram}` : "",
+        ...Object.fromEntries(socials.map((s) => [s.key, toUrl(s, v.links[s.key])])),
       });
       applyUser(updated);
     },
@@ -206,25 +228,15 @@ const ProfileForm = ({ user }: { user: User }) => {
       </SettingsSection>
 
       <SettingsSection title="Links" description="Shown on your profile so teammates can contact you.">
-        <div className={scss.twoColumns}>
-          <Field label="GitHub" htmlFor="github">
-            <PrefixInput
-              id="github"
-              prefix="github.com/"
-              value={v.github}
-              onChange={(e) => set("github", e.target.value)}
-              placeholder="username"
+        <div className={local.links}>
+          {socials.map((s) => (
+            <SocialField
+              key={s.key}
+              social={s}
+              value={v.links[s.key]}
+              onChange={(handle) => set("links", { ...v.links, [s.key]: handle })}
             />
-          </Field>
-          <Field label="Telegram" htmlFor="telegram">
-            <PrefixInput
-              id="telegram"
-              prefix="t.me/"
-              value={v.telegram}
-              onChange={(e) => set("telegram", e.target.value)}
-              placeholder="username"
-            />
-          </Field>
+          ))}
         </div>
 
         <SaveBar

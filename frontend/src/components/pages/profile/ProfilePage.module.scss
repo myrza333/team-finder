@@ -182,3 +182,34 @@
 .badge {
   margin-bottom: 12px;
 }
+
+// ===== Ссылки на профили (GitHub, LinkedIn, ...) =====
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  list-style: none;
+  @include sm { justify-content: flex-start; }
+}
+
+.socialLink {
+  @include text-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  font-weight: 500;
+  color: var(--gray-700);
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  &:hover {
+    border-color: var(--gray-300);
+    background: var(--gray-50);
+    color: var(--gray-900);
+  }
+  @include phone { padding: 6px 12px; }
+}

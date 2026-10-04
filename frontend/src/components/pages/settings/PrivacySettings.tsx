@@ -21,6 +21,11 @@ const visibilityItems = [
 const contactItems = [
   { key: "showGithub", title: "Show GitHub link", description: "Displayed on your public profile." },
   { key: "showTelegram", title: "Show Telegram link", description: "Displayed on your public profile." },
+  {
+    key: "showSocials",
+    title: "Show other profiles",
+    description: "LinkedIn, Instagram, Codewars and LeetCode links on your public profile.",
+  },
   { key: "showLocation", title: "Show location", description: "City and country on your profile." },
 ] as const;
 
@@ -41,6 +46,7 @@ const PrivacyForm = ({ settings }: { settings: UserSettings }) => {
       showInPeople: settings.showInPeople,
       showGithub: settings.showGithub,
       showTelegram: settings.showTelegram,
+      showSocials: settings.showSocials,
       showLocation: settings.showLocation,
     },
     save,

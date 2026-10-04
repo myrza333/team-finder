@@ -9,6 +9,10 @@ export type User = {
   location?: string | null;
   githubUrl?: string | null;
   telegramUrl?: string | null;
+  linkedinUrl?: string | null;
+  instagramUrl?: string | null;
+  codewarsUrl?: string | null;
+  leetcodeUrl?: string | null;
   teamsCount?: number;
   contributionsCount?: number;
   openToProjects?: boolean; // значок "Open to projects" (Settings → Privacy)
@@ -107,6 +111,7 @@ export type UserSettings = {
   showGithub: boolean;
   showTelegram: boolean;
   showLocation: boolean;
+  showSocials: boolean; // LinkedIn, Instagram, Codewars, LeetCode
   notifyApplications: boolean;
   notifyApplicationUpdates: boolean;
   notifyTeam: boolean;
