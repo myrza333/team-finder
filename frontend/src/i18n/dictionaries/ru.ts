@@ -566,7 +566,6 @@ export const ru: Dictionary = {
       emailTitle: "Email",
       emailText: "Для входа и уведомлений. Никогда не показывается публично.",
       email: "Email",
-      emailLater: "Смена email появится позже.",
       methodsTitle: "Способы входа",
       methodsText: "Как можно войти в TeamFinder.",
       connected: "Подключён",

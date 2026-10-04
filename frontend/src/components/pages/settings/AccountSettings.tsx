@@ -83,7 +83,6 @@ const AccountSettings = ({ error }: { error?: string }) => {
         <Field label={a.email} htmlFor="email">
           <Input id="email" type="email" value={account.email} readOnly />
         </Field>
-        <Hint>{a.emailLater}</Hint>
       </SettingsSection>
 
       <SettingsSection title={a.methodsTitle} description={a.methodsText}>

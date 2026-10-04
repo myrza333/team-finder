@@ -559,7 +559,6 @@ export const ky: Dictionary = {
       emailTitle: "Email дареги",
       emailText: "Кирүү жана эскертмелер үчүн. Эч качан ачык көрсөтүлбөйт.",
       email: "Email",
-      emailLater: "Email'ди алмаштыруу кийинчерээк мүмкүн болот.",
       methodsTitle: "Кирүү жолдору",
       methodsText: "TeamFinder'ге кантип кире аласыз.",
       connected: "Туташкан",

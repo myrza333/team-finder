@@ -567,7 +567,6 @@ export const en = {
       emailTitle: "Email address",
       emailText: "Used to sign in and for notifications. Never shown publicly.",
       email: "Email",
-      emailLater: "Changing your email will be available later.",
       methodsTitle: "Sign-in methods",
       methodsText: "Ways you can log in to TeamFinder.",
       connected: "Connected",
