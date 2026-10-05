@@ -1,11 +1,15 @@
 import Link from "next/link";
+import { siGithub, siTelegram, siVercel } from "simple-icons";
 import Logo from "@/components/ui/Logo/Logo";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher/LanguageSwitcher";
 import { getI18n } from "@/i18n/server";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { contacts } from "@/lib/contacts";
 import scss from "./Footer.module.scss";
 
-const columns = (t: Dictionary["footer"]) => [
+type FooterLink = { label: string; href: string; icon?: string }; // icon — путь логотипа из Simple Icons, ссылка внешняя
+
+const columns = (t: Dictionary["footer"]): { title: string; links: FooterLink[] }[] => [
   {
     title: t.platform,
     links: [
@@ -16,17 +20,16 @@ const columns = (t: Dictionary["footer"]) => [
   {
     title: t.company,
     links: [
-      { label: t.about, href: "#" },
-      { label: t.help, href: "#" },
-      { label: t.community, href: "#" },
+      { label: t.about, href: "/about" },
+      { label: t.help, href: "/help" },
     ],
   },
   {
     title: t.connect,
     links: [
-      { label: "GitHub", href: "#" },
-      { label: "Telegram", href: "#" },
-      { label: "Discord", href: "#" },
+      { label: "GitHub", href: contacts.github, icon: siGithub.path },
+      { label: "Telegram", href: contacts.telegram, icon: siTelegram.path },
+      { label: "Vercel", href: contacts.vercel, icon: siVercel.path },
     ],
   },
 ];
@@ -49,9 +52,18 @@ const Footer = async () => {
                 <ul className={scss.links}>
                   {col.links.map((link) => (
                     <li key={link.label}>
-                      <Link href={link.href} className={scss.link}>
-                        {link.label}
-                      </Link>
+                      {link.icon ? (
+                        <a href={link.href} target="_blank" rel="noopener noreferrer" className={scss.link}>
+                          <svg viewBox="0 0 24 24" width={14} height={14} fill="currentColor" aria-hidden>
+                            <path d={link.icon} />
+                          </svg>
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className={scss.link}>
+                          {link.label}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>

@@ -1,0 +1,134 @@
+.page {
+  @include container(1024px);
+  padding-block: 48px;
+  @include phone { padding-block: 32px; }
+}
+
+// ===== Шапка (как у Privacy / Terms) =====
+.hero {
+  max-width: 672px;
+  margin-bottom: 48px;
+}
+
+.badge {
+  @include text-xs;
+  display: inline-block;
+  padding: 4px 12px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50);
+  color: var(--primary-600);
+  font-weight: 500;
+}
+
+.title {
+  @include display;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  @include sm {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+  @include small-phone {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+.intro {
+  @include text-base;
+  margin-top: 16px;
+  color: var(--gray-600);
+}
+
+// ===== Секции =====
+.section {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  @include display;
+  @include text-xl;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  @include sm { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @include lg { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.values {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  @include md { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.card {
+  @include card;
+  padding: 20px;
+  @include phone { padding: 16px; }
+}
+
+.number,
+.icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+.number {
+  @include display;
+  font-weight: 700;
+}
+
+.cardTitle {
+  @include text-base;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.cardText {
+  @include text-sm;
+  color: var(--gray-500);
+}
+
+// ===== Призыв =====
+.cta {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 20px;
+  text-align: center;
+  background: var(--primary-50);
+  border-color: var(--primary-200);
+}
+
+.ctaTitle {
+  @include display;
+  @include text-2xl;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}

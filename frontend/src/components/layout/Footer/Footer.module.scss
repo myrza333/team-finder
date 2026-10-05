@@ -63,6 +63,9 @@
 }
 
 .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--gray-500);
   transition: color 0.15s;
   &:hover { color: var(--primary-600); }

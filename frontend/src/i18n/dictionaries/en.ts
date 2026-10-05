@@ -33,6 +33,8 @@ export const en = {
     privacySettings: "Privacy settings",
     appearance: "Appearance",
     language: "Language",
+    about: "About",
+    help: "Help",
   },
 
   common: {
@@ -159,7 +161,6 @@ export const en = {
     people: "People",
     about: "About",
     help: "Help",
-    community: "Community",
     rights: "© 2026 TeamFinder. All rights reserved.",
     privacy: "Privacy",
     terms: "Terms",
@@ -664,6 +665,66 @@ export const en = {
     onThisPage: "On this page",
     questions: "Questions?",
     contact: "If anything here is unclear, contact us at {email}. See also our {related}.",
+  },
+
+  about: {
+    badge: "About",
+    title: "Build projects with the right people",
+    intro:
+      "TeamFinder is where developers, designers and other creators find each other: post an idea and gather a team, or join a project that matches your skills. Simple, free and open to everyone.",
+    howTitle: "How it works",
+    steps: [
+      { title: "Fill in your profile", text: "Add your skills and stack — what you do in a team. That's how projects and people find you." },
+      { title: "Find a project or post your own", text: "Browse projects by category and stack, or create your own with open positions. Not ready yet? Announce it with a launch date." },
+      { title: "Ask and apply", text: "Ask the owner about a position in a direct chat, then send a request to join." },
+      { title: "Build together", text: "Once you're accepted, you join the team chat with everyone on the project." },
+    ],
+    valuesTitle: "What we care about",
+    values: [
+      { title: "Simple", text: "No ratings and no algorithms deciding for you — just projects, people and conversations." },
+      { title: "Open to everyone", text: "There are no roles: anyone can join projects and start their own." },
+      { title: "Your data, your rules", text: "Choose what others see in your privacy settings and delete your account at any time." },
+    ],
+    ctaTitle: "Ready to start?",
+    browse: "Browse projects",
+  },
+
+  help: {
+    badge: "Help",
+    title: "Help center",
+    intro: "Answers to common questions about TeamFinder.",
+    groups: [
+      {
+        title: "Projects and applications",
+        items: [
+          { q: "How do I join a project?", a: "Open the project and press “Request to join”. Choose a position, add a few words about yourself and send it. The owner accepts or declines the application, and you get a notification either way." },
+          { q: "Can I ask the owner something first?", a: "Yes. Click an open position on the project page or press “Message owner”. A direct chat opens, with ready-made questions about the position." },
+          { q: "How do I create a project?", a: "Press “Create project”, describe your idea, pick a category, the tech stack and the roles you're looking for. Applications show up in “My projects” and “Applications”." },
+          { q: "What is an announcement?", a: "A project with a launch date in the future. Until launch others see only its name and short description, and applications are closed. Anyone can press “Notify me” to get a notification on launch day." },
+        ],
+      },
+      {
+        title: "Messages",
+        items: [
+          { q: "What do ✓ and ✓✓ mean?", a: "✓ means the message is sent. ✓✓ means it has been read: in a direct chat by the other person, in a team chat by at least one teammate." },
+          { q: "Who can see when I was online?", a: "Only your teammates and the people you have direct chats with." },
+        ],
+      },
+      {
+        title: "Profile and account",
+        items: [
+          { q: "Why don't I show up in People filters?", a: "Filters search by stack. Add what you do in Settings → Profile → Stack, and check that “Show me in People search” is on in Settings → Privacy." },
+          { q: "How do I hide my links or location?", a: "In Settings → Privacy choose what appears on your public profile." },
+          { q: "How do I change the language or theme?", a: "Use the language switcher at the bottom of any page or Settings → Language. The theme is in Settings → Appearance." },
+          { q: "I forgot my password", a: "If you signed up with Google, just sign in with Google. Resetting a password by email isn't available yet — write to us on Telegram and we'll help." },
+          { q: "How do I delete my account?", a: "Settings → Account → Delete account. Your profile, projects, applications and messages are deleted for good." },
+          { q: "Is TeamFinder free?", a: "Yes, completely." },
+        ],
+      },
+    ],
+    contactTitle: "Didn't find an answer?",
+    contactText: "Write to us on Telegram — we'll help.",
+    contactButton: "Write on Telegram",
   },
 
   // Ошибки с сервера приходят по-английски; en — как есть
