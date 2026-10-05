@@ -34,6 +34,7 @@ The only exception is the WebSocket (Socket.IO: new chat messages, notifications
 
 ## Deploy
 
-- **Backend → Render**: New → Blueprint → this repo (`render.yaml`). Set `DATABASE_URL`, `FRONTEND_URL` (the Vercel URL) and optionally the Google keys.
+- **Backend → Render**: Web Service from this repo, root directory `backend`, region Frankfurt (next to the database). Build `npm ci --include=dev && npm run build`, start `npm run start:prod`. Set `DATABASE_URL`, `JWT_SECRET`, `FRONTEND_URL` (the Vercel URL) and the Google keys. Auto-deploy is off — press **Manual Deploy** after pushing backend changes. (`render.yaml` describes the same service as a Blueprint.)
 - **Frontend → Vercel**: import this repo, Root Directory `frontend`, env `BACKEND_URL` = the Render URL.
 - **Google OAuth**: authorized redirect URI = `https://<vercel-domain>/api/auth/google/callback`.
+- **Database changes**: new SQL files in `backend/db/` are applied by hand (`npm run db:run -- db/<file>.sql`); see `backend/README.md`.

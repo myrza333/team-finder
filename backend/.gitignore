@@ -2,3 +2,6 @@ node_modules
 dist
 .env
 coverage
+
+# Кэш компилятора TypeScript — создаётся при сборке
+*.tsbuildinfo

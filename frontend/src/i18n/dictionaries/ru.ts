@@ -663,7 +663,7 @@ export const ru: Dictionary = {
     updated: (date) => `Обновлено: ${date}`,
     onThisPage: "На этой странице",
     questions: "Остались вопросы?",
-    contact: "Если что-то непонятно, напишите нам на {email}. См. также: {related}.",
+    contact: "Если что-то непонятно, напишите нам в {telegram}. См. также: {related}.",
   },
 
   about: {

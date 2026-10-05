@@ -664,7 +664,7 @@ export const en = {
     updated: (date: string) => `Last updated: ${date}`,
     onThisPage: "On this page",
     questions: "Questions?",
-    contact: "If anything here is unclear, contact us at {email}. See also our {related}.",
+    contact: "If anything here is unclear, write to us on {telegram}. See also our {related}.",
   },
 
   about: {

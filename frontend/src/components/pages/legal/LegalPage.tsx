@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { legalDocuments } from "@/data/legal";
+import { contacts } from "@/lib/contacts";
 import { getI18n } from "@/i18n/server";
 import { rich } from "@/i18n/rich";
 import scss from "./LegalPage.module.scss";
@@ -57,7 +58,11 @@ const LegalPage = async ({ kind }: { kind: "privacy" | "terms" }) => {
             <p className={scss.contactTitle}>{t.legal.questions}</p>
             <p className={scss.paragraph}>
               {rich(t.legal.contact, {
-                email: <a href="mailto:support@teamfinder.app">support@teamfinder.app</a>,
+                telegram: (
+                  <a href={contacts.telegram} target="_blank" rel="noopener noreferrer">
+                    Telegram
+                  </a>
+                ),
                 related: <Link href={related.href}>{related.label}</Link>,
               })}
             </p>

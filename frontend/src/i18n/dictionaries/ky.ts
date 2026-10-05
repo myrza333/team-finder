@@ -656,7 +656,7 @@ export const ky: Dictionary = {
     updated: (date) => `Жаңыланган күнү: ${date}`,
     onThisPage: "Бул баракта",
     questions: "Суроолоруңуз барбы?",
-    contact: "Бир нерсе түшүнүксүз болсо, бизге {email} дарегине жазыңыз. Ошондой эле караңыз: {related}.",
+    contact: "Бир нерсе түшүнүксүз болсо, бизге {telegram} аркылуу жазыңыз. Ошондой эле караңыз: {related}.",
   },
 
   about: {
