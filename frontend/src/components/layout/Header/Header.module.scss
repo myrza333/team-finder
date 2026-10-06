@@ -44,6 +44,7 @@
 
 // ===== Правая часть =====
 .actions {
+  position: relative; // от него меню профиля отсчитывает правый край
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -89,8 +90,9 @@
 }
 
 // ===== Меню пользователя =====
+// static: меню профиля выравнивается не по кнопке, а по блоку .actions — по правому краю шапки
 .userMenu {
-  position: relative;
+  position: static;
 }
 
 .user {
@@ -108,18 +110,10 @@
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
+  // Прижато к правому краю шапки, под самой правой кнопкой
   right: 0;
-  // На компьютере правый край меню — у правого края аватара (32px, он первый в кнопке).
-  // На телефоне — во всю ширину под шапкой (64px): иначе на узком экране оно уходит за левый край
-  @include sm { right: calc(100% - 32px); }
   width: 224px;
-  @include phone {
-    position: fixed;
-    top: 72px;
-    left: 12px;
-    right: 12px;
-    width: auto;
-  }
+  max-width: calc(100vw - 32px); // на самом узком телефоне не уходит за левый край
   padding: 6px;
   background: var(--surface);
   border: 1px solid var(--gray-200);
