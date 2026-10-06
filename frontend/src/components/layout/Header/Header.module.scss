@@ -109,7 +109,17 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
+  // На компьютере меню целиком левее кнопки, ближе к середине экрана.
+  // На телефоне — во всю ширину под шапкой (64px): иначе на узком экране оно уходит за левый край
+  @include md { right: 100%; }
   width: 224px;
+  @include phone {
+    position: fixed;
+    top: 72px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
   padding: 6px;
   background: var(--surface);
   border: 1px solid var(--gray-200);
