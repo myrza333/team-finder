@@ -1,4 +1,4 @@
-import { CalendarClock, Lock, Megaphone } from "lucide-react";
+import { CalendarClock, Info, Lock, Megaphone } from "lucide-react";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar/Avatar";
 import Button from "@/components/ui/Button/Button";
@@ -28,7 +28,8 @@ const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch
   const announced = Boolean(project.announced && project.launchAt);
   const hidden = announced && !isOwner;
   // Спросить владельца о свободной позиции может тот, кто ещё не в команде (у команды есть общий чат)
-  const canAsk = !isOwner && !project.members.some((m) => m.id === currentUserId);
+  const isMember = !isOwner && project.members.some((m) => m.id === currentUserId);
+  const canAsk = !isOwner && !isMember;
 
   return (
     <div className={scss.page}>
@@ -101,6 +102,19 @@ const ProjectDetailPage = async ({ project, currentUserId, myApplication, launch
               </Panel>
 
               <Panel title={t.project.lookingFor}>
+                {/* Владельцу и команде кнопок у позиций нет — объясняем почему, чтобы не казалось поломкой */}
+                {!canAsk && project.vacancies.length > 0 && (
+                  <p className={scss.positionsNote}>
+                    <Info size={16} strokeWidth={1.75} aria-hidden />
+                    <span>
+                      {isOwner
+                        ? t.project.ownerPositionsNote
+                        : rich(t.project.memberPositionsNote, {
+                            chat: <Link href={`/chat/${project.id}`}>{t.common.teamChat}</Link>,
+                          })}
+                    </span>
+                  </p>
+                )}
                 <div className={scss.vacancies}>
                   {project.vacancies.map((v) => {
                     const askable = canAsk && v.isOpen !== false;

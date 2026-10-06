@@ -324,6 +324,25 @@ a.person:hover .personName {
   strong { color: var(--gray-900); }
 }
 
+// "Это ваш проект" / "Вы в этой команде" над позициями — почему у них нет кнопок
+.positionsNote {
+  @include text-sm;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--gray-50);
+  color: var(--gray-600);
+  svg { flex-shrink: 0; margin-top: 2px; color: var(--gray-400); }
+  a {
+    font-weight: 500;
+    color: var(--primary-600);
+    &:hover { text-decoration: underline; }
+  }
+}
+
 // "Revealed on launch day" вместо стека, вакансий и команды
 .classified {
   @include text-sm;

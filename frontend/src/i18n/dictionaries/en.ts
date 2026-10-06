@@ -221,6 +221,8 @@ export const en = {
     filled: "Filled",
     onePosition: "1 position",
     askOwner: "Ask the owner",
+    ownerPositionsNote: "This is your project. Others can ask you about open positions or apply.",
+    memberPositionsNote: "You're in this team — the positions are open for new people. Talk to your teammates in the {chat}.",
     askOwnerAbout: (title: string) => `Ask the owner about the ${title} position`,
     opening: "Opening chat…",
     owner: "Project owner",

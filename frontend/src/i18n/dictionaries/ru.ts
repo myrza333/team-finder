@@ -224,6 +224,8 @@ export const ru: Dictionary = {
     filled: "Занято",
     onePosition: "1 место",
     askOwner: "Спросить владельца",
+    ownerPositionsNote: "Это ваш проект. Другие могут спросить вас о свободных позициях или подать заявку.",
+    memberPositionsNote: "Вы в этой команде — позиции открыты для новых людей. Общайтесь с командой в разделе «{chat}».",
     askOwnerAbout: (title) => `Спросить владельца о позиции «${title}»`,
     opening: "Открываем чат…",
     owner: "Владелец проекта",
